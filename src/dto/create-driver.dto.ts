@@ -1,4 +1,5 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
+import { DriverStatus, DriverType } from '../entity/driver.entity';
 
 export class CreateDriverDto {
   @IsNotEmpty()
@@ -9,6 +10,12 @@ export class CreateDriverDto {
 
   @IsNotEmpty()
   public driverLicense: string;
+
+  @IsEnum(DriverType)
+  public type: DriverType;
+
+  @IsEnum(DriverStatus)
+  public status: DriverStatus;
 
   public photo: string;
 }

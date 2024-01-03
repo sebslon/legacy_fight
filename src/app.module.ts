@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { DriverController } from './controllers/driver.controller';
 import { DriverService } from './service/driver.service';
@@ -46,22 +46,12 @@ import { AwardsAccountController } from './controllers/awards-account.controller
 import { ClaimController } from './controllers/claim.controller';
 import { ContractController } from './controllers/contract.controller';
 import { DriverReportController } from './controllers/driver-report.controller';
+import typeormConfig from './config/typeorm.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: process.env.DATABASE_PORT
-        ? parseInt(process.env.DATABASE_PORT, 10)
-        : 3456,
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      autoLoadEntities: true,
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
     TypeOrmModule.forFeature([
       DriverRepository,
       CarTypeRepository,

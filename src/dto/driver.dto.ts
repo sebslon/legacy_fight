@@ -24,4 +24,16 @@ export class DriverDto {
     this.status = driver.getStatus();
     this.type = driver.getType();
   }
+
+  public getId(): string {
+    return this.id;
+  }
+
+  public getStatus(): DriverStatus {
+    return this.status;
+  }
+
+  public getDriverLicense(): string {
+    return this.driverLicense;
+  }
 }

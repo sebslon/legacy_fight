@@ -4,7 +4,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Driver, DriverStatus, DriverType } from '../entity/driver.entity';
+import { Driver, DriverStatus } from '../entity/driver.entity';
 import { DriverDto } from '../dto/driver.dto';
 import { CreateDriverDto } from '../dto/create-driver.dto';
 import { DriverRepository } from '../repository/driver.repository';
@@ -33,9 +33,12 @@ export class DriverService {
     driverLicense,
     lastName,
     firstName,
+    status,
+    type,
   }: CreateDriverDto): Promise<Driver> {
     const driver = new Driver();
-    if (driver.getStatus() === DriverStatus.ACTIVE) {
+
+    if (status === DriverStatus.ACTIVE) {
       if (
         !driverLicense ||
         !driverLicense.match(DriverService.DRIVER_LICENSE_REGEX)
@@ -45,11 +48,13 @@ export class DriverService {
         );
       }
     }
+
     driver.setDriverLicense(driverLicense);
     driver.setLastName(lastName);
     driver.setFirstName(firstName);
-    driver.setStatus(DriverStatus.INACTIVE);
-    driver.setType(DriverType.CANDIDATE);
+    driver.setStatus(status);
+    driver.setType(type);
+
     if (photo !== null) {
       if (Buffer.from(photo, 'base64').toString('base64') === photo) {
         driver.setPhoto(photo);
@@ -81,10 +86,11 @@ export class DriverService {
         `Driver with id ${driverId} does not exists.`,
       );
     }
+
     if (status === DriverStatus.ACTIVE) {
       const license = driver.getDriverLicense();
 
-      if (!license) {
+      if (!license || !license.match(DriverService.DRIVER_LICENSE_REGEX)) {
         throw new ForbiddenException(
           `Status cannot be ACTIVE. Illegal license no ${license}`,
         );
@@ -92,6 +98,7 @@ export class DriverService {
     }
 
     driver.setStatus(status);
+
     await this.driverRepository.update(driver.getId(), driver);
   }
 
