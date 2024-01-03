@@ -23,67 +23,65 @@ describe('Validate Driver License', () => {
     await getConnection().close();
   });
 
-  describe('createDriver', () => {
-    it(`Can't create active driver with invalid license`, async () => {
-      await expect(createActiveDriverWithLicense('x')).rejects.toThrow();
-    });
+  it(`Can't create active driver with invalid license`, async () => {
+    await expect(createActiveDriverWithLicense('x')).rejects.toThrow();
+  });
 
-    it('Can create active driver with valid license', async () => {
-      const driver: Driver = await createActiveDriverWithLicense(validLicense);
+  it('Can create active driver with valid license', async () => {
+    const driver: Driver = await createActiveDriverWithLicense(validLicense);
 
-      const loadedDriver = await load(driver);
+    const loadedDriver = await load(driver);
 
-      expect(loadedDriver).toBeDefined();
-      expect(loadedDriver.getDriverLicense()).toEqual(validLicense);
-      expect(loadedDriver.getStatus()).toEqual(DriverStatus.ACTIVE);
-    });
+    expect(loadedDriver).toBeDefined();
+    expect(loadedDriver.getDriverLicense()).toEqual(validLicense);
+    expect(loadedDriver.getStatus()).toEqual(DriverStatus.ACTIVE);
+  });
 
-    it('Can create inactive driver with invalid license', async () => {
-      const invalidlicense = 'x';
-      const driver: Driver = await createInactiveDriverWithLicense(
-        invalidlicense,
-      );
+  it('Can create inactive driver with invalid license', async () => {
+    const invalidlicense = 'x';
+    const driver: Driver = await createInactiveDriverWithLicense(
+      invalidlicense,
+    );
 
-      const loadedDriver = await load(driver);
+    const loadedDriver = await load(driver);
 
-      expect(loadedDriver).toBeDefined();
-      expect(loadedDriver.getDriverLicense()).toEqual(invalidlicense);
-      expect(loadedDriver.getStatus()).toEqual(DriverStatus.INACTIVE);
-    });
+    expect(loadedDriver).toBeDefined();
+    expect(loadedDriver.getDriverLicense()).toEqual(invalidlicense);
+    expect(loadedDriver.getStatus()).toEqual(DriverStatus.INACTIVE);
+  });
 
-    it('Can change license for valid one', async () => {
-      const validlicense2 = '99999740614992TL';
+  it('Can change license for valid one', async () => {
+    const validlicense2 = '99999740614992TL';
 
-      const newDriver = await createActiveDriverWithLicense(validLicense);
-      await changeLicenseTo(validlicense2, newDriver);
+    const newDriver = await createActiveDriverWithLicense(validLicense);
+    await changeLicenseTo(validlicense2, newDriver);
 
-      const driver = await load(newDriver);
+    const driver = await load(newDriver);
 
-      expect(driver).toBeDefined();
-      expect(validlicense2).toEqual(driver.getDriverLicense());
-    });
+    expect(driver).toBeDefined();
+    expect(validlicense2).toEqual(driver.getDriverLicense());
+  });
 
-    it("Can't change license for invalid one", async () => {
-      const driver = await createActiveDriverWithLicense(validLicense);
+  it("Can't change license for invalid one", async () => {
+    const driver = await createActiveDriverWithLicense(validLicense);
 
-      await expect(changeLicenseTo('x', driver)).rejects.toThrow();
-    });
+    await expect(changeLicenseTo('x', driver)).rejects.toThrow();
+  });
 
-    it('Can activete driver with valid license', async () => {
-      const driver = await createInactiveDriverWithLicense(validLicense);
+  it('Can activate driver with valid license', async () => {
+    const driver = await createInactiveDriverWithLicense(validLicense);
 
-      await activateDriver(driver);
+    await activateDriver(driver);
 
-      const loaded = await load(driver);
+    const loaded = await load(driver);
 
-      expect(loaded.getStatus()).toEqual(DriverStatus.ACTIVE);
-    });
+    expect(loaded.getStatus()).toEqual(DriverStatus.ACTIVE);
+  });
 
-    it("Can't activate driver with invalid license", async () => {
-      const driver = await createInactiveDriverWithLicense('x');
+  it("Can't activate driver with invalid license", async () => {
+    const driver = await createInactiveDriverWithLicense('x');
 
-      await expect(activateDriver(driver)).rejects.toThrow();
-    });
+    await expect(activateDriver(driver)).rejects.toThrow();
   });
 
   function createActiveDriverWithLicense(license: string) {
@@ -119,7 +117,7 @@ describe('Validate Driver License', () => {
     );
   }
 
-  async function load(driver: Driver) {
+  async function load(driver: Driver): Promise<DriverDto> {
     const loaded: DriverDto = await driverService.loadDriver(driver.getId());
 
     return loaded;

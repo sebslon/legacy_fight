@@ -1,8 +1,10 @@
 import { Entity, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+
 import { BaseEntity } from '../common/base.entity';
 import { Transit } from './transit.entity';
 import { DriverAttribute } from './driver-attribute.entity';
 import { DriverFee } from './driver-fee.entity';
+import { DriverLicense } from './driver-license';
 
 export enum DriverStatus {
   INACTIVE = 'inactive',
@@ -25,8 +27,15 @@ export class Driver extends BaseEntity {
   @Column()
   private lastName: string;
 
-  @Column()
-  private driverLicense: string;
+  @Column({
+    name: 'driver_license',
+    type: 'varchar',
+    transformer: {
+      to: (value: DriverLicense) => value.asString(),
+      from: (value: string) => DriverLicense.withoutValidation(value),
+    },
+  })
+  private driverLicense: DriverLicense;
 
   @Column({ nullable: true, type: 'varchar' })
   private photo: string | null;
@@ -69,7 +78,7 @@ export class Driver extends BaseEntity {
     this.firstName = firstName;
   }
 
-  public setDriverLicense(license: string) {
+  public setDriverLicense(license: DriverLicense) {
     this.driverLicense = license;
   }
 
@@ -93,7 +102,7 @@ export class Driver extends BaseEntity {
     return this.firstName;
   }
 
-  public getDriverLicense() {
+  public getDriverLicense(): DriverLicense {
     return this.driverLicense;
   }
 
