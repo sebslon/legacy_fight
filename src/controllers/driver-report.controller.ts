@@ -1,8 +1,4 @@
-import { DriverService } from '../service/driver.service';
-import { DriverRepository } from '../repository/driver.repository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ClaimRepository } from '../repository/claim.repository';
-import { DriverSessionRepository } from '../repository/driver-session.repository';
+import * as dayjs from 'dayjs';
 import {
   Body,
   Controller,
@@ -10,14 +6,19 @@ import {
   NotFoundException,
   Param,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { DriverService } from '../service/driver.service';
+import { DriverRepository } from '../repository/driver.repository';
+import { ClaimRepository } from '../repository/claim.repository';
+import { DriverSessionRepository } from '../repository/driver-session.repository';
 import { DriverReport } from '../dto/driver-report.dto';
 import { DriverAttributeName } from '../entity/driver-attribute.entity';
 import { DriverAttributeDto } from '../dto/driver-attribute.dto';
-import * as dayjs from 'dayjs';
 import { DriverSessionDto } from '../dto/driver-session.dto';
 import { TransitDto } from '../dto/transit.dto';
-import { Status, Transit } from '../entity/transit.entity';
 import { ClaimDto } from '../dto/claim.dto';
+import { TransitStatus, Transit } from '../entity/transit.entity';
 
 @Controller('driverreport')
 export class DriverReportController {
@@ -70,7 +71,7 @@ export class DriverReportController {
         driver?.getTransits(),
       ).filter(
         (t) =>
-          t.getStatus() === Status.COMPLETED &&
+          t.getStatus() === TransitStatus.COMPLETED &&
           !dayjs(t.getCompleteAt()).isBefore(session.getLoggedAt()) &&
           !dayjs(t.getCompleteAt()).isAfter(session.getLoggedOutAt()),
       );

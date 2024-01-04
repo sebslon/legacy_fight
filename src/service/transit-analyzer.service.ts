@@ -1,12 +1,13 @@
+import dayjs from 'dayjs';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
+import { AddressRepository } from '../repository/address.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { TransitRepository } from '../repository/transit.repository';
-import { AddressRepository } from '../repository/address.repository';
 import { Address } from '../entity/address.entity';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Status, Transit } from '../entity/transit.entity';
 import { Client } from '../entity/client.entity';
-import dayjs from 'dayjs';
+import { Transit, TransitStatus } from '../entity/transit.entity';
 
 @Injectable()
 export class TransitAnalyzerService {
@@ -48,7 +49,7 @@ export class TransitAnalyzerService {
         await this.transitRepository.findAllByClientAndFromAndStatusOrderByDateTimeDesc(
           client,
           from,
-          Status.COMPLETED,
+          TransitStatus.COMPLETED,
         );
     } else {
       ts =
@@ -56,7 +57,7 @@ export class TransitAnalyzerService {
           client,
           from,
           t.getPublished(),
-          Status.COMPLETED,
+          TransitStatus.COMPLETED,
         );
     }
 

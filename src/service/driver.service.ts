@@ -1,15 +1,15 @@
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { Driver, DriverStatus } from '../entity/driver.entity';
 import { DriverDto } from '../dto/driver.dto';
 import { CreateDriverDto } from '../dto/create-driver.dto';
 import { DriverRepository } from '../repository/driver.repository';
-import { InjectRepository } from '@nestjs/typeorm';
 import { DriverAttributeRepository } from '../repository/driver-attribute.repository';
 import { TransitRepository } from '../repository/transit.repository';
 import { DriverFeeService } from './driver-fee.service';
@@ -24,7 +24,7 @@ export class DriverService {
     private driverRepository: DriverRepository,
     @InjectRepository(DriverAttributeRepository)
     private driverAttributeRepository: DriverAttributeRepository,
-    @InjectRepository(DriverRepository)
+    @InjectRepository(TransitRepository)
     private transitRepository: TransitRepository,
     private driverFeeService: DriverFeeService,
   ) {}
@@ -134,7 +134,11 @@ export class DriverService {
     year: number,
     month: number,
   ) {
-    const driver = await this.driverRepository.findOne(driverId);
+    const driver = await this.driverRepository.findOne({
+      where: {
+        id: driverId,
+      },
+    });
 
     if (!driver) {
       throw new NotFoundException(
@@ -169,10 +173,16 @@ export class DriverService {
     year: number,
   ): Promise<Map<number, number>> {
     const payments = new Map();
-    const months = Array.from({ length: 5 }).map((_, i) => i);
-    for (const m of months) {
-      payments.set(m, this.calculateDriverMonthlyPayment(driverId, year, m));
-    }
+    const months = Array.from(Array(12).keys()).map((m) => m + 1);
+
+    const paymentsPromises = months.map((m) =>
+      this.calculateDriverMonthlyPayment(driverId, year, m),
+    );
+
+    const paymentsList = await Promise.all(paymentsPromises);
+
+    paymentsList.forEach((payment, i) => payments.set(i, payment));
+
     return payments;
   }
 }

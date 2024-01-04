@@ -1,12 +1,13 @@
 import { ForbiddenException } from '@nestjs/common';
-import { BaseEntity } from '../common/base.entity';
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
+
+import { BaseEntity } from '../common/base.entity';
 import { Driver } from './driver.entity';
 import { Client, PaymentType } from './client.entity';
 import { Address } from './address.entity';
 import { CarClass } from './car-type.entity';
 
-export enum Status {
+export enum TransitStatus {
   DRAFT = 'draft',
   CANCELLED = 'cancelled',
   WAITING_FOR_DRIVER_ASSIGNMENT = 'waiting_for_driver_assignment',
@@ -71,7 +72,7 @@ export class Transit extends BaseEntity {
   private paymentType: PaymentType;
 
   @Column()
-  private status: Status;
+  private status: TransitStatus;
 
   @Column({ type: 'bigint', nullable: true })
   private date: number;
@@ -159,7 +160,7 @@ export class Transit extends BaseEntity {
     return this.status;
   }
 
-  public setStatus(status: Status) {
+  public setStatus(status: TransitStatus) {
     this.status = status;
   }
 
@@ -289,7 +290,7 @@ export class Transit extends BaseEntity {
   }
 
   public estimateCost() {
-    if (this.status === Status.COMPLETED) {
+    if (this.status === TransitStatus.COMPLETED) {
       throw new ForbiddenException(
         'Estimating cost for completed transit is forbidden, id = ' +
           this.getId(),
@@ -304,7 +305,7 @@ export class Transit extends BaseEntity {
   }
 
   public calculateFinalCosts(): number {
-    if (this.status === Status.COMPLETED) {
+    if (this.status === TransitStatus.COMPLETED) {
       return this.calculateCost();
     } else {
       throw new ForbiddenException(
@@ -316,12 +317,15 @@ export class Transit extends BaseEntity {
   private calculateCost(): number {
     let baseFee = Transit.BASE_FEE;
     let factorToCalculate = this.factor;
+    let kmRate: number;
+
     if (factorToCalculate == null) {
       factorToCalculate = 1;
     }
-    let kmRate: number;
+
     const day = new Date();
     // wprowadzenie nowych cennikow od 1.01.2019
+
     if (day.getFullYear() <= 2018) {
       kmRate = 1.0;
       baseFee++;
@@ -361,9 +365,9 @@ export class Transit extends BaseEntity {
         }
       }
     }
-    const priceBigDecimal = Number(
-      (this.km * kmRate * factorToCalculate + baseFee).toFixed(2),
-    );
+    const priceBigDecimal =
+      Number((this.km * kmRate * factorToCalculate + baseFee).toFixed(2)) * 100;
+
     this.price = priceBigDecimal;
     return this.price;
   }

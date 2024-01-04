@@ -1,29 +1,33 @@
+import * as dayjs from 'dayjs';
 import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
+import { AddressRepository } from '../repository/address.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { TransitRepository } from '../repository/transit.repository';
 import { DriverRepository } from '../repository/driver.repository';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
 import { DriverSessionRepository } from '../repository/driver-session.repository';
-import { AddressRepository } from '../repository/address.repository';
+
 import { AwardsService } from './awards.service';
 import { DriverFeeService } from './driver-fee.service';
 import { CarTypeService } from './car-type.service';
 import { GeocodingService } from './geocoding.service';
 import { InvoiceGenerator } from './invoice-generator.service';
 import { DistanceCalculator } from './distance-calculator.service';
+import { DriverNotificationService } from './driver-notification.service';
+
+import { Address } from '../entity/address.entity';
+import { CarClass } from '../entity/car-type.entity';
+import { Transit, TransitStatus } from '../entity/transit.entity';
+import { DriverStatus } from '../entity/driver.entity';
+
 import { TransitDto } from '../dto/transit.dto';
 import { AddressDto } from '../dto/address.dto';
-import { CarClass } from '../entity/car-type.entity';
-import { Address } from '../entity/address.entity';
-import { Status, Transit } from '../entity/transit.entity';
-import { DriverNotificationService } from './driver-notification.service';
-import * as dayjs from 'dayjs';
-import { DriverStatus } from '../entity/driver.entity';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
 import { CreateTransitDto } from '../dto/create-transit.dto';
 
@@ -90,7 +94,7 @@ export class TransitService {
     transit.setFrom(from);
     transit.setTo(to);
     transit.setCarType(carClass);
-    transit.setStatus(Status.DRAFT);
+    transit.setStatus(TransitStatus.DRAFT);
     transit.setDateTime(Date.now());
     transit.setKm(
       this.distanceCalculator.calculateByMap(
@@ -145,8 +149,8 @@ export class TransitService {
     const distanceInKMeters = c * r;
 
     if (
-      transit.getStatus() !== Status.DRAFT ||
-      transit.getStatus() === Status.WAITING_FOR_DRIVER_ASSIGNMENT ||
+      transit.getStatus() !== TransitStatus.DRAFT ||
+      transit.getStatus() === TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT ||
       transit.getPickupAddressChangeCounter() > 2 ||
       distanceInKMeters > 0.25
     ) {
@@ -198,7 +202,7 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    if (transit.getStatus() === Status.COMPLETED) {
+    if (transit.getStatus() === TransitStatus.COMPLETED) {
       throw new NotAcceptableException(
         "Address 'to' cannot be changed, id = " + transitId,
       );
@@ -243,9 +247,9 @@ export class TransitService {
 
     if (
       ![
-        Status.DRAFT,
-        Status.WAITING_FOR_DRIVER_ASSIGNMENT,
-        Status.TRANSIT_TO_PASSENGER,
+        TransitStatus.DRAFT,
+        TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT,
+        TransitStatus.TRANSIT_TO_PASSENGER,
       ].includes(transit.getStatus())
     ) {
       throw new NotAcceptableException(
@@ -261,7 +265,7 @@ export class TransitService {
       );
     }
 
-    transit.setStatus(Status.CANCELLED);
+    transit.setStatus(TransitStatus.CANCELLED);
     transit.setDriver(null);
     transit.setKm(0);
     transit.setAwaitingDriversResponses(0);
@@ -275,7 +279,7 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    transit.setStatus(Status.WAITING_FOR_DRIVER_ASSIGNMENT);
+    transit.setStatus(TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT);
     transit.setPublished(Date.now());
     await this.transitRepository.save(transit);
 
@@ -287,7 +291,7 @@ export class TransitService {
     const transit = await this.transitRepository.findOne(transitId);
 
     if (transit) {
-      if (transit.getStatus() === Status.WAITING_FOR_DRIVER_ASSIGNMENT) {
+      if (transit.getStatus() === TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT) {
         let distanceToCheck = 0;
 
         // Tested on production, works as expected.
@@ -306,9 +310,9 @@ export class TransitService {
               .isBefore(dayjs()) ||
             distanceToCheck >= 20 ||
             // Should it be here? How is it even possible due to previous status check above loop?
-            transit.getStatus() === Status.CANCELLED
+            transit.getStatus() === TransitStatus.CANCELLED
           ) {
-            transit.setStatus(Status.DRIVER_ASSIGNMENT_FAILED);
+            transit.setStatus(TransitStatus.DRIVER_ASSIGNMENT_FAILED);
             transit.setDriver(null);
             transit.setKm(0);
             transit.setAwaitingDriversResponses(0);
@@ -480,7 +484,7 @@ export class TransitService {
               transit.setDriver(driver);
               transit.setAwaitingDriversResponses(0);
               transit.setAcceptedAt(Date.now());
-              transit.setStatus(Status.TRANSIT_TO_PASSENGER);
+              transit.setStatus(TransitStatus.TRANSIT_TO_PASSENGER);
               await this.transitRepository.save(transit);
               driver.setOccupied(true);
               await this.driverRepository.save(driver);
@@ -504,13 +508,13 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    if (transit.getStatus() !== Status.TRANSIT_TO_PASSENGER) {
+    if (transit.getStatus() !== TransitStatus.TRANSIT_TO_PASSENGER) {
       throw new NotAcceptableException(
         'Transit cannot be started, id = ' + transitId,
       );
     }
 
-    transit.setStatus(Status.IN_TRANSIT);
+    transit.setStatus(TransitStatus.IN_TRANSIT);
     transit.setStarted(Date.now());
     await this.transitRepository.save(transit);
   }
@@ -565,7 +569,7 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    if (transit.getStatus() === Status.IN_TRANSIT) {
+    if (transit.getStatus() === TransitStatus.IN_TRANSIT) {
       // FIXME later: add some exceptions handling
       const geoFrom = this.geocodingService.geocodeAddress(transit.getFrom());
       const geoTo = this.geocodingService.geocodeAddress(transit.getTo());
@@ -579,7 +583,7 @@ export class TransitService {
           geoTo[1],
         ),
       );
-      transit.setStatus(Status.COMPLETED);
+      transit.setStatus(TransitStatus.COMPLETED);
       transit.calculateFinalCosts();
       driver.setOccupied(false);
       transit.setCompleteAt(Date.now());

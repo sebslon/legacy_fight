@@ -1,6 +1,7 @@
+import { Column, Entity, OneToOne } from 'typeorm';
+
 import { BaseEntity } from '../common/base.entity';
 import { Driver } from './driver.entity';
-import { Column, Entity, OneToOne } from 'typeorm';
 
 export enum FeeType {
   FLAT = 'flat',
@@ -18,7 +19,9 @@ export class DriverFee extends BaseEntity {
   @Column({ default: 0 })
   private min: number;
 
-  @OneToOne(() => Driver, (driver) => driver.fee)
+  @OneToOne(() => Driver, (driver) => driver.fee, {
+    onDelete: 'SET NULL',
+  })
   public driver: Driver;
 
   constructor(feeType: FeeType, driver: Driver, amount: number, min: number) {
