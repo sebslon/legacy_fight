@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "/dist",
+    "module": "commonjs",
+    "types": ["jest", "node"]
+  },
+  "include": [
+    "**/*.test.ts",
+    "**/*.integration-test.ts",
+    "**/*.spec.ts",
+    "**/*.integration-spec.ts",
+    "**/*.d.ts",
+    "jest.config.ts",
+    "**/*.e2e-spec.ts"
+  ]
+}

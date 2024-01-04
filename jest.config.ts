@@ -1,7 +1,7 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  rootDir: '../../',
+  rootDir: '.',
   testMatch: [
     '**/*.test.ts',
     '**/*.spec.ts',
@@ -10,6 +10,11 @@ export default {
   ],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.[tj]s$': [
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+      },
+    ],
   },
 };
