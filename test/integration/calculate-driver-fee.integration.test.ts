@@ -14,6 +14,7 @@ import { Transit, TransitStatus } from '../../src/entity/transit.entity';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverFeeService } from '../../src/service/driver-fee.service';
 import { DriverService } from '../../src/service/driver.service';
+import { Money } from '../../src/money/money';
 
 describe('Calculate Driver Fee', () => {
   let driverService: DriverService;
@@ -85,7 +86,7 @@ describe('Calculate Driver Fee', () => {
   async function createTestTransit(driver: Driver, price: number) {
     const transit = new Transit();
 
-    transit.setPrice(price);
+    transit.setPrice(new Money(price));
     transit.setDriver(driver);
     transit.setStatus(TransitStatus.COMPLETED);
     transit.setCarType(CarClass.REGULAR);

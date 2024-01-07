@@ -1,5 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 import { TransitStatus, Transit } from '../src/entity/transit.entity';
+import { Money } from '../src/money/money';
 
 describe('Calculate Transit Price', () => {
   it("Can't calculate final price when transit is cancelled", () => {
@@ -31,7 +32,7 @@ describe('Calculate Transit Price', () => {
 
     const price = transit.calculateFinalCosts();
 
-    expect(price).toBe(expectedPrice);
+    expect(price).toEqual(new Money(expectedPrice));
   });
 
   it('Estimates price on regular day', () => {
@@ -41,7 +42,7 @@ describe('Calculate Transit Price', () => {
 
     const price = transit.estimateCost();
 
-    expect(price).toBe(2900);
+    expect(price).toEqual(new Money(2900));
   });
 
   function createTestTransit(status: TransitStatus, km: number) {

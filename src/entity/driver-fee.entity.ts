@@ -2,6 +2,7 @@ import { Column, Entity, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Driver } from './driver.entity';
+import { Money } from '../money/money';
 
 export enum FeeType {
   FLAT = 'flat',
@@ -16,8 +17,15 @@ export class DriverFee extends BaseEntity {
   @Column()
   private amount: number;
 
-  @Column({ default: 0 })
-  private min: number;
+  @Column({
+    default: 0,
+    type: 'integer',
+    transformer: {
+      to: (value: Money) => value?.toInt(),
+      from: (value: number) => new Money(value),
+    },
+  })
+  private min: Money;
 
   @OneToOne(() => Driver, (driver) => driver.fee, {
     onDelete: 'SET NULL',
@@ -29,7 +37,7 @@ export class DriverFee extends BaseEntity {
     this.feeType = feeType;
     this.driver = driver;
     this.amount = amount;
-    this.min = min;
+    this.min = new Money(min);
   }
 
   public getFeeType() {
@@ -61,6 +69,6 @@ export class DriverFee extends BaseEntity {
   }
 
   public setMin(min: number) {
-    this.min = min;
+    this.min = new Money(min);
   }
 }

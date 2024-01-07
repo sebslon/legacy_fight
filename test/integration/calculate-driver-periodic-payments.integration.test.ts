@@ -13,6 +13,7 @@ import { Month, Transit, TransitStatus } from '../../src/entity/transit.entity';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverService } from '../../src/service/driver.service';
+import { Money } from '../../src/money/money';
 
 describe('Calculate Driver Periodic Payments', () => {
   let driverService: DriverService;
@@ -117,7 +118,7 @@ describe('Calculate Driver Periodic Payments', () => {
   async function createTestTransit(driver: Driver, price: number, when: Date) {
     const transit = new Transit();
 
-    transit.setPrice(price);
+    transit.setPrice(new Money(price));
     transit.setDriver(driver);
     transit.setStatus(TransitStatus.COMPLETED);
     transit.setCarType(CarClass.REGULAR);

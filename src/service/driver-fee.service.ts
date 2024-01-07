@@ -14,18 +14,18 @@ export class DriverFeeService {
     private transitRepository: TransitRepository,
   ) {}
 
-  public async calculateDriverFee(transitId: string) {
+  public async calculateDriverFee(transitId: string): Promise<number> {
     const transit = await this.transitRepository.findOne(transitId);
 
     if (!transit) {
       throw new NotFoundException('transit does not exist, id = ' + transitId);
     }
 
-    if (transit.getDriversFee() != null) {
-      return transit.getDriversFee();
+    if (transit.getDriversFee().toInt() != null) {
+      return transit.getDriversFee().toInt();
     }
 
-    const transitPrice = transit.getPrice() ?? 0;
+    const transitPrice: number = transit.getPrice()?.toInt() ?? 0;
     const driver = transit.getDriver();
 
     if (!driver) {
@@ -52,7 +52,7 @@ export class DriverFeeService {
 
     return Math.max(
       finalFee,
-      driverFee.getMin() == null ? 0 : driverFee.getMin(),
+      driverFee.getMin().toInt() == null ? 0 : driverFee.getMin().toInt(),
     );
   }
 }

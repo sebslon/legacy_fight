@@ -6,6 +6,7 @@ import { Driver } from './driver.entity';
 import { Client, PaymentType } from './client.entity';
 import { Address } from './address.entity';
 import { CarClass } from './car-type.entity';
+import { Money } from '../money/money';
 
 export enum TransitStatus {
   DRAFT = 'draft',
@@ -110,14 +111,35 @@ export class Transit extends BaseEntity {
   private km: number;
 
   // https://stackoverflow.com/questions/37107123/sould-i-store-price-as-decimal-or-integer-in-mysql
-  @Column({ nullable: true, type: 'integer' })
-  private price: number | null;
+  @Column({
+    nullable: true,
+    type: 'integer',
+    transformer: {
+      to: (value: Money) => value?.toInt(),
+      from: (value: number) => new Money(value),
+    },
+  })
+  private price: Money | null;
 
-  @Column({ nullable: true, type: 'integer' })
-  private estimatedPrice: number | null;
+  @Column({
+    nullable: true,
+    type: 'integer',
+    transformer: {
+      to: (value: Money) => value?.toInt(),
+      from: (value: number) => new Money(value),
+    },
+  })
+  private estimatedPrice: Money | null;
 
-  @Column({ nullable: true })
-  private driversFee: number;
+  @Column({
+    nullable: true,
+    type: 'integer',
+    transformer: {
+      to: (value: Money) => value?.toInt(),
+      from: (value: number) => new Money(value),
+    },
+  })
+  private driversFee: Money;
 
   @Column({ type: 'bigint', nullable: true })
   public dateTime: number;
@@ -152,7 +174,7 @@ export class Transit extends BaseEntity {
   }
 
   //just for testing
-  public setPrice(price: number) {
+  public setPrice(price: Money) {
     this.price = price;
   }
 
@@ -278,7 +300,7 @@ export class Transit extends BaseEntity {
   }
 
   public setDriversFee(driversFee: number) {
-    this.driversFee = driversFee;
+    this.driversFee = new Money(driversFee);
   }
 
   public getEstimatedPrice() {
@@ -286,7 +308,7 @@ export class Transit extends BaseEntity {
   }
 
   public setEstimatedPrice(estimatedPrice: number) {
-    this.estimatedPrice = estimatedPrice;
+    this.estimatedPrice = new Money(estimatedPrice);
   }
 
   public estimateCost() {
@@ -304,7 +326,7 @@ export class Transit extends BaseEntity {
     return this.estimatedPrice;
   }
 
-  public calculateFinalCosts(): number {
+  public calculateFinalCosts(): Money {
     if (this.status === TransitStatus.COMPLETED) {
       return this.calculateCost();
     } else {
@@ -314,7 +336,7 @@ export class Transit extends BaseEntity {
     }
   }
 
-  private calculateCost(): number {
+  private calculateCost(): Money {
     let baseFee = Transit.BASE_FEE;
     let factorToCalculate = this.factor;
     let kmRate: number;
@@ -323,9 +345,9 @@ export class Transit extends BaseEntity {
       factorToCalculate = 1;
     }
 
-    const day = new Date();
-    // wprowadzenie nowych cennikow od 1.01.2019
+    const day = new Date(this.dateTime);
 
+    // wprowadzenie nowych cennikow od 1.01.2019
     if (day.getFullYear() <= 2018) {
       kmRate = 1.0;
       baseFee++;
@@ -365,10 +387,12 @@ export class Transit extends BaseEntity {
         }
       }
     }
+
     const priceBigDecimal =
       Number((this.km * kmRate * factorToCalculate + baseFee).toFixed(2)) * 100;
 
-    this.price = priceBigDecimal;
+    this.price = new Money(priceBigDecimal);
+
     return this.price;
   }
 }
