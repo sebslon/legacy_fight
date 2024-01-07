@@ -162,37 +162,28 @@ export class TransitDto {
 
   public getDistance(unit: string) {
     this.distanceUnit = unit;
+
     if (unit === 'km') {
       if (this.distance == Math.ceil(this.distance)) {
-        return new Intl.NumberFormat('en-US', {
-          style: 'unit',
-          unit: 'length-kilometer',
-        }).format(Math.round(this.distance));
+        return `${Math.round(this.distance).toLocaleString('US')}km`;
       }
-      return new Intl.NumberFormat('en-US', {
-        style: 'unit',
-        unit: 'length-kilometer',
-      }).format(this.distance);
+      return `${this.distance.toLocaleString('US')}km`;
     }
+
     if (unit === 'miles') {
       const distance = this.distance / 1.609344;
+
       if (distance == Math.ceil(distance)) {
-        return new Intl.NumberFormat('en-US', {
-          style: 'unit',
-          unit: 'length-mile',
-        }).format(Math.round(this.distance));
+        return `${Math.round(distance).toLocaleString('US')}miles`;
       }
-      return new Intl.NumberFormat('en-US', {
-        style: 'unit',
-        unit: 'length-mile',
-      }).format(this.distance);
+
+      return `${distance.toLocaleString('US')}miles`;
     }
+
     if (unit === 'm') {
-      return new Intl.NumberFormat('en-US', {
-        style: 'unit',
-        unit: 'length-meter',
-      }).format(Math.round(this.distance * 1000));
+      return `${Math.round(this.distance * 1000).toLocaleString('US')}m`;
     }
+
     throw new NotAcceptableException('Invalid unit ' + unit);
   }
 
