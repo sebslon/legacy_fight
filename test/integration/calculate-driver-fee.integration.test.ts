@@ -45,7 +45,7 @@ describe('Calculate Driver Fee', () => {
 
     const fee = await driverFeeService.calculateDriverFee(transit.getId());
 
-    expect(fee).toBe(50);
+    expect(fee).toEqual(new Money(50));
   });
 
   it('Should calculate drivers percentage fee', async () => {
@@ -56,7 +56,7 @@ describe('Calculate Driver Fee', () => {
 
     const fee = await driverFeeService.calculateDriverFee(transit.getId());
 
-    expect(fee).toBe(40);
+    expect(fee).toEqual(new Money(40));
   });
 
   it('Should use minimum fee', async () => {
@@ -69,7 +69,7 @@ describe('Calculate Driver Fee', () => {
 
     const fee = await driverFeeService.calculateDriverFee(transit.getId());
 
-    expect(fee).toBe(minimumFee);
+    expect(fee).toEqual(new Money(minimumFee));
   });
 
   function createTestDriver() {

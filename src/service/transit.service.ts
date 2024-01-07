@@ -590,7 +590,7 @@ export class TransitService {
       const driverFee = await this.driverFeeService.calculateDriverFee(
         transitId,
       );
-      transit.setDriversFee(driverFee);
+      transit.setDriversFee(driverFee.toInt());
       await this.driverRepository.save(driver);
       await this.awardsService.registerMiles(
         transit.getClient().getId(),

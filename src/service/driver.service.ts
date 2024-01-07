@@ -163,7 +163,7 @@ export class DriverService {
           this.driverFeeService.calculateDriverFee(t.getId()),
         ),
       )
-    ).reduce((prev, curr) => prev + curr, 0);
+    ).reduce((prev, curr) => prev + curr.toInt(), 0);
 
     return sum;
   }

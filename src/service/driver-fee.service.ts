@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { Money } from '../money/money';
 import { DriverFeeRepository } from '../repository/driver-fee.repository';
 import { TransitRepository } from '../repository/transit.repository';
-import { FeeType } from '../entity/driver-fee.entity';
 
 @Injectable()
 export class DriverFeeService {
@@ -14,7 +14,7 @@ export class DriverFeeService {
     private transitRepository: TransitRepository,
   ) {}
 
-  public async calculateDriverFee(transitId: string): Promise<number> {
+  public async calculateDriverFee(transitId: string): Promise<Money> {
     const transit = await this.transitRepository.findOne(transitId);
 
     if (!transit) {
@@ -22,10 +22,10 @@ export class DriverFeeService {
     }
 
     if (transit.getDriversFee().toInt() != null) {
-      return transit.getDriversFee().toInt();
+      return transit.getDriversFee();
     }
 
-    const transitPrice: number = transit.getPrice()?.toInt() ?? 0;
+    const transitPrice = transit.getPrice() ?? new Money(0);
     const driver = transit.getDriver();
 
     if (!driver) {
@@ -42,17 +42,6 @@ export class DriverFeeService {
       );
     }
 
-    let finalFee;
-
-    if (driverFee.getFeeType() === FeeType.FLAT) {
-      finalFee = transitPrice - driverFee.getAmount();
-    } else {
-      finalFee = (transitPrice * driverFee.getAmount()) / 100;
-    }
-
-    return Math.max(
-      finalFee,
-      driverFee.getMin().toInt() == null ? 0 : driverFee.getMin().toInt(),
-    );
+    return driverFee.calculateDriverFee(transitPrice);
   }
 }

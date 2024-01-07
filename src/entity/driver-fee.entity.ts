@@ -56,19 +56,25 @@ export class DriverFee extends BaseEntity {
     this.driver = driver;
   }
 
-  public getAmount() {
-    return this.amount;
-  }
-
   public setAmount(amount: number) {
     this.amount = amount;
   }
 
-  public getMin() {
-    return this.min;
-  }
-
   public setMin(min: number) {
     this.min = new Money(min);
+  }
+
+  public calculateDriverFee(transitPrice: Money): Money {
+    let finalFee: Money;
+
+    if (this.feeType === FeeType.FLAT) {
+      finalFee = transitPrice.subtract(new Money(this.amount));
+    } else {
+      finalFee = transitPrice.percentage(this.amount);
+    }
+
+    return new Money(
+      Math.max(finalFee.toInt(), this.min == null ? 0 : this.min.toInt()),
+    );
   }
 }
