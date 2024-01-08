@@ -7,10 +7,11 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { DriverTrackingService } from '../service/driver-tracking.service';
-import { DriverPositionDto } from '../dto/driver-position.dto';
+
 import { CreateDriverPositionDto } from '../dto/create-driver-position.dto';
+import { DriverPositionDto } from '../dto/driver-position.dto';
 import { DriverPosition } from '../entity/driver-position.entity';
+import { DriverTrackingService } from '../service/driver-tracking.service';
 
 @Controller('driverPositions')
 export class DriverTrackingController {

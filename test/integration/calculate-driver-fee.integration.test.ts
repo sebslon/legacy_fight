@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { Fixtures } from '../common/fixtures';
+import { FeeType } from '../../src/entity/driver-fee.entity';
+import { Money } from '../../src/money/money';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverFeeService } from '../../src/service/driver-fee.service';
 import { DriverService } from '../../src/service/driver.service';
-import { Money } from '../../src/money/money';
-import { FeeType } from '../../src/entity/driver-fee.entity';
+import { Fixtures } from '../common/fixtures';
 
 describe('Calculate Driver Fee', () => {
   let driverService: DriverService;

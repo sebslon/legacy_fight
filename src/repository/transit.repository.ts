@@ -1,9 +1,9 @@
 import { Between, EntityRepository, Repository } from 'typeorm';
 
-import { TransitStatus, Transit } from '../entity/transit.entity';
-import { Driver } from '../entity/driver.entity';
-import { Client } from '../entity/client.entity';
 import { Address } from '../entity/address.entity';
+import { Client } from '../entity/client.entity';
+import { Driver } from '../entity/driver.entity';
+import { TransitStatus, Transit } from '../entity/transit.entity';
 
 @EntityRepository(Transit)
 export class TransitRepository extends Repository<Transit> {

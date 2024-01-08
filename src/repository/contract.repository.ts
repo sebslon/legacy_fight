@@ -1,4 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
+
 import { Contract } from '../entity/contract.entity';
 
 @EntityRepository(Contract)

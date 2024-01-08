@@ -1,35 +1,33 @@
-import * as dayjs from 'dayjs';
 import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as dayjs from 'dayjs';
 
-import { AddressRepository } from '../repository/address.repository';
-import { ClientRepository } from '../repository/client.repository';
-import { TransitRepository } from '../repository/transit.repository';
-import { DriverRepository } from '../repository/driver.repository';
-import { DriverPositionRepository } from '../repository/driver-position.repository';
-import { DriverSessionRepository } from '../repository/driver-session.repository';
-
-import { AwardsService } from './awards.service';
-import { DriverFeeService } from './driver-fee.service';
-import { CarTypeService } from './car-type.service';
-import { GeocodingService } from './geocoding.service';
-import { InvoiceGenerator } from './invoice-generator.service';
-import { DistanceCalculator } from './distance-calculator.service';
-import { DriverNotificationService } from './driver-notification.service';
-
+import { AddressDto } from '../dto/address.dto';
+import { CreateTransitDto } from '../dto/create-transit.dto';
+import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
+import { TransitDto } from '../dto/transit.dto';
 import { Address } from '../entity/address.entity';
 import { CarClass } from '../entity/car-type.entity';
-import { Transit, TransitStatus } from '../entity/transit.entity';
 import { DriverStatus } from '../entity/driver.entity';
+import { Transit, TransitStatus } from '../entity/transit.entity';
+import { AddressRepository } from '../repository/address.repository';
+import { ClientRepository } from '../repository/client.repository';
+import { DriverPositionRepository } from '../repository/driver-position.repository';
+import { DriverSessionRepository } from '../repository/driver-session.repository';
+import { DriverRepository } from '../repository/driver.repository';
+import { TransitRepository } from '../repository/transit.repository';
 
-import { TransitDto } from '../dto/transit.dto';
-import { AddressDto } from '../dto/address.dto';
-import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
-import { CreateTransitDto } from '../dto/create-transit.dto';
+import { AwardsService } from './awards.service';
+import { CarTypeService } from './car-type.service';
+import { DistanceCalculator } from './distance-calculator.service';
+import { DriverFeeService } from './driver-fee.service';
+import { DriverNotificationService } from './driver-notification.service';
+import { GeocodingService } from './geocoding.service';
+import { InvoiceGenerator } from './invoice-generator.service';
 
 @Injectable()
 export class TransitService {

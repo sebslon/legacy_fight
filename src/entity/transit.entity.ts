@@ -2,11 +2,12 @@ import { ForbiddenException } from '@nestjs/common';
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
-import { Driver } from './driver.entity';
-import { Client, PaymentType } from './client.entity';
+import { Money } from '../money/money';
+
 import { Address } from './address.entity';
 import { CarClass } from './car-type.entity';
-import { Money } from '../money/money';
+import { Client, PaymentType } from './client.entity';
+import { Driver } from './driver.entity';
 
 export enum TransitStatus {
   DRAFT = 'draft',

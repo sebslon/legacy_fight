@@ -1,4 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
+
 import { ContractAttachment } from '../entity/contract-attachment.entity';
 import { Contract } from '../entity/contract.entity';
 

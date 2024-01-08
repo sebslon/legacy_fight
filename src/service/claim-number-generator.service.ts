@@ -1,8 +1,9 @@
-import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
-import { ClaimRepository } from '../repository/claim.repository';
+
 import { Claim } from '../entity/claim.entity';
+import { ClaimRepository } from '../repository/claim.repository';
 
 @Injectable()
 export class ClaimNumberGenerator {

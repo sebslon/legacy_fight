@@ -1,13 +1,13 @@
-import { getConnection } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getConnection } from 'typeorm';
 
+import { AppModule } from '../../src/app.module';
+import { DriverDto } from '../../src/dto/driver.dto';
 import {
   Driver,
   DriverStatus,
   DriverType,
 } from '../../src/entity/driver.entity';
-import { AppModule } from '../../src/app.module';
-import { DriverDto } from '../../src/dto/driver.dto';
 import { DriverService } from '../../src/service/driver.service';
 
 describe('Validate Driver License', () => {

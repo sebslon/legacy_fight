@@ -1,14 +1,14 @@
-import { Money } from '../../src/money/money';
-import { Transit, TransitStatus } from '../../src/entity/transit.entity';
-import { TransitRepository } from '../../src/repository/transit.repository';
+import { CarClass } from '../../src/entity/car-type.entity';
+import { DriverFee, FeeType } from '../../src/entity/driver-fee.entity';
 import {
   Driver,
   DriverStatus,
   DriverType,
 } from '../../src/entity/driver.entity';
-import { CarClass } from '../../src/entity/car-type.entity';
-import { DriverFee, FeeType } from '../../src/entity/driver-fee.entity';
+import { Transit, TransitStatus } from '../../src/entity/transit.entity';
+import { Money } from '../../src/money/money';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
+import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverService } from '../../src/service/driver.service';
 
 export class Fixtures {

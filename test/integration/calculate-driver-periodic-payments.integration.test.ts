@@ -7,7 +7,7 @@ import { Month } from '../../src/entity/transit.entity';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverService } from '../../src/service/driver.service';
-import { Fixtures } from 'test/common/fixtures';
+import { Fixtures } from '../common/fixtures';
 
 describe('Calculate Driver Periodic Payments', () => {
   let driverService: DriverService;

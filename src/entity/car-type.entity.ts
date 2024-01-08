@@ -1,5 +1,6 @@
 import { NotAcceptableException } from '@nestjs/common';
 import { Column, Entity } from 'typeorm';
+
 import { BaseEntity } from '../common/base.entity';
 
 export enum CarClass {

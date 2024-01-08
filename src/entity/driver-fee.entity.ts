@@ -1,8 +1,9 @@
 import { Column, Entity, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
-import { Driver } from './driver.entity';
 import { Money } from '../money/money';
+
+import { Driver } from './driver.entity';
 
 export enum FeeType {
   FLAT = 'flat',

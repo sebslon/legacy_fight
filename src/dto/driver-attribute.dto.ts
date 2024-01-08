@@ -1,4 +1,5 @@
 import objectHash from 'object-hash';
+
 import {
   DriverAttribute,
   DriverAttributeName,

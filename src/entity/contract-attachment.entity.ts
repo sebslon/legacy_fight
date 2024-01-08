@@ -1,5 +1,7 @@
-import { BaseEntity } from '../common/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+
+import { BaseEntity } from '../common/base.entity';
+
 import { Contract } from './contract.entity';
 
 export enum ContractAttachmentStatus {

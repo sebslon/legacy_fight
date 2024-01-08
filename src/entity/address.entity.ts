@@ -1,6 +1,7 @@
-import { BaseEntity } from '../common/base.entity';
-import { Column, Entity } from 'typeorm';
 import * as objectHash from 'object-hash';
+import { Column, Entity } from 'typeorm';
+
+import { BaseEntity } from '../common/base.entity';
 
 @Entity()
 export class Address extends BaseEntity {

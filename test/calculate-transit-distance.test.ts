@@ -1,8 +1,8 @@
-import { Money } from '../src/money/money';
 import { TransitDto } from '../src/dto/transit.dto';
 import { Address } from '../src/entity/address.entity';
 import { Client } from '../src/entity/client.entity';
 import { Transit, TransitStatus } from '../src/entity/transit.entity';
+import { Money } from '../src/money/money';
 
 describe('Calculate Transit Distance', () => {
   it('Should not work with invalid unit', () => {

@@ -1,4 +1,5 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
+
 import { DriverStatus, DriverType } from '../entity/driver.entity';
 
 export class CreateDriverDto {

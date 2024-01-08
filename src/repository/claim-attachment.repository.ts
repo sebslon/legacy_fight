@@ -1,4 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
+
 import { ClaimAttachment } from '../entity/claim-attachment.entity';
 
 @EntityRepository(ClaimAttachment)

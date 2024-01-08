@@ -1,19 +1,20 @@
-import * as dayjs from 'dayjs';
 import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as dayjs from 'dayjs';
 
-import { Driver, DriverStatus } from '../entity/driver.entity';
-import { DriverDto } from '../dto/driver.dto';
 import { CreateDriverDto } from '../dto/create-driver.dto';
-import { DriverRepository } from '../repository/driver.repository';
-import { DriverAttributeRepository } from '../repository/driver-attribute.repository';
-import { TransitRepository } from '../repository/transit.repository';
-import { DriverFeeService } from './driver-fee.service';
+import { DriverDto } from '../dto/driver.dto';
 import { DriverLicense } from '../entity/driver-license';
+import { Driver, DriverStatus } from '../entity/driver.entity';
+import { DriverAttributeRepository } from '../repository/driver-attribute.repository';
+import { DriverRepository } from '../repository/driver.repository';
+import { TransitRepository } from '../repository/transit.repository';
+
+import { DriverFeeService } from './driver-fee.service';
 
 @Injectable()
 export class DriverService {

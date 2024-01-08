@@ -1,6 +1,6 @@
-import { DriverDto } from './driver.dto';
 import { DriverAttributeDto } from './driver-attribute.dto';
 import { DriverSessionDto } from './driver-session.dto';
+import { DriverDto } from './driver.dto';
 import { TransitDto } from './transit.dto';
 
 export class DriverReport {

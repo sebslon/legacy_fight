@@ -1,13 +1,14 @@
+import { NotAcceptableException } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import * as dayOfYear from 'dayjs/plugin/dayOfYear';
-import { NotAcceptableException } from '@nestjs/common';
 
-import { DayOfWeek, TransitStatus, Transit } from '../entity/transit.entity';
 import { CarClass } from '../entity/car-type.entity';
-import { DriverDto } from './driver.dto';
-import { ClaimDto } from './claim.dto';
+import { DayOfWeek, TransitStatus, Transit } from '../entity/transit.entity';
+
 import { AddressDto } from './address.dto';
+import { ClaimDto } from './claim.dto';
 import { ClientDto } from './client.dto';
+import { DriverDto } from './driver.dto';
 
 dayjs.extend(dayOfYear);
 

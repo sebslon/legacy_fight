@@ -4,17 +4,18 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ContractRepository } from '../repository/contract.repository';
-import { ContractAttachmentRepository } from '../repository/contract-attachment.repository';
+
+import { ContractAttachmentDto } from '../dto/contract-attachment.dto';
 import { ContractDto } from '../dto/contract.dto';
-import { Contract, ContractStatus } from '../entity/contract.entity';
+import { CreateContractAttachmentDto } from '../dto/create-contract-attachment.dto';
+import { CreateContractDto } from '../dto/create-contract.dto';
 import {
   ContractAttachment,
   ContractAttachmentStatus,
 } from '../entity/contract-attachment.entity';
-import { ContractAttachmentDto } from '../dto/contract-attachment.dto';
-import { CreateContractDto } from '../dto/create-contract.dto';
-import { CreateContractAttachmentDto } from '../dto/create-contract-attachment.dto';
+import { Contract, ContractStatus } from '../entity/contract.entity';
+import { ContractAttachmentRepository } from '../repository/contract-attachment.repository';
+import { ContractRepository } from '../repository/contract.repository';
 
 @Injectable()
 export class ContractService {

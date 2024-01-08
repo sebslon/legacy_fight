@@ -4,11 +4,13 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DriverRepository } from '../repository/driver.repository';
-import { DriverPositionRepository } from '../repository/driver-position.repository';
-import { DistanceCalculator } from './distance-calculator.service';
+
 import { DriverPosition } from '../entity/driver-position.entity';
 import { DriverStatus } from '../entity/driver.entity';
+import { DriverPositionRepository } from '../repository/driver-position.repository';
+import { DriverRepository } from '../repository/driver.repository';
+
+import { DistanceCalculator } from './distance-calculator.service';
 
 @Injectable()
 export class DriverTrackingService {

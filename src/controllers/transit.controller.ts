@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { TransitService } from '../service/transit.service';
-import { TransitDto } from '../dto/transit.dto';
-import { CreateAddressDto } from '../dto/create-address.dto';
+
 import { AddressDto } from '../dto/address.dto';
+import { CreateAddressDto } from '../dto/create-address.dto';
 import { CreateTransitDto } from '../dto/create-transit.dto';
+import { TransitDto } from '../dto/transit.dto';
+import { TransitService } from '../service/transit.service';
 
 @Controller('transits')
 export class TransitController {
