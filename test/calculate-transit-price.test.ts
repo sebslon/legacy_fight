@@ -1,5 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 
+import { Distance } from '../src/distance/distance';
 import { TransitStatus, Transit } from '../src/entity/transit.entity';
 import { Money } from '../src/money/money';
 
@@ -51,7 +52,7 @@ describe('Calculate Transit Price', () => {
 
     transit.setDateTime(Date.now());
     transit.setStatus(TransitStatus.DRAFT);
-    transit.setKm(km);
+    transit.setKm(Distance.fromKm(km));
     transit.setStatus(status);
 
     return transit;

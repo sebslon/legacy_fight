@@ -4,6 +4,8 @@ export class Distance {
   private readonly MILES_TO_KILOMETERS_RATIO = 1.609344;
   private readonly km: number;
 
+  public static readonly ZERO = new Distance(0);
+
   private constructor(km: number) {
     this.km = km;
   }

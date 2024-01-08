@@ -1,7 +1,7 @@
-import { NotAcceptableException } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import * as dayOfYear from 'dayjs/plugin/dayOfYear';
 
+import { Distance } from '../distance/distance';
 import { CarClass } from '../entity/car-type.entity';
 import { DayOfWeek, TransitStatus, Transit } from '../entity/transit.entity';
 
@@ -23,7 +23,7 @@ export class TransitDto {
 
   public factor: number | null;
 
-  public distance: number;
+  public distance: Distance;
 
   public distanceUnit: string;
 
@@ -164,28 +164,7 @@ export class TransitDto {
   public getDistance(unit: string) {
     this.distanceUnit = unit;
 
-    if (unit === 'km') {
-      if (this.distance == Math.ceil(this.distance)) {
-        return `${Math.round(this.distance).toLocaleString('US')}km`;
-      }
-      return `${this.distance.toLocaleString('US')}km`;
-    }
-
-    if (unit === 'miles') {
-      const distance = this.distance / 1.609344;
-
-      if (distance == Math.ceil(distance)) {
-        return `${Math.round(distance).toLocaleString('US')}miles`;
-      }
-
-      return `${distance.toLocaleString('US')}miles`;
-    }
-
-    if (unit === 'm') {
-      return `${Math.round(this.distance * 1000).toLocaleString('US')}m`;
-    }
-
-    throw new NotAcceptableException('Invalid unit ' + unit);
+    return this.distance.toString(unit);
   }
 
   public getProposedDrivers() {

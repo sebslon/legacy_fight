@@ -1,3 +1,4 @@
+import { Distance } from '../src/distance/distance';
 import { TransitDto } from '../src/dto/transit.dto';
 import { Address } from '../src/entity/address.entity';
 import { Client } from '../src/entity/client.entity';
@@ -37,7 +38,7 @@ describe('Calculate Transit Distance', () => {
     transit.setTo(new Address('test', 'test', 'test', 1));
     transit.setFrom(new Address('test', 'test', 'test', 1));
     transit.setStatus(TransitStatus.DRAFT);
-    transit.setKm(km);
+    transit.setKm(Distance.fromKm(km));
     transit.setClient(new Client());
 
     return new TransitDto(transit);

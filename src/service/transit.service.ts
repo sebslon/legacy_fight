@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 
+import { Distance } from '../distance/distance';
 import { AddressDto } from '../dto/address.dto';
 import { CreateTransitDto } from '../dto/create-transit.dto';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
@@ -95,11 +96,13 @@ export class TransitService {
     transit.setStatus(TransitStatus.DRAFT);
     transit.setDateTime(Date.now());
     transit.setKm(
-      this.distanceCalculator.calculateByMap(
-        geoFrom[0],
-        geoFrom[1],
-        geoTo[0],
-        geoTo[1],
+      Distance.fromKm(
+        this.distanceCalculator.calculateByMap(
+          geoFrom[0],
+          geoFrom[1],
+          geoTo[0],
+          geoTo[1],
+        ),
       ),
     );
 
@@ -159,11 +162,13 @@ export class TransitService {
 
     transit.setFrom(newAddress);
     transit.setKm(
-      this.distanceCalculator.calculateByMap(
-        geoFromNew[0],
-        geoFromNew[1],
-        geoFromOld[0],
-        geoFromOld[1],
+      Distance.fromKm(
+        this.distanceCalculator.calculateByMap(
+          geoFromNew[0],
+          geoFromNew[1],
+          geoFromOld[0],
+          geoFromOld[1],
+        ),
       ),
     );
     transit.setPickupAddressChangeCounter(
@@ -211,11 +216,13 @@ export class TransitService {
     const geoTo = this.geocodingService.geocodeAddress(savedAddress);
     transit.setTo(savedAddress);
     transit.setKm(
-      this.distanceCalculator.calculateByMap(
-        geoFrom[0],
-        geoFrom[1],
-        geoTo[0],
-        geoTo[1],
+      Distance.fromKm(
+        this.distanceCalculator.calculateByMap(
+          geoFrom[0],
+          geoFrom[1],
+          geoTo[0],
+          geoTo[1],
+        ),
       ),
     );
 
@@ -265,7 +272,7 @@ export class TransitService {
 
     transit.setStatus(TransitStatus.CANCELLED);
     transit.setDriver(null);
-    transit.setKm(0);
+    transit.setKm(Distance.ZERO);
     transit.setAwaitingDriversResponses(0);
     await this.transitRepository.save(transit);
   }
@@ -312,7 +319,7 @@ export class TransitService {
           ) {
             transit.setStatus(TransitStatus.DRIVER_ASSIGNMENT_FAILED);
             transit.setDriver(null);
-            transit.setKm(0);
+            transit.setKm(Distance.ZERO);
             transit.setAwaitingDriversResponses(0);
             await this.transitRepository.save(transit);
             return transit;
@@ -574,11 +581,13 @@ export class TransitService {
 
       transit.setTo(destinationAddress);
       transit.setKm(
-        this.distanceCalculator.calculateByMap(
-          geoFrom[0],
-          geoFrom[1],
-          geoTo[0],
-          geoTo[1],
+        Distance.fromKm(
+          this.distanceCalculator.calculateByMap(
+            geoFrom[0],
+            geoFrom[1],
+            geoTo[0],
+            geoTo[1],
+          ),
         ),
       );
       transit.setStatus(TransitStatus.COMPLETED);
