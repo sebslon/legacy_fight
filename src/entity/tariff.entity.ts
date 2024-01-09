@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
+import { BaseEntity } from '../common/base.entity';
 import { Distance } from '../distance/distance';
 import { Money } from '../money/money';
 
@@ -9,13 +10,13 @@ import { DayOfWeek, Month } from './transit.entity';
 export class Tariff extends BaseEntity {
   private static readonly BASE_FEE = 8;
 
-  @Column()
+  @Column({ type: 'float' })
   private kmRate: number;
 
   @Column()
   private name: string;
 
-  @Column()
+  @Column({ type: 'float' })
   private baseFee: number;
 
   private constructor(kmRate: number, name: string, baseFee: number) {

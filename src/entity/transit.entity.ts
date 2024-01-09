@@ -1,5 +1,12 @@
 import { ForbiddenException } from '@nestjs/common';
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToOne,
+} from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Distance } from '../distance/distance';
@@ -9,6 +16,7 @@ import { Address } from './address.entity';
 import { CarClass } from './car-type.entity';
 import { Client, PaymentType } from './client.entity';
 import { Driver } from './driver.entity';
+import { Tariff } from './tariff.entity';
 
 export enum TransitStatus {
   DRAFT = 'draft',
@@ -60,10 +68,12 @@ export enum DayOfWeek {
 
 @Entity()
 export class Transit extends BaseEntity {
-  public static readonly BASE_FEE = 8;
-
   @ManyToOne(() => Driver, (driver) => driver.transits, { eager: true })
   public driver: Driver | null;
+
+  @OneToOne(() => Tariff, { eager: true, cascade: true })
+  @JoinColumn()
+  public tariff: Tariff;
 
   @Column({ nullable: true })
   private driverPaymentStatus: DriverPaymentStatus;
@@ -105,9 +115,6 @@ export class Transit extends BaseEntity {
 
   @Column({ default: 0, type: 'integer' })
   public awaitingDriversResponses: number;
-
-  @Column({ nullable: true, type: 'varchar' })
-  public factor: number | null;
 
   @Column({ nullable: false, default: 0 })
   private km: number;
@@ -159,6 +166,10 @@ export class Transit extends BaseEntity {
   @Column({ type: 'bigint', nullable: true })
   private completeAt: number;
 
+  public getTariff() {
+    return this.tariff;
+  }
+
   public getCarType() {
     return this.carType as CarClass;
   }
@@ -201,6 +212,7 @@ export class Transit extends BaseEntity {
   }
 
   public setDateTime(dateTime: number) {
+    this.tariff = Tariff.ofTime(new Date(dateTime));
     this.dateTime = dateTime;
   }
 
@@ -339,62 +351,6 @@ export class Transit extends BaseEntity {
   }
 
   private calculateCost(): Money {
-    let baseFee = Transit.BASE_FEE;
-    let factorToCalculate = this.factor;
-    let kmRate: number;
-
-    if (factorToCalculate == null) {
-      factorToCalculate = 1;
-    }
-
-    const day = new Date(this.dateTime);
-
-    // wprowadzenie nowych cennikow od 1.01.2019
-    if (day.getFullYear() <= 2018) {
-      kmRate = 1.0;
-      baseFee++;
-    } else {
-      if (
-        (day.getMonth() == Month.DECEMBER && day.getDate() == 31) ||
-        (day.getMonth() == Month.JANUARY &&
-          day.getDate() == 1 &&
-          day.getHours() <= 6)
-      ) {
-        kmRate = 3.5;
-        baseFee += 3;
-      } else {
-        // piątek i sobota po 17 do 6 następnego dnia
-        if (
-          (day.getDay() == DayOfWeek.FRIDAY && day.getHours() >= 17) ||
-          (day.getDay() == DayOfWeek.SATURDAY && day.getHours() <= 6) ||
-          (day.getDay() == DayOfWeek.SATURDAY && day.getHours() >= 17) ||
-          (day.getDay() == DayOfWeek.SUNDAY && day.getHours() <= 6)
-        ) {
-          kmRate = 2.5;
-          baseFee += 2;
-        } else {
-          // pozostałe godziny weekendu
-          if (
-            (day.getDay() == DayOfWeek.SATURDAY &&
-              day.getHours() > 6 &&
-              day.getHours() < 17) ||
-            (day.getDay() == DayOfWeek.SUNDAY && day.getHours() > 6)
-          ) {
-            kmRate = 1.5;
-          } else {
-            // tydzień roboczy
-            kmRate = 1.0;
-            baseFee++;
-          }
-        }
-      }
-    }
-
-    const priceBigDecimal =
-      Number((this.km * kmRate * factorToCalculate + baseFee).toFixed(2)) * 100;
-
-    this.price = new Money(priceBigDecimal);
-
-    return this.price;
+    return this.tariff.calculateCost(this.getKm());
   }
 }

@@ -30,6 +30,7 @@ import { DriverPositionRepository } from './repository/driver-position.repositor
 import { DriverSessionRepository } from './repository/driver-session.repository';
 import { DriverRepository } from './repository/driver.repository';
 import { InvoiceRepository } from './repository/invoice.repository';
+import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
 import { AwardsService } from './service/awards.service';
 import { CarTypeService } from './service/car-type.service';
@@ -70,6 +71,7 @@ import { TransitService } from './service/transit.service';
       AwardsAccountRepository,
       ContractAttachmentRepository,
       ContractRepository,
+      TariffRepository,
     ]),
   ],
   controllers: [
