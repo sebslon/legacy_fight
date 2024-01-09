@@ -4,6 +4,8 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../src/app.module';
 import { FeeType } from '../../src/entity/driver-fee.entity';
 import { Money } from '../../src/money/money';
+import { AddressRepository } from '../../src/repository/address.repository';
+import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverFeeService } from '../../src/service/driver-fee.service';
@@ -31,6 +33,8 @@ describe('Calculate Driver Fee', () => {
       driverService,
       driverFeeRepository,
       transitRepository,
+      {} as AddressRepository,
+      {} as ClientRepository,
     );
   });
 

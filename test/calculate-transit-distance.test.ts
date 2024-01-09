@@ -35,8 +35,8 @@ describe('Calculate Transit Distance', () => {
 
     transit.setPrice(new Money(10));
     transit.setDateTime(Date.now());
-    transit.setTo(new Address('test', 'test', 'test', 1));
-    transit.setFrom(new Address('test', 'test', 'test', 1));
+    transit.setTo(new Address('test', 'test', 'test', 'test', 1));
+    transit.setFrom(new Address('test', 'test', 'test', 'test', 1));
     transit.setStatus(TransitStatus.DRAFT);
     transit.setKm(Distance.fromKm(km));
     transit.setClient(new Client());

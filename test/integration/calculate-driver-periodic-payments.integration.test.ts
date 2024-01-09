@@ -4,6 +4,8 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../src/app.module';
 import { FeeType } from '../../src/entity/driver-fee.entity';
 import { Month } from '../../src/entity/transit.entity';
+import { AddressRepository } from '../../src/repository/address.repository';
+import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverService } from '../../src/service/driver.service';
@@ -28,6 +30,8 @@ describe('Calculate Driver Periodic Payments', () => {
       driverService,
       driverFeeRepository,
       transitRepository,
+      {} as AddressRepository,
+      {} as ClientRepository,
     );
   });
 
