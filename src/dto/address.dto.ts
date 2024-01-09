@@ -15,7 +15,7 @@ export class AddressDto {
 
   public postalCode: string;
 
-  public name: string;
+  public name: string | null;
 
   public constructor(
     a:
@@ -113,6 +113,7 @@ export class AddressDto {
     const address = new Address(
       this.getCountry(),
       this.getCity(),
+      this.getPostalCode(),
       this.getStreet(),
       this.getBuildingNumber(),
     );

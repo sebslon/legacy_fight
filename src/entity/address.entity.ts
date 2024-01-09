@@ -26,8 +26,8 @@ export class Address extends BaseEntity {
   @Column()
   private postalCode: string;
 
-  @Column()
-  private name: string;
+  @Column({ nullable: true, type: 'varchar' })
+  private name: string | null;
 
   @Column({ unique: true })
   private hash: string;
@@ -35,11 +35,13 @@ export class Address extends BaseEntity {
   constructor(
     country: string,
     city: string,
+    postalCode: string,
     street: string,
     buildingNumber: number,
   ) {
     super();
     this.country = country;
+    this.postalCode = postalCode;
     this.city = city;
     this.street = street;
     this.buildingNumber = buildingNumber;
