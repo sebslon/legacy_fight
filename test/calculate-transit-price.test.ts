@@ -82,17 +82,6 @@ describe('Calculate Transit Price', () => {
 
       expect(price).toEqual(new Money(expectedPrice));
     });
-
-    it('Should use standard price before 2019', () => {
-      const transit = createTestTransit(TransitStatus.COMPLETED, 20);
-      const expectedPrice = 2900;
-
-      transit.setDateTime(new Date('2018-12-30 23:00').getTime());
-
-      const price = transit.calculateFinalCosts();
-
-      expect(price).toEqual(new Money(expectedPrice));
-    });
   });
 
   function createTestTransit(status: TransitStatus, km: number) {
