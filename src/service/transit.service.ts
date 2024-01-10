@@ -8,7 +8,6 @@ import * as dayjs from 'dayjs';
 
 import { Distance } from '../distance/distance';
 import { AddressDto } from '../dto/address.dto';
-import { CreateTransitDto } from '../dto/create-transit.dto';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
 import { TransitDto } from '../dto/transit.dto';
 import { Address } from '../entity/address.entity';
@@ -54,7 +53,7 @@ export class TransitService {
     private notificationService: DriverNotificationService,
   ) {}
 
-  public async createTransit(transitDto: CreateTransitDto) {
+  public async createTransit(transitDto: TransitDto) {
     const from = await this.addressFromDto(new AddressDto(transitDto.from));
     const to = await this.addressFromDto(new AddressDto(transitDto.to));
 
@@ -64,7 +63,7 @@ export class TransitService {
       );
     }
     return this._createTransit(
-      transitDto.clientId,
+      transitDto.getClientDto().getId(),
       from,
       to,
       transitDto.carClass,

@@ -62,6 +62,10 @@ export class TransitDto {
   public clientDto: ClientDto;
 
   constructor(transit: Transit) {
+    if (!transit || !transit.getId()) {
+      return;
+    }
+
     this.id = transit.getId();
     this.distance = transit.getKm();
     this.factor = 1;

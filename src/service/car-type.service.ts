@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { AppProperties } from '../config/app-properties.config';
 import { CarTypeDto } from '../dto/car-type.dto';
-import { CreateCarTypeDto } from '../dto/create-car-type.dto';
 import { CarClass, CarStatus, CarType } from '../entity/car-type.entity';
 import { CarTypeRepository } from '../repository/car-type.repository';
 
@@ -28,18 +27,18 @@ export class CarTypeService {
     return new CarTypeDto(carType);
   }
 
-  public async create(carTypeDTO: CreateCarTypeDto): Promise<CarType> {
+  public async create(carTypeDTO: CarTypeDto): Promise<CarType> {
     try {
       const byCarClass = await this.carTypeRepository.findByCarClass(
-        carTypeDTO.carClass,
+        carTypeDTO.getCarClass(),
       );
-      byCarClass.setDescription(carTypeDTO.description);
+      byCarClass.setDescription(carTypeDTO.getDescription());
       return this.carTypeRepository.save(byCarClass);
     } catch {
       const carType = new CarType(
-        carTypeDTO.carClass,
-        carTypeDTO.description,
-        this.getMinNumberOfCars(carTypeDTO.carClass),
+        carTypeDTO.getCarClass(),
+        carTypeDTO.getDescription(),
+        this.getMinNumberOfCars(carTypeDTO.getCarClass()),
       );
 
       return this.carTypeRepository.save(carType);

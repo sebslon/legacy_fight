@@ -12,7 +12,6 @@ import {
 import { Response } from 'express';
 
 import { CarTypeDto } from '../dto/car-type.dto';
-import { CreateCarTypeDto } from '../dto/create-car-type.dto';
 import { CarClass } from '../entity/car-type.entity';
 import { CarTypeService } from '../service/car-type.service';
 
@@ -22,10 +21,8 @@ export class CarTypeController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  public async create(
-    @Body() createCarTypeDto: CreateCarTypeDto,
-  ): Promise<CarTypeDto> {
-    const carType = await this.carTypeService.create(createCarTypeDto);
+  public async create(@Body() carTypeDTO: CarTypeDto): Promise<CarTypeDto> {
+    const carType = await this.carTypeService.create(carTypeDTO);
 
     return new CarTypeDto(carType);
   }

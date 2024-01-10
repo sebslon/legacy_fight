@@ -20,8 +20,8 @@ export class CarType extends BaseEntity {
   @Column({ enum: CarClass, type: 'enum' })
   private carClass: CarClass;
 
-  @Column({ nullable: true, type: 'varchar' })
-  private description: string | null;
+  @Column({ type: 'varchar' })
+  private description: string;
 
   @Column({ default: CarStatus.INACTIVE })
   private status: CarStatus;

@@ -2,7 +2,6 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { AddressDto } from '../dto/address.dto';
 import { CreateAddressDto } from '../dto/create-address.dto';
-import { CreateTransitDto } from '../dto/create-transit.dto';
 import { TransitDto } from '../dto/transit.dto';
 import { TransitService } from '../service/transit.service';
 
@@ -19,9 +18,9 @@ export class TransitController {
 
   @Post()
   public async createTransit(
-    @Body() createTransitDto: CreateTransitDto,
+    @Body() transitDto: TransitDto,
   ): Promise<TransitDto> {
-    const transit = await this.transitService.createTransit(createTransitDto);
+    const transit = await this.transitService.createTransit(transitDto);
     return this.transitService.loadTransit(transit.getId());
   }
 
