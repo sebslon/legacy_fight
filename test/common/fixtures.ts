@@ -1,5 +1,9 @@
+import { AddressDto } from '../../src/dto/address.dto';
+import { CarTypeDto } from '../../src/dto/car-type.dto';
+import { ClientDto } from '../../src/dto/client.dto';
+import { TransitDto } from '../../src/dto/transit.dto';
 import { Address } from '../../src/entity/address.entity';
-import { CarClass } from '../../src/entity/car-type.entity';
+import { CarClass, CarType } from '../../src/entity/car-type.entity';
 import {
   Client,
   ClientType,
@@ -18,6 +22,7 @@ import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
+import { CarTypeService } from '../../src/service/car-type.service';
 import { DriverService } from '../../src/service/driver.service';
 
 export class Fixtures {
@@ -27,6 +32,7 @@ export class Fixtures {
     private readonly transitRepository: TransitRepository,
     private readonly addressRepository: AddressRepository,
     private readonly clientRepository: ClientRepository,
+    private readonly carTypeService: CarTypeService,
   ) {}
 
   public createTestDriver() {
@@ -56,6 +62,23 @@ export class Fixtures {
     await this.transitRepository.save(transit);
 
     return transit;
+  }
+
+  public async createTransitDTO(
+    from: AddressDto,
+    to: AddressDto,
+    carClass?: CarClass,
+  ): Promise<TransitDto> {
+    const client = await this.createTestClient();
+    const transit = new Transit();
+    const transitDto = new TransitDto(transit);
+
+    transitDto.setFrom(from);
+    transitDto.setTo(to);
+    transitDto.setClientDTO(new ClientDto(client));
+    transitDto.carClass = carClass ?? CarClass.VAN;
+
+    return transitDto;
   }
 
   public async driverHasFee(
@@ -101,5 +124,24 @@ export class Fixtures {
     transit.setClient(client);
 
     return this.transitRepository.save(transit);
+  }
+
+  public async createActiveCarCategory(carClass: CarClass) {
+    const randomNumberFrom1to5 = Math.floor(Math.random() * 5) + 1;
+
+    const carTypeObj = new CarType(
+      carClass,
+      'description',
+      randomNumberFrom1to5,
+    );
+    const carTypeDTO = new CarTypeDto(carTypeObj);
+
+    const carType = await this.carTypeService.create(carTypeDTO);
+
+    for (let i = 1; i < carType.getMinNoOfCarsToActivateClass() + 1; i += 1) {
+      await this.carTypeService.registerCar(carType.getCarClass());
+    }
+
+    return carType;
   }
 }

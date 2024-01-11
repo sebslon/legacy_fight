@@ -8,6 +8,7 @@ import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
+import { CarTypeService } from '../../src/service/car-type.service';
 import { DriverFeeService } from '../../src/service/driver-fee.service';
 import { DriverService } from '../../src/service/driver.service';
 import { Fixtures } from '../common/fixtures';
@@ -35,6 +36,7 @@ describe('Calculate Driver Fee', () => {
       transitRepository,
       {} as AddressRepository,
       {} as ClientRepository,
+      {} as CarTypeService,
     );
   });
 

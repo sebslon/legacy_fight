@@ -62,7 +62,7 @@ export class TransitDto {
   public clientDto: ClientDto;
 
   constructor(transit: Transit) {
-    if (!transit || !transit.getId()) {
+    if (!transit) {
       return;
     }
 
