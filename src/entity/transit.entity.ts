@@ -354,6 +354,8 @@ export class Transit extends BaseEntity {
   }
 
   private calculateCost(): Money {
-    return this.tariff.calculateCost(this.getKm());
+    const price = this.tariff.calculateCost(this.getKm());
+    this.price = price;
+    return price;
   }
 }
