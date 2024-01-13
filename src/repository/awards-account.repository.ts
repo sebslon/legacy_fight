@@ -5,7 +5,7 @@ import { Client } from '../entity/client.entity';
 
 @EntityRepository(AwardsAccount)
 export class AwardsAccountRepository extends Repository<AwardsAccount> {
-  public async findByClient(client: Client) {
+  public async findByClient(client: Client | undefined) {
     return this.findOne({ where: { client } });
   }
 }

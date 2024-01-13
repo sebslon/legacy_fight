@@ -28,19 +28,24 @@ export class DriverTrackingService {
     longitude: number,
   ): Promise<DriverPosition> {
     const driver = await this.driverRepository.findOne(driverId);
+
     if (!driver) {
       throw new NotFoundException('Driver does not exists, id = ' + driverId);
     }
+
     if (driver.getStatus() !== DriverStatus.ACTIVE) {
       throw new NotAcceptableException(
         'Driver is not active, cannot register position, id = ' + driverId,
       );
     }
+
     const position = new DriverPosition();
+
     position.setDriver(driver);
     position.setSeenAt(Date.now());
     position.setLatitude(latitude);
     position.setLongitude(longitude);
+
     return await this.positionRepository.save(position);
   }
 

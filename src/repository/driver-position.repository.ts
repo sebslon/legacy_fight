@@ -13,21 +13,25 @@ export class DriverPositionRepository extends Repository<DriverPosition> {
     longitudeMax: number,
     date: number,
   ): Promise<DriverPositionV2Dto[]> {
-    const driverPosition = await this.createQueryBuilder('driverPosition')
-      .leftJoinAndSelect('driverPosition.driver', 'p')
-      .select(`AVG(p.latitude), AVG(p.longitude), MAX(p.seenAt)`)
-      .where('p.longitude between :longitudeMin and :longitudeMax')
-      .andWhere('p.longitude between :longitudeMin and :longitudeMax')
-      .andWhere('p.seenAt >= :seenAt')
-      .groupBy('p.driver.id')
+    const driverPositions = await this.createQueryBuilder('dp')
+      .leftJoinAndSelect('dp.driver', 'd')
+      .addSelect('AVG(dp.latitude)', 'latitude')
+      .addSelect('AVG(dp.longitude)', 'longitude')
+      .addSelect('MAX(dp.seenAt)', 'seenAt')
+      .where('dp.longitude between :longitudeMin and :longitudeMax')
+      .andWhere('dp.latitude between :latitudeMin and :latitudeMax')
+      .andWhere('dp.seenAt >= :seenAt')
+      .groupBy('dp.id, d.id')
       .setParameters({
         longitudeMin,
         longitudeMax,
+        latitudeMin,
+        latitudeMax,
         seenAt: date,
       })
       .getMany();
 
-    return driverPosition.map(
+    return driverPositions.map(
       (dp) =>
         new DriverPositionV2Dto(
           dp.driver,

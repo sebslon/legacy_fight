@@ -61,7 +61,7 @@ export class TransitDto {
 
   public clientDto: ClientDto;
 
-  constructor(transit: Transit) {
+  constructor(transit?: Transit) {
     if (!transit) {
       return;
     }
@@ -76,9 +76,11 @@ export class TransitDto {
     this.date = transit.getDateTime();
     this.status = transit.getStatus();
     this.setTariff(transit);
+
     for (const d of transit.getProposedDrivers()) {
       this.proposedDrivers.push(new DriverDto(d));
     }
+
     this.to = new AddressDto(transit.getTo());
     this.from = new AddressDto(transit.getFrom());
     this.carClass = transit.getCarType();

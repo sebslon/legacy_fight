@@ -100,15 +100,16 @@ export class AwardsService implements IAwardsService {
   }
 
   public async registerMiles(clientId: string, transitId: string) {
-    const account = await this.getAccountForClient(clientId);
+    const client = await this.clientRepository.findOne(clientId);
     const transit = await this.transitRepository.findOne(transitId);
+    const account = await this.accountRepository.findByClient(client);
 
     if (!transit) {
       throw new NotFoundException('transit does not exists, id = ' + transitId);
     }
 
     const now = Date.now();
-    if (!account.isAwardActive()) {
+    if (!account || !account.isAwardActive()) {
       return null;
     } else {
       const miles = new AwardedMiles();

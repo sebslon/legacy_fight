@@ -67,16 +67,16 @@ export class Fixtures {
   public async createTransitDTO(
     from: AddressDto,
     to: AddressDto,
+    client?: Client,
     carClass?: CarClass,
   ): Promise<TransitDto> {
-    const client = await this.createTestClient();
-    const transit = new Transit();
-    const transitDto = new TransitDto(transit);
+    const transitClient = client ?? (await this.createTestClient());
+    const transitDto = new TransitDto();
 
+    transitDto.setClientDTO(new ClientDto(transitClient));
     transitDto.setFrom(from);
     transitDto.setTo(to);
-    transitDto.setClientDTO(new ClientDto(client));
-    transitDto.carClass = carClass ?? CarClass.VAN;
+    transitDto.setCarClass(carClass ?? CarClass.VAN);
 
     return transitDto;
   }
@@ -141,6 +141,8 @@ export class Fixtures {
     for (let i = 1; i < carType.getMinNoOfCarsToActivateClass() + 1; i += 1) {
       await this.carTypeService.registerCar(carType.getCarClass());
     }
+
+    await this.carTypeService.activate(carType.getId());
 
     return carType;
   }

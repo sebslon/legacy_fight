@@ -30,12 +30,15 @@ export class DriverSessionService {
     if (!driver) {
       throw new NotFoundException(`Driver with id ${driverId} not exists`);
     }
+
     session.setDriver(driver);
     session.setLoggedAt(Date.now());
     session.setCarClass(carClass);
     session.setPlatesNumber(plateNumber);
     session.setCarBrand(carBrand);
+
     await this.carTypeService.registerActiveCar(session.getCarClass());
+
     return this.driverSessionRepository.save(session);
   }
 

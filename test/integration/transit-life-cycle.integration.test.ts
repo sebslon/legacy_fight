@@ -63,7 +63,7 @@ describe('Transit Life Cycle', () => {
 
   beforeEach(async () => {
     await fixtures.createActiveCarCategory(CarClass.VAN);
-    geocodingService.geocodeAddress = jest.fn().mockResolvedValue([1, 1]);
+    geocodingService.geocodeAddress = jest.fn().mockReturnValue([1, 1]);
   });
 
   afterAll(async () => {
@@ -149,7 +149,7 @@ describe('Transit Life Cycle', () => {
     expect(loadedTransit.getPrice()).toBeNull();
   });
 
-  it.skip("Can't change destination when transit is completed", async () => {
+  it("Can't change destination when transit is completed", async () => {
     const destination = new AddressDto({
       country: 'Poland',
       city: 'Warsaw',
@@ -169,13 +169,13 @@ describe('Transit Life Cycle', () => {
       destination,
     );
 
-    const driver = await createNearbyDriver('WW 12345');
+    const driver = await createNearbyDriver('WU1212');
 
     await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver.getId(), transit.getId());
-    await transitService.startTransit(driver.getId(), transit.getId());
+    await transitService.acceptTransit(driver, transit.getId());
+    await transitService.startTransit(driver, transit.getId());
     await transitService.completeTransit(
-      driver.getId(),
+      driver,
       transit.getId(),
       new Address(
         destination.country,
@@ -212,13 +212,16 @@ describe('Transit Life Cycle', () => {
   async function createNearbyDriver(plateNumber: string) {
     const driver = await fixtures.createTestDriver();
     await fixtures.driverHasFee(driver, FeeType.FLAT, 10, 0);
+
     await driverSessionService.logIn(
       driver.getId(),
       plateNumber,
       CarClass.VAN,
       'test',
     );
+
     await driverTrackingService.registerPosition(driver.getId(), 1, 1);
-    return driver;
+
+    return driver.getId();
   }
 });

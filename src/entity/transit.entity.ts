@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   OneToOne,
@@ -107,10 +108,12 @@ export class Transit extends BaseEntity {
   @Column({ default: 0 })
   public pickupAddressChangeCounter: number;
 
-  @ManyToMany(() => Driver)
+  @ManyToMany(() => Driver, { eager: true })
+  @JoinTable()
   public driversRejections: Driver[];
 
-  @ManyToMany(() => Driver)
+  @ManyToMany(() => Driver, { eager: true })
+  @JoinTable()
   public proposedDrivers: Driver[];
 
   @Column({ default: 0, type: 'integer' })

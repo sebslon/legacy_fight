@@ -45,6 +45,7 @@ export class AddressDto {
       this.postalCode = a.postalCode;
     }
   }
+
   public getCountry() {
     return this.country;
   }

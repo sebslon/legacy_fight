@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { EntityRepository, MoreThan, Repository, IsNull } from 'typeorm';
+import { EntityRepository, MoreThan, Repository, IsNull, In } from 'typeorm';
 
 import { CarClass } from '../entity/car-type.entity';
 import { DriverSession } from '../entity/driver-session.entity';
@@ -11,8 +11,16 @@ export class DriverSessionRepository extends Repository<DriverSession> {
     drivers: Driver[],
     carClasses: CarClass[],
   ): Promise<DriverSession[]> {
-    console.log('To implement...', drivers, carClasses);
-    return [];
+    return this.find({
+      where: {
+        driver: {
+          id: In(drivers.map((driver) => driver.getId())),
+        },
+        carClass: In(carClasses),
+        loggedOutAt: IsNull(),
+      },
+      relations: ['driver'],
+    });
   }
 
   public async findTopByDriverAndLoggedOutAtIsNullOrderByLoggedAtDesc(

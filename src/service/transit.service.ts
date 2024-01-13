@@ -54,19 +54,20 @@ export class TransitService {
   ) {}
 
   public async createTransit(transitDto: TransitDto) {
-    const from = await this.addressFromDto(new AddressDto(transitDto.from));
-    const to = await this.addressFromDto(new AddressDto(transitDto.to));
+    const from = await this.addressFromDto(transitDto.getFrom());
+    const to = await this.addressFromDto(transitDto.getTo());
 
     if (!from || !to) {
       throw new NotAcceptableException(
         'Cannot create transit for empty address',
       );
     }
+
     return this._createTransit(
       transitDto.getClientDto().getId(),
       from,
       to,
-      transitDto.carClass,
+      transitDto.getCarClass(),
     );
   }
 
@@ -285,6 +286,7 @@ export class TransitService {
 
     transit.setStatus(TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT);
     transit.setPublished(Date.now());
+
     await this.transitRepository.save(transit);
 
     return this.findDriversForTransit(transitId);
@@ -309,7 +311,7 @@ export class TransitService {
 
           // FIXME: to refactor when the final business logic will be determined
           if (
-            dayjs(transit.getPublished())
+            dayjs(+transit.getPublished())
               .add(300, 'seconds')
               .isBefore(dayjs()) ||
             distanceToCheck >= 20 ||
@@ -323,7 +325,8 @@ export class TransitService {
             await this.transitRepository.save(transit);
             return transit;
           }
-          let geocoded: number[] = [0, 0];
+
+          let geocoded: number[] = new Array(2);
 
           try {
             geocoded = this.geocodingService.geocodeAddress(transit.getFrom());
@@ -427,7 +430,10 @@ export class TransitService {
                 if (
                   !Array.from(transit.getDriversRejections()).includes(driver)
                 ) {
-                  transit.getProposedDrivers().push(driver);
+                  transit.setProposedDrivers([
+                    ...transit.getProposedDrivers(),
+                    driver,
+                  ]);
                   transit.setAwaitingDriversResponses(
                     transit.getAwaitingDriversResponses() + 1,
                   );
@@ -475,12 +481,20 @@ export class TransitService {
             'Transit already accepted, id = ' + transitId,
           );
         } else {
-          if (!Array.from(transit.getProposedDrivers()).includes(driver)) {
+          if (
+            !transit
+              .getProposedDrivers()
+              .some((d) => d.getId() === driver.getId())
+          ) {
             throw new NotAcceptableException(
               'Driver out of possible drivers, id = ' + transitId,
             );
           } else {
-            if (Array.from(transit.getDriversRejections()).includes(driver)) {
+            if (
+              transit
+                .getDriversRejections()
+                .some((d) => d.getId() === driver.getId())
+            ) {
               throw new NotAcceptableException(
                 'Driver out of possible drivers, id = ' + transitId,
               );
@@ -489,8 +503,11 @@ export class TransitService {
               transit.setAwaitingDriversResponses(0);
               transit.setAcceptedAt(Date.now());
               transit.setStatus(TransitStatus.TRANSIT_TO_PASSENGER);
+
               await this.transitRepository.save(transit);
+
               driver.setOccupied(true);
+
               await this.driverRepository.save(driver);
             }
           }
@@ -561,6 +578,7 @@ export class TransitService {
     destinationAddress: Address,
   ) {
     await this.addressRepository.save(destinationAddress);
+
     const driver = await this.driverRepository.findOne(driverId);
 
     if (!driver) {
