@@ -32,6 +32,21 @@ describe('Transit Life Cycle', () => {
   let geocodingService: GeocodingService;
   let fixtures: Fixtures;
 
+  const addressData = {
+    country: 'Poland',
+    city: 'Warsaw',
+    street: 'Młynarska',
+    buildingNumber: 20,
+    postalCode: '00-000',
+  };
+  const addressData2 = {
+    country: 'Poland',
+    city: 'Warsaw',
+    street: 'Żytnia',
+    buildingNumber: 25,
+    postalCode: '00-000',
+  };
+
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -72,20 +87,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can create transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 25,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
@@ -93,16 +96,22 @@ describe('Transit Life Cycle', () => {
     expect(loadedTransit.getCarClass()).toBe(CarClass.VAN);
     expect(loadedTransit.getEstimatedPrice()).not.toBeNull();
     expect(loadedTransit.getPrice()).toBeNull();
-    expect(loadedTransit.getFrom().getCountry()).toBe('Poland');
-    expect(loadedTransit.getFrom().getCity()).toBe('Warsaw');
-    expect(loadedTransit.getFrom().getStreet()).toBe('Młynarska');
-    expect(loadedTransit.getFrom().getBuildingNumber()).toBe(20);
-    expect(loadedTransit.getFrom().getPostalCode()).toBe('00-000');
-    expect(loadedTransit.getTo().getCountry()).toBe('Poland');
-    expect(loadedTransit.getTo().getCity()).toBe('Warsaw');
-    expect(loadedTransit.getTo().getStreet()).toBe('Żytnia');
-    expect(loadedTransit.getTo().getBuildingNumber()).toBe(25);
-    expect(loadedTransit.getTo().getPostalCode()).toBe('00-000');
+    expect(loadedTransit.getFrom().getCountry()).toBe(addressData.country);
+    expect(loadedTransit.getFrom().getCity()).toBe(addressData.city);
+    expect(loadedTransit.getFrom().getStreet()).toBe(addressData.street);
+    expect(loadedTransit.getFrom().getBuildingNumber()).toBe(
+      addressData.buildingNumber,
+    );
+    expect(loadedTransit.getFrom().getPostalCode()).toBe(
+      addressData.postalCode,
+    );
+    expect(loadedTransit.getTo().getCountry()).toBe(addressData2.country);
+    expect(loadedTransit.getTo().getCity()).toBe(addressData2.city);
+    expect(loadedTransit.getTo().getStreet()).toBe(addressData2.street);
+    expect(loadedTransit.getTo().getBuildingNumber()).toBe(
+      addressData2.buildingNumber,
+    );
+    expect(loadedTransit.getTo().getPostalCode()).toBe(addressData2.postalCode);
     expect(loadedTransit.getStatus()).toBe(TransitStatus.DRAFT);
     expect(loadedTransit.getTariff()).not.toBeNull();
     expect(loadedTransit.getKmRate()).not.toBe(0);
@@ -111,40 +120,34 @@ describe('Transit Life Cycle', () => {
 
   it('Can change transit destination', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 25,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
+
+    const newDestination = {
+      country: 'Poland',
+      city: 'Warsaw',
+      street: 'Okopowa',
+      buildingNumber: 130,
+      postalCode: '00-100',
+    };
 
     await transitService.changeTransitAddressTo(
       transit.getId(),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Okopowa',
-        buildingNumber: 130,
-        postalCode: '00-100',
-      }),
+      new AddressDto(newDestination),
     );
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
 
-    expect(loadedTransit.getTo().getCountry()).toBe('Poland');
-    expect(loadedTransit.getTo().getCity()).toBe('Warsaw');
-    expect(loadedTransit.getTo().getStreet()).toBe('Okopowa');
-    expect(loadedTransit.getTo().getBuildingNumber()).toBe(130);
-    expect(loadedTransit.getTo().getPostalCode()).toBe('00-100');
+    expect(loadedTransit.getTo().getCountry()).toBe(newDestination.country);
+    expect(loadedTransit.getTo().getCity()).toBe(newDestination.city);
+    expect(loadedTransit.getTo().getStreet()).toBe(newDestination.street);
+    expect(loadedTransit.getTo().getBuildingNumber()).toBe(
+      newDestination.buildingNumber,
+    );
+    expect(loadedTransit.getTo().getPostalCode()).toBe(
+      newDestination.postalCode,
+    );
     expect(loadedTransit.getEstimatedPrice()).not.toBeNull();
     expect(loadedTransit.getPrice()).toBeNull();
   });
@@ -159,13 +162,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
       destination,
     );
 
@@ -202,40 +199,32 @@ describe('Transit Life Cycle', () => {
 
   it('Can change pickup place', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 25,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
+
+    const pickup = {
+      country: 'Poland',
+      city: 'Warsaw',
+      street: 'Okopowa',
+      buildingNumber: 130,
+      postalCode: '00-100',
+    };
 
     await transitService.changeTransitAddressFrom(
       transit.getId(),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Okopowa',
-        buildingNumber: 130,
-        postalCode: '00-100',
-      }),
+      new AddressDto(pickup),
     );
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
 
-    expect(loadedTransit.getFrom().getCountry()).toBe('Poland');
-    expect(loadedTransit.getFrom().getCity()).toBe('Warsaw');
-    expect(loadedTransit.getFrom().getStreet()).toBe('Okopowa');
-    expect(loadedTransit.getFrom().getBuildingNumber()).toBe(130);
-    expect(loadedTransit.getFrom().getPostalCode()).toBe('00-100');
+    expect(loadedTransit.getFrom().getCountry()).toBe(pickup.country);
+    expect(loadedTransit.getFrom().getCity()).toBe(pickup.city);
+    expect(loadedTransit.getFrom().getStreet()).toBe(pickup.street);
+    expect(loadedTransit.getFrom().getBuildingNumber()).toBe(
+      pickup.buildingNumber,
+    );
+    expect(loadedTransit.getFrom().getPostalCode()).toBe(pickup.postalCode);
   });
 
   it("Can't change pickup place after transit is accepted, in progress, or completed", async () => {
@@ -248,13 +237,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
       destination,
     );
 
@@ -300,21 +283,10 @@ describe('Transit Life Cycle', () => {
 
   it("Can't change pickup place more than three times", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 25,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
+
     const newAddress = new AddressDto({
       country: 'Poland',
       city: 'Warsaw',
@@ -334,20 +306,8 @@ describe('Transit Life Cycle', () => {
 
   it("Can't change pickup place when it's far way from original", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 25,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const newAddress = farAwayAddress();
@@ -359,20 +319,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can cancel transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 25,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     await transitService.cancelTransit(transit.getId());
@@ -392,13 +340,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 20,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
       destination,
     );
 
@@ -431,20 +373,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can publish transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     await transitService.publishTransit(transit.getId());
@@ -459,20 +389,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can accept transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -488,20 +406,8 @@ describe('Transit Life Cycle', () => {
 
   it('Only one driver can accept transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const driver1 = await createNearbyDriver('WU1212');
@@ -518,20 +424,8 @@ describe('Transit Life Cycle', () => {
 
   it("Transit can't be accepted by driver who already rejected it", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -546,20 +440,8 @@ describe('Transit Life Cycle', () => {
 
   it("Transit can't be accepted by driver who has not seen proposal", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const driver = await farAwayDriver('WU1212');
@@ -573,20 +455,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can start transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -603,20 +473,8 @@ describe('Transit Life Cycle', () => {
 
   it("Can't start not accepted transit", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Żytnia',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -638,13 +496,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
       destination,
     );
 
@@ -684,13 +536,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        street: 'Młynarska',
-        buildingNumber: 4,
-        postalCode: '00-000',
-      }),
+      new AddressDto(addressData),
       destination,
     );
 
@@ -716,20 +562,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can reject transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        postalCode: '00-000',
-        street: 'Młynarska',
-        buildingNumber: 4,
-      }),
-      new AddressDto({
-        country: 'Poland',
-        city: 'Warsaw',
-        postalCode: '00-000',
-        street: 'Żytnia',
-        buildingNumber: 4,
-      }),
+      new AddressDto(addressData),
+      new AddressDto(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
