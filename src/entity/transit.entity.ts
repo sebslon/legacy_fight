@@ -214,6 +214,9 @@ export class Transit extends BaseEntity {
 
     transit.driversRejections = [];
     transit.proposedDrivers = [];
+    transit.pickupAddressChangeCounter = 0;
+    transit.price = null;
+    transit.acceptedAt = null;
 
     return transit;
   }
