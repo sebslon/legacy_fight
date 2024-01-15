@@ -1,8 +1,9 @@
 import { Distance } from '../src/distance/distance';
 import { TransitDto } from '../src/dto/transit.dto';
 import { Address } from '../src/entity/address.entity';
+import { CarClass } from '../src/entity/car-type.entity';
 import { Client } from '../src/entity/client.entity';
-import { Transit, TransitStatus } from '../src/entity/transit.entity';
+import { Transit } from '../src/entity/transit.entity';
 import { Money } from '../src/money/money';
 
 describe('Calculate Transit Distance', () => {
@@ -31,15 +32,16 @@ describe('Calculate Transit Distance', () => {
   });
 
   function transitForDistance(km: number): TransitDto {
-    const transit = new Transit();
+    const transit = Transit.create(
+      new Address('test', 'test', 'test', 'test', 1),
+      new Address('test', 'test', 'test', 'test', 1),
+      new Client(),
+      CarClass.REGULAR,
+      Date.now(),
+      Distance.fromKm(km),
+    );
 
     transit.setPrice(new Money(10));
-    transit.setDateTime(Date.now());
-    transit.setTo(new Address('test', 'test', 'test', 'test', 1));
-    transit.setFrom(new Address('test', 'test', 'test', 'test', 1));
-    transit.setStatus(TransitStatus.DRAFT);
-    transit.setKm(Distance.fromKm(km));
-    transit.setClient(new Client());
 
     return new TransitDto(transit);
   }

@@ -1,3 +1,4 @@
+import { Distance } from '../../src/distance/distance';
 import { AddressDto } from '../../src/dto/address.dto';
 import { CarTypeDto } from '../../src/dto/car-type.dto';
 import { ClientDto } from '../../src/dto/client.dto';
@@ -16,7 +17,7 @@ import {
   DriverStatus,
   DriverType,
 } from '../../src/entity/driver.entity';
-import { Transit, TransitStatus } from '../../src/entity/transit.entity';
+import { Transit } from '../../src/entity/transit.entity';
 import { Money } from '../../src/money/money';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
@@ -47,21 +48,85 @@ export class Fixtures {
   }
 
   public async createTestTransit(
-    driver: Driver | null,
+    driver: Driver,
     price: number,
     date?: Date,
+    from?: Address,
+    to?: Address,
+    client?: Client | null,
   ) {
-    const transit = new Transit();
+    const fromAddress = await this.createOrGetAddress(from);
+    const toAddress = await this.createOrGetAddress(to);
+
+    const transit = Transit.create(
+      fromAddress,
+      toAddress,
+      client ?? (await this.createTestClient()),
+      CarClass.REGULAR,
+      date?.getTime() ?? Date.now(),
+      Distance.ZERO,
+    );
 
     transit.setPrice(new Money(price));
-    transit.setDriver(driver);
-    transit.setStatus(TransitStatus.COMPLETED);
-    transit.setCarType(CarClass.REGULAR);
-    transit.setDateTime(date?.getTime() ?? Date.now());
 
-    await this.transitRepository.save(transit);
+    transit.proposeTo(driver);
+    transit.acceptBy(driver, new Date());
 
-    return transit;
+    return await this.transitRepository.save(transit);
+  }
+
+  private async createOrGetAddress(address: Address | undefined) {
+    if (!address) {
+      const address = new Address(
+        'Polska',
+        'Warszawa',
+        '00-001',
+        'ul. Testowa',
+        1,
+      );
+
+      const addressByHash = await this.addressRepository.findOne({
+        where: { hash: address.getHash() },
+      });
+
+      if (addressByHash) {
+        return addressByHash;
+      }
+
+      return this.addressRepository.save(address);
+    }
+
+    const addressByHash = await this.addressRepository.findOne({
+      where: { hash: address.getHash() },
+    });
+
+    if (addressByHash) {
+      return addressByHash;
+    }
+
+    return this.addressRepository.save(address);
+  }
+
+  public async createCompletedTransitAt(price: number, date: Date) {
+    const toAddress = await this.createOrGetAddress(
+      new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 1),
+    );
+    const fromAddress = await this.createOrGetAddress(
+      new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 150),
+    );
+
+    const transit = Transit.create(
+      fromAddress,
+      toAddress,
+      await this.createTestClient(),
+      CarClass.REGULAR,
+      date.getTime(),
+      Distance.ZERO,
+    );
+
+    transit.setPrice(new Money(price));
+
+    return this.transitRepository.save(transit);
   }
 
   public async createTransitDTO(
@@ -104,26 +169,6 @@ export class Fixtures {
     client.setDefaultPaymentType(PaymentType.POST_PAID);
 
     return this.clientRepository.save(client);
-  }
-
-  public async createCompletedTransitAt(price: number, date: Date) {
-    const transit = await this.createTestTransit(null, price, date);
-    const client = await this.createTestClient();
-
-    transit.setDateTime(date.getTime());
-    transit.setTo(
-      await this.addressRepository.save(
-        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 1),
-      ),
-    );
-    transit.setFrom(
-      await this.addressRepository.save(
-        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 150),
-      ),
-    );
-    transit.setClient(client);
-
-    return this.transitRepository.save(transit);
   }
 
   public async createActiveCarCategory(carClass: CarClass) {

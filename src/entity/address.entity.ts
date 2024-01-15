@@ -1,5 +1,5 @@
 import * as objectHash from 'object-hash';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 
@@ -29,6 +29,7 @@ export class Address extends BaseEntity {
   @Column({ nullable: true, type: 'varchar' })
   private name: string | null;
 
+  @Index()
   @Column({ unique: true })
   private hash: string;
 
@@ -45,6 +46,7 @@ export class Address extends BaseEntity {
     this.city = city;
     this.street = street;
     this.buildingNumber = buildingNumber;
+    this.setHash();
   }
 
   public getCountry() {

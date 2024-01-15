@@ -1,4 +1,5 @@
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, NotAcceptableException } from '@nestjs/common';
+import * as dayjs from 'dayjs';
 import {
   Column,
   Entity,
@@ -69,7 +70,10 @@ export enum DayOfWeek {
 
 @Entity()
 export class Transit extends BaseEntity {
-  @ManyToOne(() => Driver, (driver) => driver.transits, { eager: true })
+  @ManyToOne(() => Driver, (driver) => driver.transits, {
+    eager: true,
+  })
+  @JoinColumn()
   public driver: Driver | null;
 
   @OneToOne(() => Tariff, { eager: true, cascade: true })
@@ -169,16 +173,222 @@ export class Transit extends BaseEntity {
   @Column({ type: 'bigint', nullable: true })
   private completeAt: number;
 
+  private constructor(
+    from: Address,
+    to: Address,
+    client: Client,
+    carClass: CarClass,
+    dateTime: number,
+    distance: Distance,
+    status: TransitStatus = TransitStatus.DRAFT,
+  ) {
+    super();
+
+    this.from = from;
+    this.to = to;
+    this.client = client;
+    this.carType = carClass;
+    this.setDateTime(dateTime);
+    this.km = distance?.toKmInFloat();
+    this.status = status;
+  }
+
+  public static create(
+    from: Address,
+    to: Address,
+    client: Client,
+    carClass: CarClass,
+    dateTime: number,
+    distance: Distance,
+    status: TransitStatus = TransitStatus.DRAFT,
+  ) {
+    const transit = new Transit(
+      from,
+      to,
+      client,
+      carClass,
+      dateTime,
+      distance,
+      status,
+    );
+
+    transit.driversRejections = [];
+    transit.proposedDrivers = [];
+
+    return transit;
+  }
+
+  public completeTransitAt(
+    when: Date,
+    destinationAddress: Address,
+    distance: Distance,
+  ) {
+    if (this.status === TransitStatus.IN_TRANSIT) {
+      this.km = distance.toKmInFloat();
+      this.estimateCost();
+      this.completeAt = when.getTime();
+      this.to = destinationAddress;
+      this.status = TransitStatus.COMPLETED;
+      this.calculateFinalCosts();
+    } else {
+      throw new NotAcceptableException(
+        'Cannot complete transit, id = ' + this.getId(),
+      );
+    }
+  }
+
+  public rejectBy(driver: Driver) {
+    this.driversRejections.push(driver);
+    this.awaitingDriversResponses = this.awaitingDriversResponses - 1;
+  }
+
+  public acceptBy(driver: Driver, when: Date) {
+    if (this.driver) {
+      throw new NotAcceptableException(
+        'Transit already accepted, id = ' + this.getId(),
+      );
+    } else {
+      if (!this.proposedDrivers.some((d) => d.getId() === driver.getId())) {
+        throw new NotAcceptableException(
+          'Driver out of possible drivers, id = ' + this.getId(),
+        );
+      }
+
+      if (this.driversRejections.some((d) => d.getId() === driver.getId())) {
+        throw new NotAcceptableException(
+          'Driver out of possible drivers, id = ' + this.getId(),
+        );
+      }
+
+      this.driver = driver;
+      this.driver.setOccupied(true);
+      this.awaitingDriversResponses = 0;
+      this.acceptedAt = when.getTime();
+      this.status = TransitStatus.TRANSIT_TO_PASSENGER;
+    }
+
+    return this;
+  }
+
+  public canProposeTo(driver: Driver) {
+    return !this.driversRejections.some((d) => d.getId() === driver.getId());
+  }
+
+  public proposeTo(driver: Driver) {
+    if (this.canProposeTo(driver)) {
+      this.proposedDrivers.push(driver);
+      this.awaitingDriversResponses = this.awaitingDriversResponses + 1;
+    }
+  }
+
+  public failDriverAssignment() {
+    this.status = TransitStatus.DRIVER_ASSIGNMENT_FAILED;
+    this.driver = null;
+    this.km = Distance.ZERO.toKmInFloat();
+    this.awaitingDriversResponses = 0;
+  }
+
+  public shouldNotWaitForDriverAnymore(date?: Date) {
+    return (
+      this.status === TransitStatus.CANCELLED ||
+      dayjs(+this.getPublished())
+        .add(300, 'seconds')
+        .isBefore(date ?? dayjs())
+    );
+  }
+
+  public changeDestinationTo(newAddress: Address, newDistance: Distance) {
+    if (this.status === TransitStatus.COMPLETED) {
+      throw new NotAcceptableException(
+        "Address 'to' cannot be changed, id = " + this.getId(),
+      );
+    }
+
+    this.to = newAddress;
+    this.km = newDistance.toKmInFloat();
+
+    this.estimateCost();
+  }
+
+  public changePickupTo(
+    newAddress: Address,
+    newDistance: Distance,
+    distanceFromPreviousInKm: number,
+  ) {
+    if (distanceFromPreviousInKm > 0.25) {
+      throw new NotAcceptableException(
+        "Address 'to' cannot be changed, id = " + this.getId(),
+      );
+    }
+
+    if (this.pickupAddressChangeCounter > 2) {
+      throw new NotAcceptableException(
+        "Address 'to' cannot be changed, id = " + this.getId(),
+      );
+    }
+
+    if (
+      this.status !== TransitStatus.DRAFT &&
+      this.status !== TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT
+    ) {
+      throw new NotAcceptableException(
+        "Address 'to' cannot be changed, id = " + this.getId(),
+      );
+    }
+
+    this.from = newAddress;
+    this.km = newDistance.toKmInFloat();
+    this.pickupAddressChangeCounter = this.pickupAddressChangeCounter + 1;
+
+    this.estimateCost();
+  }
+
+  public cancel() {
+    if (
+      ![
+        TransitStatus.DRAFT,
+        TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT,
+        TransitStatus.TRANSIT_TO_PASSENGER,
+      ].includes(this.status)
+    ) {
+      throw new NotAcceptableException(
+        'Transit cannot be cancelled, id = ' + this.getId(),
+      );
+    }
+
+    this.status = TransitStatus.CANCELLED;
+    this.driver = null;
+    this.km = Distance.ZERO.toKmInFloat();
+    this.awaitingDriversResponses = 0;
+  }
+
+  public start(when: Date) {
+    if (this.status !== TransitStatus.TRANSIT_TO_PASSENGER) {
+      throw new NotAcceptableException(
+        'Transit cannot be started, id = ' + this.getId(),
+      );
+    }
+
+    this.status = TransitStatus.IN_TRANSIT;
+    this.started = when.getTime();
+  }
+
+  public publishAt(when: Date) {
+    this.status = TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT;
+    this.published = when.getTime();
+  }
+
+  public setDateTime(dateTime: number) {
+    this.tariff = Tariff.ofTime(new Date(dateTime));
+    this.dateTime = dateTime;
+  }
+
   public getTariff() {
     return this.tariff;
   }
 
   public getCarType() {
     return this.carType as CarClass;
-  }
-
-  public setCarType(carType: CarClass) {
-    this.carType = carType;
   }
 
   public getDriver() {
@@ -208,15 +418,6 @@ export class Transit extends BaseEntity {
 
   public getClient() {
     return this.client;
-  }
-
-  public setClient(client: Client) {
-    this.client = client;
-  }
-
-  public setDateTime(dateTime: number) {
-    this.tariff = Tariff.ofTime(new Date(dateTime));
-    this.dateTime = dateTime;
   }
 
   public getDateTime() {
@@ -256,10 +457,6 @@ export class Transit extends BaseEntity {
     return this.driversRejections || [];
   }
 
-  public setDriversRejections(driversRejections: Driver[]) {
-    this.driversRejections = driversRejections;
-  }
-
   public getProposedDrivers() {
     return this.proposedDrivers || [];
   }
@@ -288,16 +485,8 @@ export class Transit extends BaseEntity {
     return this.from;
   }
 
-  public setFrom(from: Address) {
-    this.from = from;
-  }
-
   public getTo() {
     return this.to;
-  }
-
-  public setTo(to: Address) {
-    this.to = to;
   }
 
   public getPickupAddressChangeCounter() {
@@ -316,16 +505,12 @@ export class Transit extends BaseEntity {
     return this.driversFee;
   }
 
-  public setDriversFee(driversFee: number) {
-    this.driversFee = new Money(driversFee);
+  public setDriversFee(driversFee: Money) {
+    this.driversFee = driversFee;
   }
 
   public getEstimatedPrice() {
     return this.estimatedPrice;
-  }
-
-  public setEstimatedPrice(estimatedPrice: number) {
-    this.estimatedPrice = new Money(estimatedPrice);
   }
 
   public estimateCost() {

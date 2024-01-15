@@ -1,6 +1,9 @@
 import { ForbiddenException } from '@nestjs/common';
 
 import { Distance } from '../src/distance/distance';
+import { Address } from '../src/entity/address.entity';
+import { CarClass } from '../src/entity/car-type.entity';
+import { Client } from '../src/entity/client.entity';
 import { TransitStatus, Transit } from '../src/entity/transit.entity';
 import { Money } from '../src/money/money';
 
@@ -85,12 +88,17 @@ describe('Calculate Transit Price', () => {
   });
 
   function createTestTransit(status: TransitStatus, km: number) {
-    const transit = new Transit();
+    const transit = Transit.create(
+      new Address('test', 'test', 'test', 'test', 1),
+      new Address('test', 'test', 'test', 'test', 1),
+      new Client(),
+      CarClass.REGULAR,
+      Date.now(),
+      Distance.fromKm(km),
+      status || TransitStatus.COMPLETED,
+    );
 
-    transit.setDateTime(Date.now());
-    transit.setStatus(TransitStatus.DRAFT);
-    transit.setKm(Distance.fromKm(km));
-    transit.setStatus(status);
+    transit.setPrice(new Money(10));
 
     return transit;
   }

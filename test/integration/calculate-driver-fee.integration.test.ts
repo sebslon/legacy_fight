@@ -18,6 +18,8 @@ describe('Calculate Driver Fee', () => {
   let driverFeeService: DriverFeeService;
   let transitRepository: TransitRepository;
   let driverFeeRepository: DriverFeeRepository;
+  let clientRepository: ClientRepository;
+  let addressRepository: AddressRepository;
   let fixtures: Fixtures;
 
   beforeAll(async () => {
@@ -29,13 +31,15 @@ describe('Calculate Driver Fee', () => {
     driverFeeService = module.get<DriverFeeService>(DriverFeeService);
     transitRepository = module.get<TransitRepository>(TransitRepository);
     driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
+    clientRepository = module.get<ClientRepository>(ClientRepository);
+    addressRepository = module.get<AddressRepository>(AddressRepository);
 
     fixtures = new Fixtures(
       driverService,
       driverFeeRepository,
       transitRepository,
-      {} as AddressRepository,
-      {} as ClientRepository,
+      addressRepository as AddressRepository,
+      clientRepository,
       {} as CarTypeService,
     );
   });

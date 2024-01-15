@@ -10,6 +10,7 @@ import { TransitStatus } from '../../src/entity/transit.entity';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
+import { DriverPositionRepository } from '../../src/repository/driver-position.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { CarTypeService } from '../../src/service/car-type.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
@@ -31,6 +32,7 @@ describe('Transit Life Cycle', () => {
   let carTypeService: CarTypeService;
   let geocodingService: GeocodingService;
   let fixtures: Fixtures;
+  let positionRepository: DriverPositionRepository;
 
   const addressData = {
     country: 'Poland',
@@ -65,6 +67,9 @@ describe('Transit Life Cycle', () => {
     driverTrackingService = module.get<DriverTrackingService>(
       DriverTrackingService,
     );
+    positionRepository = module.get<DriverPositionRepository>(
+      DriverPositionRepository,
+    );
 
     fixtures = new Fixtures(
       driverService,
@@ -77,6 +82,7 @@ describe('Transit Life Cycle', () => {
   });
 
   beforeEach(async () => {
+    await positionRepository.clear();
     await fixtures.createActiveCarCategory(CarClass.VAN);
     geocodingService.geocodeAddress = jest.fn().mockReturnValue([1, 1]);
   });
@@ -377,6 +383,7 @@ describe('Transit Life Cycle', () => {
       new AddressDto(addressData2),
     );
 
+    await createNearbyDriver('WU1212');
     await transitService.publishTransit(transit.getId());
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
@@ -592,6 +599,7 @@ describe('Transit Life Cycle', () => {
 
   async function createNearbyDriver(plateNumber: string) {
     const driver = await fixtures.createTestDriver();
+
     await fixtures.driverHasFee(driver, FeeType.FLAT, 10, 0);
 
     await driverSessionService.logIn(
