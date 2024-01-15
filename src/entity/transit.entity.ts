@@ -383,6 +383,31 @@ export class Transit extends BaseEntity {
     this.dateTime = dateTime;
   }
 
+  public estimateCost() {
+    if (this.status === TransitStatus.COMPLETED) {
+      throw new ForbiddenException(
+        'Estimating cost for completed transit is forbidden, id = ' +
+          this.getId(),
+      );
+    }
+
+    this.estimatedPrice = this.calculateCost();
+
+    this.price = null;
+
+    return this.estimatedPrice;
+  }
+
+  public calculateFinalCosts(): Money {
+    if (this.status === TransitStatus.COMPLETED) {
+      return this.calculateCost();
+    } else {
+      throw new ForbiddenException(
+        'Cannot calculate final cost if the transit is not completed',
+      );
+    }
+  }
+
   public getTariff() {
     return this.tariff;
   }
@@ -408,10 +433,6 @@ export class Transit extends BaseEntity {
     return this.status;
   }
 
-  public setStatus(status: TransitStatus) {
-    this.status = status;
-  }
-
   public getCompleteAt() {
     return this.completeAt;
   }
@@ -428,29 +449,12 @@ export class Transit extends BaseEntity {
     return this.published;
   }
 
-  public setPublished(published: number) {
-    this.published = published;
-  }
-
-  public setDriver(driver: Driver | null) {
-    this.driver = driver;
-  }
-
   public getKm() {
     return Distance.fromKm(this.km);
   }
 
-  public setKm(distance: Distance) {
-    this.km = distance.toKmInFloat();
-    this.estimateCost();
-  }
-
   public getAwaitingDriversResponses() {
     return this.awaitingDriversResponses;
-  }
-
-  public setAwaitingDriversResponses(proposedDriversCounter: number) {
-    this.awaitingDriversResponses = proposedDriversCounter;
   }
 
   public getDriversRejections() {
@@ -461,24 +465,12 @@ export class Transit extends BaseEntity {
     return this.proposedDrivers || [];
   }
 
-  public setProposedDrivers(proposedDrivers: Driver[]) {
-    this.proposedDrivers = proposedDrivers;
-  }
-
   public getAcceptedAt() {
     return this.acceptedAt;
   }
 
-  public setAcceptedAt(acceptedAt: number) {
-    this.acceptedAt = acceptedAt;
-  }
-
   public getStarted() {
     return this.started;
-  }
-
-  public setStarted(started: number) {
-    this.started = started;
   }
 
   public getFrom() {
@@ -493,14 +485,6 @@ export class Transit extends BaseEntity {
     return this.pickupAddressChangeCounter;
   }
 
-  public setPickupAddressChangeCounter(pickupChanges: number) {
-    this.pickupAddressChangeCounter = pickupChanges;
-  }
-
-  public setCompleteAt(when: number) {
-    this.completeAt = when;
-  }
-
   public getDriversFee() {
     return this.driversFee;
   }
@@ -511,31 +495,6 @@ export class Transit extends BaseEntity {
 
   public getEstimatedPrice() {
     return this.estimatedPrice;
-  }
-
-  public estimateCost() {
-    if (this.status === TransitStatus.COMPLETED) {
-      throw new ForbiddenException(
-        'Estimating cost for completed transit is forbidden, id = ' +
-          this.getId(),
-      );
-    }
-
-    this.estimatedPrice = this.calculateCost();
-
-    this.price = null;
-
-    return this.estimatedPrice;
-  }
-
-  public calculateFinalCosts(): Money {
-    if (this.status === TransitStatus.COMPLETED) {
-      return this.calculateCost();
-    } else {
-      throw new ForbiddenException(
-        'Cannot calculate final cost if the transit is not completed',
-      );
-    }
   }
 
   private calculateCost(): Money {
