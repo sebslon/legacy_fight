@@ -460,10 +460,6 @@ export class Transit extends BaseEntity {
     return this.awaitingDriversResponses;
   }
 
-  public getDriversRejections() {
-    return this.driversRejections || [];
-  }
-
   public getProposedDrivers() {
     return this.proposedDrivers || [];
   }

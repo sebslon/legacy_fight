@@ -15,7 +15,11 @@ export class CarTypeDto {
 
   private activeCarsCounter: number;
 
-  constructor(carType: CarType) {
+  constructor(carType?: CarType) {
+    if (!carType) {
+      return this;
+    }
+
     this.id = carType.getId();
     this.carClass = carType.getCarClass();
     this.status = carType.getStatus();
@@ -33,7 +37,23 @@ export class CarTypeDto {
     return this.carClass;
   }
 
+  public setCarClass(carClass: CarClass) {
+    this.carClass = carClass;
+  }
+
   public getDescription() {
     return this.description;
+  }
+
+  public setDescription(description: string) {
+    this.description = description;
+  }
+
+  public getCarsCounter() {
+    return this.carsCounter;
+  }
+
+  public getActiveCarsCounter() {
+    return this.activeCarsCounter;
   }
 }
