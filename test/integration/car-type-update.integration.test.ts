@@ -36,7 +36,7 @@ describe('Car Type Update', () => {
   it('Can change car type description', async () => {
     await ensureThereIsNoCarClassInTheSystem(CarClass.VAN);
 
-    createCarClass('Big And Nice', CarClass.VAN);
+    await createCarClass('Big And Nice', CarClass.VAN);
 
     const changed = await createCarClass('Big And Ugly', CarClass.VAN);
 

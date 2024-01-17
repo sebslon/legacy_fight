@@ -1,7 +1,9 @@
 import { NotAcceptableException } from '@nestjs/common';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
+
+import { CarTypeActiveCounter } from './car-type-active-counter.entity';
 
 export enum CarClass {
   ECO = 'eco',
@@ -32,8 +34,12 @@ export class CarType extends BaseEntity {
   @Column({ type: 'int', default: 0 })
   private minNoOfCarsToActivateClass: number;
 
-  @Column({ type: 'int', default: 0 })
-  private activeCarsCounter: number;
+  @OneToOne(() => CarTypeActiveCounter, { cascade: true, eager: true })
+  @JoinColumn({
+    name: 'carClass',
+    referencedColumnName: 'carClass',
+  })
+  private activeCarsCounter: CarTypeActiveCounter;
 
   constructor(
     carClass: CarClass,
@@ -44,14 +50,6 @@ export class CarType extends BaseEntity {
     this.carClass = carClass;
     this.description = description;
     this.minNoOfCarsToActivateClass = minNoOfCarsToActivateClass;
-  }
-
-  public registerActiveCar() {
-    this.activeCarsCounter++;
-  }
-
-  public unregisterActiveCar() {
-    this.activeCarsCounter--;
   }
 
   public registerCar() {
@@ -100,10 +98,6 @@ export class CarType extends BaseEntity {
 
   public getCarsCounter() {
     return this.carsCounter;
-  }
-
-  public getActiveCarsCounter() {
-    return this.activeCarsCounter;
   }
 
   public getMinNoOfCarsToActivateClass() {

@@ -18,7 +18,11 @@ import { TransitController } from './controllers/transit.controller';
 import { AddressRepository } from './repository/address.repository';
 import { AwardedMilesRepository } from './repository/awarded-miles.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
-import { CarTypeRepository } from './repository/car-type.repository';
+import {
+  CarTypeActiveCounterRepository,
+  CarTypeEntityRepository,
+  CarTypeRepository,
+} from './repository/car-type.repository';
 import { ClaimAttachmentRepository } from './repository/claim-attachment.repository';
 import { ClaimRepository } from './repository/claim.repository';
 import { ClientRepository } from './repository/client.repository';
@@ -56,7 +60,6 @@ import { TransitService } from './service/transit.service';
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
     TypeOrmModule.forFeature([
       DriverRepository,
-      CarTypeRepository,
       InvoiceRepository,
       ClaimRepository,
       ClientRepository,
@@ -72,6 +75,8 @@ import { TransitService } from './service/transit.service';
       ContractAttachmentRepository,
       ContractRepository,
       TariffRepository,
+      CarTypeEntityRepository,
+      CarTypeActiveCounterRepository,
     ]),
   ],
   controllers: [
@@ -106,6 +111,7 @@ import { TransitService } from './service/transit.service';
     ClaimService,
     ContractService,
     TransitService,
+    CarTypeRepository,
   ],
 })
 export class AppModule {}
