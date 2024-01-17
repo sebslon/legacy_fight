@@ -86,7 +86,7 @@ export class CarTypeRepository {
     return this.carTypeActiveCounterRepository.decrementCounter(carClass);
   }
 
-  public async save(carType: CarType): Promise<CarType> {
+  public async create(carType: CarType): Promise<CarType> {
     const result = await doInTransaction<CarType>(async () => {
       await this.carTypeActiveCounterRepository.save(
         new CarTypeActiveCounter(carType.getCarClass()),
