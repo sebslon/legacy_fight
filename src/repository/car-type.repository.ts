@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityRepository, Repository } from 'typeorm';
 
+import { doInTransaction } from '../common/do-in-transaction';
 import { CarTypeActiveCounter } from '../entity/car-type-active-counter.entity';
 import { CarClass, CarStatus, CarType } from '../entity/car-type.entity';
 
@@ -86,11 +87,15 @@ export class CarTypeRepository {
   }
 
   public async save(carType: CarType): Promise<CarType> {
-    await this.carTypeActiveCounterRepository.save(
-      new CarTypeActiveCounter(carType.getCarClass()),
-    );
+    const result = await doInTransaction<CarType>(async () => {
+      await this.carTypeActiveCounterRepository.save(
+        new CarTypeActiveCounter(carType.getCarClass()),
+      );
 
-    return this.carTypeEntityRepository.save(carType);
+      return this.carTypeEntityRepository.save(carType);
+    });
+
+    return result;
   }
 
   public async findOne(id: string) {
