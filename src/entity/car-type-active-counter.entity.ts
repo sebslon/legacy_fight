@@ -1,6 +1,6 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm';
 
-import { CarClass } from './car-type.entity';
+import { CarClass, CarType } from './car-type.entity';
 
 /**
  * @private true
@@ -14,6 +14,9 @@ export class CarTypeActiveCounter {
 
   @Column({ type: 'int', default: 0, nullable: false })
   private activeCarsCounter: number;
+
+  @OneToOne(() => CarType, (carType) => carType.activeCarsCounter)
+  private carType: CarClass;
 
   public constructor(carClass: CarClass) {
     this.carClass = carClass;

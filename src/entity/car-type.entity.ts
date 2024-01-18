@@ -39,7 +39,7 @@ export class CarType extends BaseEntity {
     name: 'carClass',
     referencedColumnName: 'carClass',
   })
-  private activeCarsCounter: CarTypeActiveCounter;
+  public activeCarsCounter: CarTypeActiveCounter;
 
   constructor(
     carClass: CarClass,

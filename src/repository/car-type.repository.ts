@@ -87,15 +87,17 @@ export class CarTypeRepository {
   }
 
   public async create(carType: CarType): Promise<CarType> {
-    const result = await doInTransaction<CarType>(async () => {
+    return await doInTransaction<CarType>(async () => {
       await this.carTypeActiveCounterRepository.save(
         new CarTypeActiveCounter(carType.getCarClass()),
       );
 
       return this.carTypeEntityRepository.save(carType);
     });
+  }
 
-    return result;
+  public async updateCarType(carType: CarType): Promise<CarType> {
+    return this.carTypeEntityRepository.save(carType);
   }
 
   public async findOne(id: string) {

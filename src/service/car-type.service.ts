@@ -34,17 +34,19 @@ export class CarTypeService {
       carTypeDTO.getCarClass(),
     );
 
-    if (byCarClass) {
-      byCarClass.setDescription(carTypeDTO.getDescription());
-      return this.carTypeRepository.create(byCarClass);
-    } else {
-      const carType = new CarType(
+    if (!byCarClass) {
+      const type = new CarType(
         carTypeDTO.getCarClass(),
         carTypeDTO.getDescription(),
         this.getMinNumberOfCars(carTypeDTO.getCarClass()),
       );
+      return this.carTypeRepository.create(type);
+    } else {
+      byCarClass.setDescription(carTypeDTO.getDescription());
 
-      return this.carTypeRepository.create(carType);
+      await this.carTypeRepository.updateCarType(byCarClass);
+
+      return byCarClass;
     }
   }
 
@@ -53,7 +55,7 @@ export class CarTypeService {
 
     carType.activate();
 
-    await this.carTypeRepository.create(carType);
+    await this.carTypeRepository.updateCarType(carType);
   }
 
   public async deactivate(id: string) {
@@ -61,7 +63,7 @@ export class CarTypeService {
 
     carType.deactivate();
 
-    await this.carTypeRepository.create(carType);
+    await this.carTypeRepository.updateCarType(carType);
   }
 
   public async registerCar(carClass: CarClass) {
@@ -69,7 +71,7 @@ export class CarTypeService {
 
     carType.registerCar();
 
-    await this.carTypeRepository.create(carType);
+    await this.carTypeRepository.updateCarType(carType);
   }
 
   public async unregisterCar(carClass: CarClass) {
@@ -77,7 +79,7 @@ export class CarTypeService {
 
     carType.unregisterCar();
 
-    await this.carTypeRepository.create(carType);
+    await this.carTypeRepository.updateCarType(carType);
   }
 
   public async registerActiveCar(carClass: CarClass) {
