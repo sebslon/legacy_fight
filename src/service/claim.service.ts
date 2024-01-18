@@ -3,7 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { AppProperties } from '../config/app-properties.config';
 import { ClaimDto } from '../dto/claim.dto';
-import { Claim, ClaimStatus, CompletionMode } from '../entity/claim.entity';
+import {
+  Claim,
+  ClaimStatus,
+  ClaimCompletionMode,
+} from '../entity/claim.entity';
 import { Type } from '../entity/client.entity';
 import { ClaimRepository } from '../repository/claim.repository';
 import { ClientRepository } from '../repository/client.repository';
@@ -79,6 +83,7 @@ export class ClaimService {
 
   public async tryToResolveAutomatically(id: string): Promise<Claim> {
     const claim = await this.find(id);
+
     if (
       (
         await this.claimRepository.findByOwnerAndTransit(
@@ -90,7 +95,7 @@ export class ClaimService {
       claim.setStatus(ClaimStatus.ESCALATED);
       claim.setCompletionDate(Date.now());
       claim.setChangeDate(Date.now());
-      claim.setCompletionMode(CompletionMode.MANUAL);
+      claim.setCompletionMode(ClaimCompletionMode.MANUAL);
       return claim;
     }
     if (
@@ -99,7 +104,7 @@ export class ClaimService {
       claim.setStatus(ClaimStatus.REFUNDED);
       claim.setCompletionDate(Date.now());
       claim.setChangeDate(Date.now());
-      claim.setCompletionMode(CompletionMode.AUTOMATIC);
+      claim.setCompletionMode(ClaimCompletionMode.AUTOMATIC);
       await this.clientNotificationService.notifyClientAboutRefund(
         claim.getClaimNo(),
         claim.getOwner().getId(),
@@ -114,7 +119,7 @@ export class ClaimService {
         claim.setStatus(ClaimStatus.REFUNDED);
         claim.setCompletionDate(Date.now());
         claim.setChangeDate(Date.now());
-        claim.setCompletionMode(CompletionMode.AUTOMATIC);
+        claim.setCompletionMode(ClaimCompletionMode.AUTOMATIC);
         await this.clientNotificationService.notifyClientAboutRefund(
           claim.getClaimNo(),
           claim.getOwner().getId(),
@@ -127,7 +132,7 @@ export class ClaimService {
         claim.setStatus(ClaimStatus.ESCALATED);
         claim.setCompletionDate(Date.now());
         claim.setChangeDate(Date.now());
-        claim.setCompletionMode(CompletionMode.MANUAL);
+        claim.setCompletionMode(ClaimCompletionMode.MANUAL);
         const driver = claim.getTransit().getDriver();
         if (driver) {
           await this.driverNotificationService.askDriverForDetailsAboutClaim(
@@ -148,7 +153,7 @@ export class ClaimService {
           claim.setStatus(ClaimStatus.REFUNDED);
           claim.setCompletionDate(Date.now());
           claim.setChangeDate(Date.now());
-          claim.setCompletionMode(CompletionMode.AUTOMATIC);
+          claim.setCompletionMode(ClaimCompletionMode.AUTOMATIC);
           await this.clientNotificationService.notifyClientAboutRefund(
             claim.getClaimNo(),
             claim.getOwner().getId(),
@@ -157,7 +162,7 @@ export class ClaimService {
           claim.setStatus(ClaimStatus.ESCALATED);
           claim.setCompletionDate(Date.now());
           claim.setChangeDate(Date.now());
-          claim.setCompletionMode(CompletionMode.MANUAL);
+          claim.setCompletionMode(ClaimCompletionMode.MANUAL);
           await this.clientNotificationService.askForMoreInformation(
             claim.getClaimNo(),
             claim.getOwner().getId(),
@@ -167,11 +172,16 @@ export class ClaimService {
         claim.setStatus(ClaimStatus.ESCALATED);
         claim.setCompletionDate(Date.now());
         claim.setChangeDate(Date.now());
-        claim.setCompletionMode(CompletionMode.MANUAL);
-        await this.driverNotificationService.askDriverForDetailsAboutClaim(
-          claim.getClaimNo(),
-          claim.getOwner().getId(),
-        );
+        claim.setCompletionMode(ClaimCompletionMode.MANUAL);
+
+        const driver = claim.getTransit().getDriver();
+
+        if (driver) {
+          await this.driverNotificationService.askDriverForDetailsAboutClaim(
+            claim.getClaimNo(),
+            driver.getId(),
+          );
+        }
       }
     }
 

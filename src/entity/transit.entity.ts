@@ -7,6 +7,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
 } from 'typeorm';
 
@@ -16,6 +17,7 @@ import { Money } from '../money/money';
 
 import { Address } from './address.entity';
 import { CarClass } from './car-type.entity';
+import { Claim } from './claim.entity';
 import { Client, PaymentType } from './client.entity';
 import { Driver } from './driver.entity';
 import { Tariff } from './tariff.entity';
@@ -75,6 +77,9 @@ export class Transit extends BaseEntity {
   })
   @JoinColumn()
   public driver: Driver | null;
+
+  @OneToMany(() => Claim, (claim) => claim.transit)
+  public claims: Claim[];
 
   @OneToOne(() => Tariff, { eager: true, cascade: true })
   @JoinColumn()

@@ -1,4 +1,8 @@
-import { Claim, ClaimStatus, CompletionMode } from '../entity/claim.entity';
+import {
+  Claim,
+  ClaimStatus,
+  ClaimCompletionMode,
+} from '../entity/claim.entity';
 
 import { CreateClaimDto } from './create-claim.dto';
 
@@ -21,13 +25,17 @@ export class ClaimDto {
 
   private changeDate: number | null;
 
-  private completionMode: CompletionMode | null;
+  private completionMode: ClaimCompletionMode | null;
 
   private status: ClaimStatus;
 
   private claimNo: string;
 
-  public constructor(claim: Claim | CreateClaimDto) {
+  public constructor(claim?: Claim | CreateClaimDto) {
+    if (!claim) {
+      return this;
+    }
+
     if (!(claim instanceof Claim)) {
       this.setClaimID(claim.clientId);
       this.setReason(claim.reason);
@@ -81,7 +89,7 @@ export class ClaimDto {
     return this.completionMode;
   }
 
-  public setCompletionMode(completionMode: CompletionMode | null) {
+  public setCompletionMode(completionMode: ClaimCompletionMode | null) {
     this.completionMode = completionMode;
   }
 

@@ -1,6 +1,7 @@
 import { Distance } from '../../src/distance/distance';
 import { AddressDto } from '../../src/dto/address.dto';
 import { CarTypeDto } from '../../src/dto/car-type.dto';
+import { ClaimDto } from '../../src/dto/claim.dto';
 import { ClientDto } from '../../src/dto/client.dto';
 import { TransitDto } from '../../src/dto/transit.dto';
 import { Address } from '../../src/entity/address.entity';
@@ -24,6 +25,7 @@ import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { CarTypeService } from '../../src/service/car-type.service';
+import { ClaimService } from '../../src/service/claim.service';
 import { DriverService } from '../../src/service/driver.service';
 
 export class Fixtures {
@@ -34,6 +36,7 @@ export class Fixtures {
     private readonly addressRepository: AddressRepository,
     private readonly clientRepository: ClientRepository,
     private readonly carTypeService: CarTypeService,
+    private readonly claimService: ClaimService,
   ) {}
 
   public createTestDriver() {
@@ -107,7 +110,12 @@ export class Fixtures {
     return this.addressRepository.save(address);
   }
 
-  public async createCompletedTransitAt(price: number, date: Date) {
+  public async createCompletedTransitAt(
+    price: number,
+    date: Date,
+    client?: Client,
+    driver?: Driver,
+  ) {
     const toAddress = await this.createOrGetAddress(
       new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 1),
     );
@@ -118,12 +126,19 @@ export class Fixtures {
     const transit = Transit.create(
       fromAddress,
       toAddress,
-      await this.createTestClient(),
+      client ?? (await this.createTestClient()),
       CarClass.REGULAR,
       date.getTime(),
       Distance.ZERO,
     );
 
+    const transitDriver = driver ?? (await this.createTestDriver());
+
+    transit.publishAt(date);
+    transit.proposeTo(transitDriver);
+    transit.acceptBy(transitDriver, date);
+    transit.start(date);
+    transit.completeTransitAt(date, toAddress, Distance.ZERO);
     transit.setPrice(new Money(price));
 
     return this.transitRepository.save(transit);
@@ -159,11 +174,11 @@ export class Fixtures {
     return driverFee;
   }
 
-  public createTestClient() {
+  public createTestClient(type?: Type) {
     const client = new Client();
 
     client.setClientType(ClientType.INDIVIDUAL);
-    client.setType(Type.NORMAL);
+    client.setType(type ?? Type.NORMAL);
     client.setName('Tester');
     client.setLastName('Tester');
     client.setDefaultPaymentType(PaymentType.POST_PAID);
@@ -190,5 +205,77 @@ export class Fixtures {
     await this.carTypeService.activate(carType.getId());
 
     return carType;
+  }
+
+  public async createClaim(client: Client, transit: Transit) {
+    const claimDto = this.createClaimDTO(
+      'description',
+      'reason',
+      client.getId(),
+      transit.getId(),
+    );
+
+    claimDto.setDraft(false);
+
+    const claim = await this.claimService.create(claimDto);
+
+    return claim;
+  }
+
+  public createClaimDTO(
+    desc: string,
+    reason: string,
+    clientId: string,
+    transitId: string,
+  ) {
+    const claimDTO = new ClaimDto();
+
+    claimDTO.setClientId(clientId);
+    claimDTO.setTransitId(transitId);
+    claimDTO.setIncidentDescription(desc);
+    claimDTO.setReason(reason);
+
+    return claimDTO;
+  }
+
+  public async createClientWithClaims(type: Type, claimsAmount: number) {
+    const client = await this.createTestClient(type);
+
+    await this.clientHasDoneClaims(client, claimsAmount);
+
+    return client;
+  }
+
+  public async clientHasDoneClaims(client: Client, claimsAmount: number) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _ of Array(claimsAmount)) {
+      const driver = await this.createTestDriver();
+
+      const transit = await this.createTestTransit(
+        driver,
+        20,
+        new Date(),
+        undefined,
+        undefined,
+        client,
+      );
+
+      await this.createAndResolveClaim(client, transit);
+    }
+  }
+
+  public async clientHasDoneTransits(client: Client, transitsAmount: number) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _ of Array(transitsAmount)) {
+      const driver = await this.createTestDriver();
+
+      await this.createCompletedTransitAt(10, new Date(), client, driver);
+    }
+  }
+
+  public async createAndResolveClaim(client: Client, transit: Transit) {
+    let claim = await this.createClaim(client, transit);
+    claim = await this.claimService.tryToResolveAutomatically(claim.getId());
+    return claim;
   }
 }

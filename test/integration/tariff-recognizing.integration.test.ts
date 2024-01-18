@@ -8,6 +8,7 @@ import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { CarTypeService } from '../../src/service/car-type.service';
+import { ClaimService } from '../../src/service/claim.service';
 import { DriverService } from '../../src/service/driver.service';
 import { Fixtures } from '../common/fixtures';
 
@@ -39,6 +40,7 @@ describe('Tariff recognizing', () => {
       addressRepository,
       clientRepository,
       {} as CarTypeService,
+      {} as ClaimService,
     );
   });
 

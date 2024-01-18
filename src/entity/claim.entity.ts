@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 
@@ -14,19 +14,18 @@ export enum ClaimStatus {
   REJECTED = 'rejected',
 }
 
-export enum CompletionMode {
+export enum ClaimCompletionMode {
   MANUAL = 'manual',
   AUTOMATIC = 'automatic',
 }
 
 @Entity()
 export class Claim extends BaseEntity {
-  @ManyToOne(() => Client, (client) => client.claims)
+  @ManyToOne(() => Client, (client) => client.claims, { eager: true })
   public owner: Client;
 
-  @OneToOne(() => Transit)
-  @JoinColumn()
-  private transit: Transit;
+  @ManyToOne(() => Transit, (transit) => transit.claims, { eager: true })
+  public transit: Transit;
 
   @Column({ type: 'bigint' })
   private creationDate: number;
@@ -43,8 +42,13 @@ export class Claim extends BaseEntity {
   @Column({ nullable: true, type: 'varchar' })
   private incidentDescription: string | null;
 
-  @Column({ nullable: true, enum: CompletionMode, type: 'enum', default: null })
-  private completionMode: CompletionMode | null;
+  @Column({
+    nullable: true,
+    enum: ClaimCompletionMode,
+    type: 'enum',
+    default: null,
+  })
+  private completionMode: ClaimCompletionMode | null;
 
   @Column()
   private status: ClaimStatus;
@@ -104,7 +108,7 @@ export class Claim extends BaseEntity {
     return this.completionMode;
   }
 
-  public setCompletionMode(completionMode: CompletionMode) {
+  public setCompletionMode(completionMode: ClaimCompletionMode) {
     this.completionMode = completionMode;
   }
 
