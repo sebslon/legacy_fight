@@ -175,10 +175,9 @@ export class Fixtures {
   }
 
   public createTestClient(type?: Type) {
-    const client = new Client();
+    const client = new Client(type ?? Type.NORMAL);
 
     client.setClientType(ClientType.INDIVIDUAL);
-    client.setType(type ?? Type.NORMAL);
     client.setName('Tester');
     client.setLastName('Tester');
     client.setDefaultPaymentType(PaymentType.POST_PAID);

@@ -1,7 +1,7 @@
 import { Distance } from '../src/distance/distance';
 import { Address } from '../src/entity/address.entity';
 import { CarClass } from '../src/entity/car-type.entity';
-import { Client } from '../src/entity/client.entity';
+import { Client, Type } from '../src/entity/client.entity';
 import { Driver } from '../src/entity/driver.entity';
 import { Transit, TransitStatus } from '../src/entity/transit.entity';
 
@@ -372,7 +372,7 @@ describe('Transit - Life Cycle', () => {
     return Transit.create(
       pickup,
       destination,
-      new Client(),
+      new Client(Type.NORMAL),
       CarClass.REGULAR,
       Date.now(),
       Distance.ZERO,

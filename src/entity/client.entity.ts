@@ -40,6 +40,11 @@ export class Client extends BaseEntity {
   @OneToMany(() => Claim, (claim) => claim.owner)
   public claims: Claim[];
 
+  constructor(type: Type) {
+    super();
+    this.type = type;
+  }
+
   public getClaims() {
     return this.claims;
   }

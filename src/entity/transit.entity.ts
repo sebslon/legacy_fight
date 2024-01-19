@@ -18,7 +18,7 @@ import { Money } from '../money/money';
 import { Address } from './address.entity';
 import { CarClass } from './car-type.entity';
 import { Claim } from './claim.entity';
-import { Client, PaymentType } from './client.entity';
+import { Client, PaymentType, Type } from './client.entity';
 import { Driver } from './driver.entity';
 import { Tariff } from './tariff.entity';
 
@@ -505,5 +505,31 @@ export class Transit extends BaseEntity {
     const price = this.tariff.calculateCost(this.getKm());
     this.price = price;
     return price;
+  }
+
+  // For testing purposes
+  public static _createWithId(
+    id: string,
+    from?: Address,
+    to?: Address,
+    client?: Client,
+    carClass?: CarClass,
+    dateTime?: number,
+    distance?: Distance,
+    status?: TransitStatus,
+  ) {
+    const transit = new Transit(
+      from ?? new Address('', '', '', '', 5),
+      to ?? new Address('', '', '', '', 5),
+      client ?? new Client(Type.NORMAL),
+      carClass ?? CarClass.ECO,
+      dateTime ?? Date.now(),
+      distance ?? Distance.fromKm(0),
+      status ?? TransitStatus.DRAFT,
+    );
+
+    transit.id = id;
+
+    return transit;
   }
 }

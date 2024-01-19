@@ -18,7 +18,7 @@ export class ClientService {
     type: Type,
     paymentType: PaymentType,
   ) {
-    const client = new Client();
+    const client = new Client(type);
     client.setName(name);
     client.setLastName(lastName);
     client.setType(type);

@@ -2,7 +2,7 @@ import { Distance } from '../src/distance/distance';
 import { TransitDto } from '../src/dto/transit.dto';
 import { Address } from '../src/entity/address.entity';
 import { CarClass } from '../src/entity/car-type.entity';
-import { Client } from '../src/entity/client.entity';
+import { Client, Type } from '../src/entity/client.entity';
 import { Transit } from '../src/entity/transit.entity';
 import { Money } from '../src/money/money';
 
@@ -35,7 +35,7 @@ describe('Calculate Transit Distance', () => {
     const transit = Transit.create(
       new Address('test', 'test', 'test', 'test', 1),
       new Address('test', 'test', 'test', 'test', 1),
-      new Client(),
+      new Client(Type.NORMAL),
       CarClass.REGULAR,
       Date.now(),
       Distance.fromKm(km),
