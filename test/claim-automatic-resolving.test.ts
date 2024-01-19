@@ -5,10 +5,6 @@ import { Transit } from '../src/entity/transit.entity';
 import { Money } from '../src/money/money';
 
 describe('Claim Automatic Resolving (ClaimsResolver)', () => {
-  beforeAll(() => {
-    jest.spyOn(ClaimsResolver.prototype, 'save').mockImplementation();
-  });
-
   it('Second claim for the same transit will be escalated', () => {
     const resolver = new ClaimsResolver();
 

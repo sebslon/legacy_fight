@@ -132,6 +132,7 @@ describe('Claim Automatic Resolving', () => {
 
     let claim = await fixtures.createClaim(client, transit);
 
+    jest.clearAllMocks();
     claim = await claimService.tryToResolveAutomatically(claim.getId());
 
     expect(claim.getStatus()).toEqual(ClaimStatus.ESCALATED);
@@ -275,13 +276,13 @@ describe('Claim Automatic Resolving', () => {
   function lowCostThresholdIs(price: number) {
     jest
       .spyOn(appProperties, 'getAutomaticRefundForVipThreshold')
-      .mockReturnValueOnce(price);
+      .mockReturnValue(price);
   }
 
   function noOfTransitsForAutomaticRefundIs(no: number) {
     jest
       .spyOn(appProperties, 'getNoOfTransitsForClaimAutomaticRefund')
-      .mockReturnValueOnce(no);
+      .mockReturnValue(no);
   }
 
   function aTransit(client: Client, driver: Driver, price: number) {

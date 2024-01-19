@@ -1,7 +1,9 @@
-import { BaseEntity, Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+
+import { BaseEntity } from '../common/base.entity';
 
 import { Claim, ClaimStatus } from './claim.entity';
-import { Type } from './client.entity';
+import { Client, Type } from './client.entity';
 import { Transit } from './transit.entity';
 
 export enum WhoToAsk {
@@ -25,10 +27,21 @@ export class ClaimResult {
  */
 @Entity()
 export class ClaimsResolver extends BaseEntity {
-  @Column('array', {
-    default: () => 'ARRAY[]::varchar[]',
-  })
+  @Column('varchar', { array: true, default: [] })
   private claimedTransitIds: string[] = [];
+
+  @Column()
+  private clientId: string | null;
+
+  @OneToOne(() => Client, { eager: true })
+  @JoinColumn({ name: 'clientId' })
+  private client: string;
+
+  constructor(clientId?: string) {
+    super();
+
+    this.clientId = clientId ?? null;
+  }
 
   public resolve(
     claim: Claim,
@@ -83,9 +96,6 @@ export class ClaimsResolver extends BaseEntity {
 
   private async addNewClaimFor(transit: Transit): Promise<void> {
     const transitIds = this.getClaimedTransitIds();
-
     transitIds.push(transit.getId());
-
-    await this.save();
   }
 }

@@ -56,6 +56,20 @@ export class Claim extends BaseEntity {
   @Column()
   private claimNo: string;
 
+  public escalate() {
+    this.setStatus(ClaimStatus.ESCALATED);
+    this.setCompletionDate(Date.now());
+    this.setChangeDate(Date.now());
+    this.setCompletionMode(ClaimCompletionMode.MANUAL);
+  }
+
+  public refund() {
+    this.setStatus(ClaimStatus.REFUNDED);
+    this.setCompletionDate(Date.now());
+    this.setChangeDate(Date.now());
+    this.setCompletionMode(ClaimCompletionMode.AUTOMATIC);
+  }
+
   public getClaimNo() {
     return this.claimNo;
   }

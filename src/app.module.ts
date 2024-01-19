@@ -25,6 +25,7 @@ import {
 } from './repository/car-type.repository';
 import { ClaimAttachmentRepository } from './repository/claim-attachment.repository';
 import { ClaimRepository } from './repository/claim.repository';
+import { ClaimsResolverRepository } from './repository/claims-resolver.repository';
 import { ClientRepository } from './repository/client.repository';
 import { ContractAttachmentRepository } from './repository/contract-attachment.repository';
 import { ContractRepository } from './repository/contract.repository';
@@ -77,6 +78,7 @@ import { TransitService } from './service/transit.service';
       TariffRepository,
       CarTypeEntityRepository,
       CarTypeActiveCounterRepository,
+      ClaimsResolverRepository,
     ]),
   ],
   controllers: [
