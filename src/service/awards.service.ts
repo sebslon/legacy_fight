@@ -4,8 +4,8 @@ import {
   NotAcceptableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import dayjs from 'dayjs';
-import orderBy from 'lodash.orderby';
+import * as dayjs from 'dayjs';
+import { orderBy } from 'lodash';
 
 import { AppProperties } from '../config/app-properties.config';
 import { AwardsAccountDto } from '../dto/awards-account.dto';
@@ -109,6 +109,7 @@ export class AwardsService implements IAwardsService {
     }
 
     const now = Date.now();
+
     if (!account || !account.isAwardActive()) {
       return null;
     } else {
@@ -147,7 +148,10 @@ export class AwardsService implements IAwardsService {
   }
 
   public async removeMiles(clientId: string, miles: number) {
-    const client = await this.clientRepository.findOne(clientId);
+    const client = await this.clientRepository.findOne(clientId, {
+      relations: ['claims'],
+    });
+
     if (!client) {
       throw new NotFoundException(
         `Client with id ${clientId} doest not exists`,
@@ -162,6 +166,7 @@ export class AwardsService implements IAwardsService {
       );
     } else {
       const balance = await this.calculateBalance(clientId);
+
       if (balance >= miles && account.isAwardActive()) {
         let milesList = await this.milesRepository.findAllByClient(client);
         const transitsCounter = (
@@ -169,48 +174,52 @@ export class AwardsService implements IAwardsService {
         ).length;
 
         // TODO: verify below sorter
+
         if (client.getClaims().length >= 3) {
           // milesList.sort(Comparator.comparing(AwardedMiles::getExpirationDate, Comparators.nullsHigh()).reversed().thenComparing(Comparators.nullsHigh()));
           milesList = orderBy(milesList, [(item) => item.getExpirationDate()]);
         } else if (client.getType() === Type.VIP) {
           // milesList.sort(Comparator.comparing(AwardedMiles::isSpecial).thenComparing(AwardedMiles::getExpirationDate, Comparators.nullsLow()));
           milesList = orderBy(milesList, [
-            (item) => item.getSpecial(),
+            (item) => item.getIsSpecial(),
             (item) => item.getExpirationDate(),
           ]);
         } else if (transitsCounter >= 15 && this.isSunday()) {
           // milesList.sort(Comparator.comparing(AwardedMiles::isSpecial).thenComparing(AwardedMiles::getExpirationDate, Comparators.nullsLow()));
           milesList = orderBy(milesList, [
-            (item) => item.getSpecial(),
+            (item) => item.getIsSpecial(),
             (item) => item.getExpirationDate(),
           ]);
         } else if (transitsCounter >= 15) {
           // milesList.sort(Comparator.comparing(AwardedMiles::isSpecial).thenComparing(AwardedMiles::getDate));
           milesList = orderBy(milesList, [
-            (item) => item.getSpecial(),
+            (item) => item.getIsSpecial(),
             (item) => item.getDate(),
           ]);
         } else {
           // milesList.sort(Comparator.comparing(AwardedMiles::getDate));
-          milesList = orderBy(milesList, (item) => item.getDate());
+          milesList = orderBy(milesList, (m) => m.getDate());
         }
-        for (const iter of milesList) {
+
+        for (const m of milesList) {
           if (miles <= 0) {
             break;
           }
-          if (
-            iter.getSpecial() ||
-            (iter.getExpirationDate() &&
-              dayjs(iter.getExpirationDate()).isAfter(dayjs()))
-          ) {
-            if (iter.getMiles() <= miles) {
-              miles -= iter.getMiles();
-              iter.setMiles(0);
+
+          const expirationDate = m.getExpirationDate();
+          const isSpecial = m.getIsSpecial();
+          const isNotExpired =
+            expirationDate && dayjs(+expirationDate).isAfter(dayjs());
+
+          if (isSpecial || isNotExpired) {
+            if (m.getMiles() <= miles) {
+              miles -= m.getMiles();
+              m.setMiles(0);
             } else {
-              iter.setMiles(iter.getMiles() - miles);
+              m.setMiles(m.getMiles() - miles);
               miles = 0;
             }
-            await this.milesRepository.save(iter);
+            await this.milesRepository.save(m);
           }
         }
       } else {
@@ -234,13 +243,16 @@ export class AwardsService implements IAwardsService {
     const milesList = await this.milesRepository.findAllByClient(client);
 
     const sum = milesList
-      .filter(
-        (t) =>
-          (t.getExpirationDate() != null &&
-            t.getExpirationDate() &&
-            dayjs(t.getExpirationDate()).isAfter(dayjs())) ||
-          t.getSpecial(),
-      )
+      .filter((mile) => {
+        const isSpecial = mile.getIsSpecial();
+        const expirationDate = mile.getExpirationDate();
+
+        const isNotExpired =
+          expirationDate && dayjs(+expirationDate).isAfter(dayjs());
+
+        const isMileValid = isSpecial || isNotExpired;
+        return isMileValid;
+      })
       .map((t) => t.getMiles())
       .reduce((prev, curr) => prev + curr, 0);
 
@@ -267,7 +279,7 @@ export class AwardsService implements IAwardsService {
 
       for (const iter of milesList) {
         if (
-          iter.getSpecial() ||
+          iter.getIsSpecial() ||
           dayjs(iter.getExpirationDate()).isAfter(dayjs())
         ) {
           if (iter.getMiles() <= miles) {
@@ -278,7 +290,7 @@ export class AwardsService implements IAwardsService {
             const _miles = new AwardedMiles();
 
             _miles.setClient(accountTo.getClient());
-            _miles.setSpecial(iter.getSpecial() ?? false);
+            _miles.setSpecial(iter.getIsSpecial() ?? false);
             _miles.setExpirationDate(iter.getExpirationDate() || Date.now());
             _miles.setMiles(miles);
 

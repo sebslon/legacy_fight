@@ -63,7 +63,7 @@ export class AwardedMiles extends BaseEntity {
     this.expirationDate = expirationDate;
   }
 
-  public getSpecial() {
+  public getIsSpecial() {
     return this.isSpecial;
   }
 
