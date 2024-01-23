@@ -12,6 +12,7 @@ import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { DriverPositionRepository } from '../../src/repository/driver-position.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
+import { AwardsService } from '../../src/service/awards.service';
 import { CarTypeService } from '../../src/service/car-type.service';
 import { ClaimService } from '../../src/service/claim.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
@@ -80,6 +81,7 @@ describe('Transit Life Cycle', () => {
       clientRepository,
       carTypeService,
       {} as ClaimService,
+      {} as AwardsService,
     );
   });
 

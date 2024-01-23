@@ -176,28 +176,27 @@ export class AwardsService implements IAwardsService {
         // TODO: verify below sorter
 
         if (client.getClaims().length >= 3) {
-          // milesList.sort(Comparator.comparing(AwardedMiles::getExpirationDate, Comparators.nullsHigh()).reversed().thenComparing(Comparators.nullsHigh()));
-          milesList = orderBy(milesList, [(item) => item.getExpirationDate()]);
+          milesList = orderBy(
+            milesList,
+            [(m) => m.getExpirationDate()],
+            ['desc', 'asc'],
+          );
         } else if (client.getType() === Type.VIP) {
-          // milesList.sort(Comparator.comparing(AwardedMiles::isSpecial).thenComparing(AwardedMiles::getExpirationDate, Comparators.nullsLow()));
           milesList = orderBy(milesList, [
-            (item) => item.getIsSpecial(),
-            (item) => item.getExpirationDate(),
+            (m) => m.getIsSpecial(),
+            (m) => m.getExpirationDate(),
           ]);
         } else if (transitsCounter >= 15 && this.isSunday()) {
-          // milesList.sort(Comparator.comparing(AwardedMiles::isSpecial).thenComparing(AwardedMiles::getExpirationDate, Comparators.nullsLow()));
           milesList = orderBy(milesList, [
-            (item) => item.getIsSpecial(),
-            (item) => item.getExpirationDate(),
+            (m) => m.getIsSpecial(),
+            (m) => m.getExpirationDate(),
           ]);
         } else if (transitsCounter >= 15) {
-          // milesList.sort(Comparator.comparing(AwardedMiles::isSpecial).thenComparing(AwardedMiles::getDate));
           milesList = orderBy(milesList, [
-            (item) => item.getIsSpecial(),
-            (item) => item.getDate(),
+            (m) => m.getIsSpecial(),
+            (m) => m.getDate(),
           ]);
         } else {
-          // milesList.sort(Comparator.comparing(AwardedMiles::getDate));
           milesList = orderBy(milesList, (m) => m.getDate());
         }
 
@@ -311,7 +310,7 @@ export class AwardsService implements IAwardsService {
   }
 
   private isSunday() {
-    return dayjs().get('day') === 0;
+    return dayjs(Date.now()).get('day') === 0;
   }
 
   private async getAccountForClient(clientId: string | Client) {

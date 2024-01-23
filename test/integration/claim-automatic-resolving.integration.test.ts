@@ -64,6 +64,7 @@ describe('Claim Automatic Resolving', () => {
       clientRepository,
       carTypeService,
       claimService,
+      awardsService,
     );
   });
 
