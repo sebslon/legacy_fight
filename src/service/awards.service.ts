@@ -234,11 +234,14 @@ export class AwardsService implements IAwardsService {
 
   public async calculateBalance(clientId: string) {
     const client = await this.clientRepository.findOne(clientId);
+    const now = Date.now();
+
     if (!client) {
       throw new NotFoundException(
         `Client with id ${clientId} doest not exists`,
       );
     }
+
     const milesList = await this.milesRepository.findAllByClient(client);
 
     const sum = milesList
@@ -247,7 +250,7 @@ export class AwardsService implements IAwardsService {
         const expirationDate = mile.getExpirationDate();
 
         const isNotExpired =
-          expirationDate && dayjs(+expirationDate).isAfter(dayjs());
+          expirationDate && dayjs(+expirationDate).isAfter(dayjs(now));
 
         const isMileValid = isSpecial || isNotExpired;
         return isMileValid;
