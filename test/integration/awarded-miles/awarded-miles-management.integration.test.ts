@@ -115,14 +115,14 @@ describe('Awarded Miles Management', () => {
     expect(account.getTransactions()).toEqual(1);
     expect(awardedMiles).toHaveLength(1);
     expect(awardedMiles[0].getMiles()).toEqual(10);
-    expect(awardedMiles[0].getIsSpecial()).toBeFalsy();
+    expect(awardedMiles[0].cantExpire()).toBeFalsy();
   });
 
   it('Can register special miles', async () => {
     const client = await fixtures.createTestClient();
     await fixtures.createActiveAwardsAccount(client);
 
-    await awardsService.registerSpecialMiles(client.getId(), 20);
+    await awardsService.registerNonExpiringMiles(client.getId(), 20);
 
     const account = await awardsService.findBy(client.getId());
     const awardedMiles = await awardedMilesRepository.findAllByClient(client);
@@ -130,7 +130,7 @@ describe('Awarded Miles Management', () => {
     expect(account.getTransactions()).toEqual(1);
     expect(awardedMiles).toHaveLength(1);
     expect(awardedMiles[0].getMiles()).toEqual(20);
-    expect(awardedMiles[0].getIsSpecial()).toBeTruthy();
+    expect(awardedMiles[0].cantExpire()).toBeTruthy();
   });
 
   it('Can calculate miles balance', async () => {
@@ -142,7 +142,7 @@ describe('Awarded Miles Management', () => {
       new Money(80).toInt(),
     );
 
-    await awardsService.registerSpecialMiles(client.getId(), 20);
+    await awardsService.registerNonExpiringMiles(client.getId(), 20);
     await awardsService.registerMiles(client.getId(), transit.getId());
     await awardsService.registerMiles(client.getId(), transit.getId());
 
@@ -160,7 +160,7 @@ describe('Awarded Miles Management', () => {
     await fixtures.createActiveAwardsAccount(client);
     await fixtures.createActiveAwardsAccount(secondClient);
 
-    await awardsService.registerSpecialMiles(client.getId(), 10);
+    await awardsService.registerNonExpiringMiles(client.getId(), 10);
     await awardsService.transferMiles(client.getId(), secondClient.getId(), 10);
 
     const firstClientBalance = await awardsService.calculateBalance(
@@ -181,7 +181,7 @@ describe('Awarded Miles Management', () => {
     await fixtures.createActiveAwardsAccount(client);
     await fixtures.createAwardsAccount(secondClient);
 
-    await awardsService.registerSpecialMiles(client.getId(), 10);
+    await awardsService.registerNonExpiringMiles(client.getId(), 10);
     await awardsService.deactivateAccount(client.getId());
 
     await awardsService.transferMiles(client.getId(), secondClient.getId(), 10);
@@ -204,7 +204,7 @@ describe('Awarded Miles Management', () => {
     await fixtures.createActiveAwardsAccount(client);
     await fixtures.createActiveAwardsAccount(secondClient);
 
-    await awardsService.registerSpecialMiles(client.getId(), 10);
+    await awardsService.registerNonExpiringMiles(client.getId(), 10);
 
     await awardsService.transferMiles(client.getId(), secondClient.getId(), 30);
 

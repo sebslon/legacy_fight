@@ -71,7 +71,7 @@ describe('Claim Automatic Resolving', () => {
   beforeAll(() => {
     clientNotificationService.notifyClientAboutRefund = jest.fn();
     clientNotificationService.askForMoreInformation = jest.fn();
-    awardsService.registerSpecialMiles = jest.fn();
+    awardsService.registerNonExpiringMiles = jest.fn();
     driverNotificationService.askDriverForDetailsAboutClaim = jest.fn();
   });
 
@@ -115,7 +115,7 @@ describe('Claim Automatic Resolving', () => {
 
     expect(claim.getStatus()).toEqual(ClaimStatus.REFUNDED);
     expect(claim.getCompletionMode()).toEqual(ClaimCompletionMode.AUTOMATIC);
-    expect(awardsService.registerSpecialMiles).toHaveBeenCalledWith(
+    expect(awardsService.registerNonExpiringMiles).toHaveBeenCalledWith(
       claim.getOwner().getId(),
       10,
     );
@@ -138,7 +138,7 @@ describe('Claim Automatic Resolving', () => {
 
     expect(claim.getStatus()).toEqual(ClaimStatus.ESCALATED);
     expect(claim.getCompletionMode()).toEqual(ClaimCompletionMode.MANUAL);
-    expect(awardsService.registerSpecialMiles).not.toHaveBeenCalled();
+    expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
     expect(
       driverNotificationService.askDriverForDetailsAboutClaim,
     ).toHaveBeenCalledWith(claim.getClaimNo(), driver.getId());
@@ -202,7 +202,7 @@ describe('Claim Automatic Resolving', () => {
       claim3.getOwner().getId(),
     );
 
-    expect(awardsService.registerSpecialMiles).not.toHaveBeenCalled();
+    expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
   });
 
   it('Low cost transits are refunded when there are many transits done by client', async () => {
@@ -224,7 +224,7 @@ describe('Claim Automatic Resolving', () => {
 
     expect(claim.getStatus()).toEqual(ClaimStatus.REFUNDED);
     expect(claim.getCompletionMode()).toEqual(ClaimCompletionMode.AUTOMATIC);
-    expect(awardsService.registerSpecialMiles).not.toHaveBeenCalled();
+    expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
     expect(
       clientNotificationService.notifyClientAboutRefund,
     ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwner().getId());
@@ -248,7 +248,7 @@ describe('Claim Automatic Resolving', () => {
     expect(
       clientNotificationService.askForMoreInformation,
     ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwner().getId());
-    expect(awardsService.registerSpecialMiles).not.toHaveBeenCalled();
+    expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
   });
 
   it('High cost transits are escalated even when few transits', async () => {
@@ -271,7 +271,7 @@ describe('Claim Automatic Resolving', () => {
     expect(
       driverNotificationService.askDriverForDetailsAboutClaim,
     ).toHaveBeenCalledWith(claim.getClaimNo(), driver.getId());
-    expect(awardsService.registerSpecialMiles).not.toHaveBeenCalled();
+    expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
   });
 
   function lowCostThresholdIs(price: number) {

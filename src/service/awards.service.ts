@@ -31,7 +31,7 @@ export interface IAwardsService {
     transitId: string,
   ) => Promise<AwardedMiles | null>;
 
-  registerSpecialMiles: (
+  registerNonExpiringMiles: (
     clientId: string,
     miles: number,
   ) => Promise<AwardedMiles>;
@@ -132,7 +132,7 @@ export class AwardsService implements IAwardsService {
     }
   }
 
-  public async registerSpecialMiles(clientId: string, miles: number) {
+  public async registerNonExpiringMiles(clientId: string, miles: number) {
     const account = await this.getAccountForClient(clientId);
 
     const _miles = new AwardedMiles();
@@ -183,17 +183,17 @@ export class AwardsService implements IAwardsService {
           );
         } else if (client.getType() === Type.VIP) {
           milesList = orderBy(milesList, [
-            (m) => m.getIsSpecial(),
+            (m) => m.cantExpire(),
             (m) => m.getExpirationDate(),
           ]);
         } else if (transitsCounter >= 15 && this.isSunday()) {
           milesList = orderBy(milesList, [
-            (m) => m.getIsSpecial(),
+            (m) => m.cantExpire(),
             (m) => m.getExpirationDate(),
           ]);
         } else if (transitsCounter >= 15) {
           milesList = orderBy(milesList, [
-            (m) => m.getIsSpecial(),
+            (m) => m.cantExpire(),
             (m) => m.getDate(),
           ]);
         } else {
@@ -206,7 +206,7 @@ export class AwardsService implements IAwardsService {
           }
 
           const expirationDate = m.getExpirationDate();
-          const isSpecial = m.getIsSpecial();
+          const isSpecial = m.cantExpire();
           const isNotExpired =
             expirationDate && dayjs(+expirationDate).isAfter(dayjs());
 
@@ -246,7 +246,7 @@ export class AwardsService implements IAwardsService {
 
     const sum = milesList
       .filter((mile) => {
-        const isSpecial = mile.getIsSpecial();
+        const isSpecial = mile.cantExpire();
         const expirationDate = mile.getExpirationDate();
 
         const isNotExpired =
@@ -281,7 +281,7 @@ export class AwardsService implements IAwardsService {
 
       for (const iter of milesList) {
         if (
-          iter.getIsSpecial() ||
+          iter.cantExpire() ||
           dayjs(iter.getExpirationDate()).isAfter(dayjs())
         ) {
           if (iter.getMiles() <= miles) {
@@ -292,7 +292,7 @@ export class AwardsService implements IAwardsService {
             const _miles = new AwardedMiles();
 
             _miles.setClient(accountTo.getClient());
-            _miles.setSpecial(iter.getIsSpecial() ?? false);
+            _miles.setSpecial(iter.cantExpire() ?? false);
             _miles.setExpirationDate(iter.getExpirationDate() || Date.now());
             _miles.setMiles(miles);
 

@@ -375,7 +375,7 @@ describe('Removing Awarded Miles', () => {
     defaultMilesBonusIs(miles);
     jest.spyOn(Date, 'now').mockReturnValue(when.getTime());
 
-    return awardsService.registerSpecialMiles(client.getId(), miles);
+    return awardsService.registerNonExpiringMiles(client.getId(), miles);
   }
 
   function milesWillExpireInDays(days: number) {
