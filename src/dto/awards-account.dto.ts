@@ -46,7 +46,7 @@ export class AwardsAccountDto {
     return this.date;
   }
 
-  public getActive() {
+  public getIsActive() {
     return this.isActive;
   }
 }
