@@ -1,3 +1,4 @@
+import { MilesJSONInterface } from './awarded-miles.entity';
 import { MilesInterface } from './miles.interface';
 
 export class MilesConstantUntil implements MilesInterface {
@@ -12,13 +13,21 @@ export class MilesConstantUntil implements MilesInterface {
     return new MilesConstantUntil(amount, null);
   }
 
+  public static fromJSON(milesJSON: MilesJSONInterface): MilesInterface {
+    return new MilesConstantUntil(
+      milesJSON.miles,
+      milesJSON.expirationDate ? new Date(milesJSON.expirationDate) : null,
+    );
+  }
+
   private constructor(amount: number, expiresAt: Date | null = null) {
     this.amount = amount;
     this.expirationTime = expiresAt;
   }
 
-  public getAmountFor(moment: Date): number {
-    const isExpired = this.expirationTime && moment > this.expirationTime;
+  public getAmountFor(when: Date): number {
+    const isExpired =
+      this.expirationTime && when.getTime() > this.expirationTime.getTime();
 
     if (isExpired) {
       return 0;

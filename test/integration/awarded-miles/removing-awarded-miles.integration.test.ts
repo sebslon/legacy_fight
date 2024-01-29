@@ -3,9 +3,9 @@ import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
 import { AppProperties } from '../../../src/config/app-properties.config';
-import { AwardedMiles } from '../../../src/entity/awarded-miles.entity';
 import { Client, Type } from '../../../src/entity/client.entity';
 import { Transit } from '../../../src/entity/transit.entity';
+import { AwardedMiles } from '../../../src/miles/awarded-miles.entity';
 import { Money } from '../../../src/money/money';
 import { AddressRepository } from '../../../src/repository/address.repository';
 import { AwardedMilesRepository } from '../../../src/repository/awarded-miles.repository';
@@ -109,7 +109,6 @@ describe('Removing Awarded Miles', () => {
 
   it('Should remove oldest miles first when many transits', async () => {
     const client = await clientWithAnActiveMilesProgram(Type.NORMAL);
-
     await fixtures.clientHasDoneTransits(client, 15);
 
     const driver = await fixtures.createTestDriver();
@@ -329,7 +328,9 @@ describe('Removing Awarded Miles', () => {
       (am) => milesToExpire && milesToExpire.getId() === am.getId(),
     );
 
-    const miles = awardedMiles.map((am) => am.getMiles());
+    const miles = awardedMiles.map((am) =>
+      am.getMiles().getAmountFor(new Date()),
+    );
     const actual = miles.reduce((a, b) => a + b, 0);
 
     expect(actual).toBe(milesAfterReduction);

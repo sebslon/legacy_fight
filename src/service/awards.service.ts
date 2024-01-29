@@ -9,9 +9,10 @@ import { orderBy } from 'lodash';
 
 import { AppProperties } from '../config/app-properties.config';
 import { AwardsAccountDto } from '../dto/awards-account.dto';
-import { AwardedMiles } from '../entity/awarded-miles.entity';
-import { AwardsAccount } from '../entity/awards-account.entity';
 import { Client, Type } from '../entity/client.entity';
+import { AwardedMiles } from '../miles/awarded-miles.entity';
+import { AwardsAccount } from '../miles/awards-account.entity';
+import { MilesConstantUntil } from '../miles/miles-constant-until';
 import { AwardedMilesRepository } from '../repository/awarded-miles.repository';
 import { AwardsAccountRepository } from '../repository/awards-account.repository';
 import { ClientRepository } from '../repository/client.repository';
@@ -110,6 +111,9 @@ export class AwardsService implements IAwardsService {
 
     const now = Date.now();
 
+    const milesExpirationInDays = this.appProperties.getMilesExpirationInDays();
+    const defaultMilesBonus = this.appProperties.getDefaultMilesBonus();
+
     if (!account || !account.isAwardActive()) {
       return null;
     } else {
@@ -117,13 +121,12 @@ export class AwardsService implements IAwardsService {
       miles.setTransit(transit);
       miles.setDate(Date.now());
       miles.setClient(account.getClient());
-      miles.setMiles(this.appProperties.getDefaultMilesBonus());
-      miles.setExpirationDate(
-        dayjs(now)
-          .add(this.appProperties.getMilesExpirationInDays(), 'days')
-          .valueOf(),
+      miles.setMiles(
+        MilesConstantUntil.constantUntil(
+          defaultMilesBonus,
+          dayjs(now).add(milesExpirationInDays, 'days').toDate(),
+        ),
       );
-      miles.setSpecial(false);
       account.increaseTransactions();
 
       await this.milesRepository.save(miles);
@@ -138,9 +141,8 @@ export class AwardsService implements IAwardsService {
     const _miles = new AwardedMiles();
     _miles.setTransit(null);
     _miles.setClient(account.getClient());
-    _miles.setMiles(miles);
+    _miles.setMiles(MilesConstantUntil.constantForever(miles));
     _miles.setDate(Date.now());
-    _miles.setSpecial(true);
     account.increaseTransactions();
     await this.milesRepository.save(_miles);
     await this.accountRepository.save(account);
@@ -173,23 +175,21 @@ export class AwardsService implements IAwardsService {
           await this.transitRepository.findByClient(client)
         ).length;
 
-        // TODO: verify below sorter
-
         if (client.getClaims().length >= 3) {
           milesList = orderBy(
             milesList,
-            [(m) => m.getExpirationDate()],
+            [(m) => m.getExpirationDate() ?? m.getExpirationDate()?.getTime()],
             ['desc', 'asc'],
           );
         } else if (client.getType() === Type.VIP) {
           milesList = orderBy(milesList, [
             (m) => m.cantExpire(),
-            (m) => m.getExpirationDate(),
+            (m) => m.getExpirationDate() ?? m.getExpirationDate()?.getTime(),
           ]);
         } else if (transitsCounter >= 15 && this.isSunday()) {
           milesList = orderBy(milesList, [
             (m) => m.cantExpire(),
-            (m) => m.getExpirationDate(),
+            (m) => m.getExpirationDate() ?? m.getExpirationDate()?.getTime(),
           ]);
         } else if (transitsCounter >= 15) {
           milesList = orderBy(milesList, [
@@ -200,24 +200,29 @@ export class AwardsService implements IAwardsService {
           milesList = orderBy(milesList, (m) => m.getDate());
         }
 
+        const now = new Date();
+
         for (const m of milesList) {
           if (miles <= 0) {
             break;
           }
 
-          const expirationDate = m.getExpirationDate();
-          const isSpecial = m.cantExpire();
-          const isNotExpired =
-            expirationDate && dayjs(+expirationDate).isAfter(dayjs());
+          const cantExpire = m.cantExpire();
+          const isNotExpired = m.getExpirationDate()
+            ? dayjs(m.getExpirationDate()).isAfter(dayjs())
+            : false;
 
-          if (isSpecial || isNotExpired) {
-            if (m.getMiles() <= miles) {
-              miles -= m.getMiles();
-              m.setMiles(0);
+          if (cantExpire || isNotExpired) {
+            const milesAmount = m.getMilesAmount(now);
+
+            if (milesAmount <= miles) {
+              miles -= milesAmount;
+              m.removeAll(now);
             } else {
-              m.setMiles(m.getMiles() - miles);
+              m.subtract(miles, now);
               miles = 0;
             }
+
             await this.milesRepository.save(m);
           }
         }
@@ -246,16 +251,14 @@ export class AwardsService implements IAwardsService {
 
     const sum = milesList
       .filter((mile) => {
-        const isSpecial = mile.cantExpire();
         const expirationDate = mile.getExpirationDate();
-
         const isNotExpired =
-          expirationDate && dayjs(+expirationDate).isAfter(dayjs(now));
+          expirationDate && dayjs(expirationDate.getTime()).isAfter(dayjs(now));
 
-        const isMileValid = isSpecial || isNotExpired;
+        const isMileValid = mile.cantExpire() || isNotExpired;
         return isMileValid;
       })
-      .map((t) => t.getMiles())
+      .map((t) => t.getMilesAmount(dayjs(now).toDate()))
       .reduce((prev, curr) => prev + curr, 0);
 
     return sum;
@@ -278,29 +281,30 @@ export class AwardsService implements IAwardsService {
     const balanceFromClient = await this.calculateBalance(fromClientId);
     if (balanceFromClient >= miles && accountFrom.isAwardActive()) {
       const milesList = await this.milesRepository.findAllByClient(fromClient);
+      const now = new Date();
 
-      for (const iter of milesList) {
+      for (const m of milesList) {
         if (
-          iter.cantExpire() ||
-          dayjs(iter.getExpirationDate()).isAfter(dayjs())
+          m.cantExpire() ||
+          dayjs(m.getExpirationDate()?.getTime()).isAfter(dayjs())
         ) {
-          if (iter.getMiles() <= miles) {
-            iter.setClient(accountTo.getClient());
-            miles -= iter.getMiles();
+          const milesAmount = m.getMilesAmount(now);
+
+          if (milesAmount <= miles) {
+            m.setClient(accountTo.getClient());
+            miles -= milesAmount;
           } else {
-            iter.setMiles(iter.getMiles() - miles);
+            m.subtract(miles, now);
             const _miles = new AwardedMiles();
 
             _miles.setClient(accountTo.getClient());
-            _miles.setSpecial(iter.cantExpire() ?? false);
-            _miles.setExpirationDate(iter.getExpirationDate() || Date.now());
-            _miles.setMiles(miles);
+            _miles.setMiles(m.getMiles());
 
-            miles -= iter.getMiles();
+            miles -= milesAmount;
 
             await this.milesRepository.save(_miles);
           }
-          await this.milesRepository.save(iter);
+          await this.milesRepository.save(m);
         }
       }
 

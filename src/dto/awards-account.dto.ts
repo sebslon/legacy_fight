@@ -1,4 +1,4 @@
-import { AwardsAccount } from '../entity/awards-account.entity';
+import { AwardsAccount } from '../miles/awards-account.entity';
 
 import { ClientDto } from './client.dto';
 

@@ -25,6 +25,8 @@ describe('Awarded Miles Management', () => {
   let claimService: ClaimService;
   let fixtures: Fixtures;
 
+  const NOW = new Date('2020-01-01');
+
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -114,11 +116,11 @@ describe('Awarded Miles Management', () => {
 
     expect(account.getTransactions()).toEqual(1);
     expect(awardedMiles).toHaveLength(1);
-    expect(awardedMiles[0].getMiles()).toEqual(10);
+    expect(awardedMiles[0].getMilesAmount(NOW)).toEqual(10);
     expect(awardedMiles[0].cantExpire()).toBeFalsy();
   });
 
-  it('Can register special miles', async () => {
+  it('Can register non expiring miles', async () => {
     const client = await fixtures.createTestClient();
     await fixtures.createActiveAwardsAccount(client);
 
@@ -129,7 +131,7 @@ describe('Awarded Miles Management', () => {
 
     expect(account.getTransactions()).toEqual(1);
     expect(awardedMiles).toHaveLength(1);
-    expect(awardedMiles[0].getMiles()).toEqual(20);
+    expect(awardedMiles[0].getMilesAmount(NOW)).toEqual(20);
     expect(awardedMiles[0].cantExpire()).toBeTruthy();
   });
 
