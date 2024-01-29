@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
+import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
 import { Client, Type } from '../../../src/entity/client.entity';
 import { Transit } from '../../../src/entity/transit.entity';
@@ -363,7 +364,7 @@ describe('Removing Awarded Miles', () => {
     client: Client,
     transit: Transit,
   ) {
-    jest.spyOn(Date, 'now').mockReturnValue(when.getTime());
+    jest.spyOn(Clock, 'currentDate').mockReturnValue(when);
 
     return await awardsService.registerMiles(client.getId(), transit.getId());
   }
@@ -388,6 +389,6 @@ describe('Removing Awarded Miles', () => {
   }
 
   function itIsSunday() {
-    jest.spyOn(Date, 'now').mockReturnValue(SUNDAY.getTime());
+    jest.spyOn(Clock, 'currentDate').mockReturnValue(SUNDAY);
   }
 });

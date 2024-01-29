@@ -3,6 +3,7 @@ import * as dayjs from 'dayjs';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
+import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
 import { Client } from '../../../src/entity/client.entity';
 import { Transit } from '../../../src/entity/transit.entity';
@@ -105,13 +106,13 @@ describe('Expiring Awarded Miles (calculating balance)', () => {
   // Helper functions
 
   function registerMilesAt(transit: Transit, client: Client, date: Date) {
-    jest.spyOn(Date, 'now').mockReturnValue(date.getTime());
+    jest.spyOn(Clock, 'currentDate').mockReturnValue(date);
 
     return awardsService.registerMiles(client.getId(), transit.getId());
   }
 
   function calculateBalanceAt(client: Client, date: Date) {
-    jest.spyOn(Date, 'now').mockReturnValue(date.getTime());
+    jest.spyOn(Clock, 'currentDate').mockReturnValue(date);
 
     return awardsService.calculateBalance(client.getId());
   }

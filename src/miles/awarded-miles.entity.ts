@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
+import { Clock } from '../common/clock';
 import { Client } from '../entity/client.entity';
 import { Transit } from '../entity/transit.entity';
 
@@ -23,7 +24,7 @@ export class AwardedMiles extends BaseEntity {
     transformer: {
       from: (value: MilesJSONInterface) => MilesConstantUntil.fromJSON(value),
       to: (value: MilesInterface) => ({
-        miles: value.getAmountFor(new Date(Date.now())),
+        miles: value.getAmountFor(Clock.currentDate()),
         expirationDate: value.expiresAt(),
       }),
     },

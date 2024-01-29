@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import { orderBy } from 'lodash';
 
+import { Clock } from '../common/clock';
 import { AppProperties } from '../config/app-properties.config';
 import { AwardsAccountDto } from '../dto/awards-account.dto';
 import { Client, Type } from '../entity/client.entity';
@@ -79,7 +80,7 @@ export class AwardsService implements IAwardsService {
 
     account.setClient(client);
     account.setActive(false);
-    account.setDate(Date.now());
+    account.setDate(Clock.currentDate().getTime());
 
     await this.accountRepository.save(account);
   }
@@ -109,7 +110,7 @@ export class AwardsService implements IAwardsService {
       throw new NotFoundException('transit does not exists, id = ' + transitId);
     }
 
-    const now = Date.now();
+    const now = Clock.currentDate();
 
     const milesExpirationInDays = this.appProperties.getMilesExpirationInDays();
     const defaultMilesBonus = this.appProperties.getDefaultMilesBonus();
@@ -119,12 +120,12 @@ export class AwardsService implements IAwardsService {
     } else {
       const miles = new AwardedMiles();
       miles.setTransit(transit);
-      miles.setDate(Date.now());
+      miles.setDate(now.getTime());
       miles.setClient(account.getClient());
       miles.setMiles(
         MilesConstantUntil.constantUntil(
           defaultMilesBonus,
-          dayjs(now).add(milesExpirationInDays, 'days').toDate(),
+          Clock.addDays(now, milesExpirationInDays),
         ),
       );
       account.increaseTransactions();
@@ -142,7 +143,7 @@ export class AwardsService implements IAwardsService {
     _miles.setTransit(null);
     _miles.setClient(account.getClient());
     _miles.setMiles(MilesConstantUntil.constantForever(miles));
-    _miles.setDate(Date.now());
+    _miles.setDate(Clock.currentDate().getTime());
     account.increaseTransactions();
     await this.milesRepository.save(_miles);
     await this.accountRepository.save(account);
@@ -200,7 +201,7 @@ export class AwardsService implements IAwardsService {
           milesList = orderBy(milesList, (m) => m.getDate());
         }
 
-        const now = new Date();
+        const now = Clock.currentDate();
 
         for (const m of milesList) {
           if (miles <= 0) {
@@ -238,8 +239,8 @@ export class AwardsService implements IAwardsService {
   }
 
   public async calculateBalance(clientId: string) {
+    const now = Clock.currentDate();
     const client = await this.clientRepository.findOne(clientId);
-    const now = Date.now();
 
     if (!client) {
       throw new NotFoundException(
@@ -251,14 +252,13 @@ export class AwardsService implements IAwardsService {
 
     const sum = milesList
       .filter((mile) => {
-        const expirationDate = mile.getExpirationDate();
-        const isNotExpired =
-          expirationDate && dayjs(expirationDate.getTime()).isAfter(dayjs(now));
+        const expiration = mile.getExpirationDate();
+        const isNotExpired = expiration && Clock.isBefore(now, expiration);
 
         const isMileValid = mile.cantExpire() || isNotExpired;
         return isMileValid;
       })
-      .map((t) => t.getMilesAmount(dayjs(now).toDate()))
+      .map((t) => t.getMilesAmount(now))
       .reduce((prev, curr) => prev + curr, 0);
 
     return sum;
@@ -281,13 +281,13 @@ export class AwardsService implements IAwardsService {
     const balanceFromClient = await this.calculateBalance(fromClientId);
     if (balanceFromClient >= miles && accountFrom.isAwardActive()) {
       const milesList = await this.milesRepository.findAllByClient(fromClient);
-      const now = new Date();
+
+      const now = Clock.currentDate();
 
       for (const m of milesList) {
-        if (
-          m.cantExpire() ||
-          dayjs(m.getExpirationDate()?.getTime()).isAfter(dayjs())
-        ) {
+        const expiration = m.getExpirationDate();
+
+        if (m.cantExpire() || (expiration && Clock.isBefore(now, expiration))) {
           const milesAmount = m.getMilesAmount(now);
 
           if (milesAmount <= miles) {
@@ -317,7 +317,7 @@ export class AwardsService implements IAwardsService {
   }
 
   private isSunday() {
-    return dayjs(Date.now()).get('day') === 0;
+    return Clock.currentDate().getDay() === 0;
   }
 
   private async getAccountForClient(clientId: string | Client) {
