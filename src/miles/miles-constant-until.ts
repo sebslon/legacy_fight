@@ -1,5 +1,5 @@
 import { MilesJSONInterface } from './awarded-miles.entity';
-import { MilesInterface } from './miles.interface';
+import { MilesInterface } from './interfaces/miles.interface';
 
 export class MilesConstantUntil implements MilesInterface {
   private amount: number;

@@ -5,8 +5,8 @@ import { Clock } from '../common/clock';
 import { Client } from '../entity/client.entity';
 import { Transit } from '../entity/transit.entity';
 
+import { MilesInterface } from './interfaces/miles.interface';
 import { MilesConstantUntil } from './miles-constant-until';
-import { MilesInterface } from './miles.interface';
 
 export interface MilesJSONInterface {
   miles: number;
