@@ -18,4 +18,10 @@ export class AwardsAccountRepository extends Repository<AwardsAccount> {
 
     return account;
   }
+
+  public async findAllMilesByClient(client: Client) {
+    const account = await this.findByClientOrThrow(client);
+
+    return account.getMiles();
+  }
 }

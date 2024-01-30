@@ -9,7 +9,7 @@ import { Transit } from '../../../src/entity/transit.entity';
 import { AwardedMiles } from '../../../src/miles/awarded-miles.entity';
 import { Money } from '../../../src/money/money';
 import { AddressRepository } from '../../../src/repository/address.repository';
-import { AwardedMilesRepository } from '../../../src/repository/awarded-miles.repository';
+import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
 import { ClientRepository } from '../../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../../src/repository/transit.repository';
@@ -27,7 +27,7 @@ describe('Removing Awarded Miles', () => {
 
   let awardsService: AwardsService;
   let appProperties: AppProperties;
-  let awardedMilesRepository: AwardedMilesRepository;
+  let awardsAccountRepository: AwardsAccountRepository;
   let clientRepository: ClientRepository;
   let addressRepository: AddressRepository;
   let driverService: DriverService;
@@ -47,8 +47,8 @@ describe('Removing Awarded Miles', () => {
     claimService = module.get<ClaimService>(ClaimService);
     transitRepository = module.get<TransitRepository>(TransitRepository);
     addressRepository = module.get<AddressRepository>(AddressRepository);
-    awardedMilesRepository = module.get<AwardedMilesRepository>(
-      AwardedMilesRepository,
+    awardsAccountRepository = module.get<AwardsAccountRepository>(
+      AwardsAccountRepository,
     );
 
     fixtures = new Fixtures(
@@ -101,7 +101,9 @@ describe('Removing Awarded Miles', () => {
 
     await awardsService.removeMiles(client.getId(), 16);
 
-    const totalMiles = await awardedMilesRepository.findAllByClient(client);
+    const totalMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
 
     assertThatMilesWereReducedTo(oldestSpecialMiles, 0, totalMiles);
     assertThatMilesWereReducedTo(middleMiles as AwardedMiles, 0, totalMiles);
@@ -142,7 +144,10 @@ describe('Removing Awarded Miles', () => {
 
     await awardsService.removeMiles(client.getId(), 15);
 
-    const totalMiles = await awardedMilesRepository.findAllByClient(client);
+    const totalMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
+
     assertThatMilesWereReducedTo(oldest as AwardedMiles, 0, totalMiles);
     assertThatMilesWereReducedTo(middle as AwardedMiles, 5, totalMiles);
     assertThatMilesWereReducedTo(newest as AwardedMiles, 10, totalMiles);
@@ -174,7 +179,10 @@ describe('Removing Awarded Miles', () => {
 
     await awardsService.removeMiles(client.getId(), 13);
 
-    const totalMiles = await awardedMilesRepository.findAllByClient(client);
+    const totalMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
+
     assertThatMilesWereReducedTo(regularMiles as AwardedMiles, 0, totalMiles);
     assertThatMilesWereReducedTo(olderSpecialMiles, 2, totalMiles);
   });
@@ -216,7 +224,10 @@ describe('Removing Awarded Miles', () => {
 
     await awardsService.removeMiles(client.getId(), 21);
 
-    const totalMiles = await awardedMilesRepository.findAllByClient(client);
+    const totalMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
+
     assertThatMilesWereReducedTo(specialMiles, 1, totalMiles);
     assertThatMilesWereReducedTo(firstToExpire as AwardedMiles, 0, totalMiles);
     assertThatMilesWereReducedTo(secondToExpire as AwardedMiles, 4, totalMiles);
@@ -266,7 +277,10 @@ describe('Removing Awarded Miles', () => {
     await awardsService.removeMiles(client.getId(), 21);
 
     // Then
-    const totalMiles = await awardedMilesRepository.findAllByClient(client);
+    const totalMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
+
     assertThatMilesWereReducedTo(specialMiles as AwardedMiles, 100, totalMiles);
     assertThatMilesWereReducedTo(firstToExpire as AwardedMiles, 0, totalMiles);
     assertThatMilesWereReducedTo(secondToExpire as AwardedMiles, 4, totalMiles);
@@ -310,7 +324,9 @@ describe('Removing Awarded Miles', () => {
 
     await awardsService.removeMiles(client.getId(), 21);
 
-    const totalMiles = await awardedMilesRepository.findAllByClient(client);
+    const totalMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
 
     assertThatMilesWereReducedTo(specialMiles, 0, totalMiles);
     assertThatMilesWereReducedTo(thirdToExpire as AwardedMiles, 0, totalMiles);
@@ -323,7 +339,7 @@ describe('Removing Awarded Miles', () => {
   function assertThatMilesWereReducedTo(
     milesToExpire: AwardedMiles,
     milesAfterReduction: number,
-    allMiles: AwardedMiles[],
+    allMiles: AwardedMiles[] | readonly AwardedMiles[],
   ) {
     const awardedMiles = allMiles.filter(
       (am) => milesToExpire && milesToExpire.getId() === am.getId(),

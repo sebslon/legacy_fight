@@ -6,7 +6,6 @@ import { AppProperties } from '../config/app-properties.config';
 import { AwardsAccountDto } from '../dto/awards-account.dto';
 import { AwardedMiles } from '../miles/awarded-miles.entity';
 import { AwardsAccount } from '../miles/awards-account.entity';
-import { AwardedMilesRepository } from '../repository/awarded-miles.repository';
 import { AwardsAccountRepository } from '../repository/awards-account.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { TransitRepository } from '../repository/transit.repository';
@@ -50,8 +49,6 @@ export class AwardsService implements IAwardsService {
     private transitRepository: TransitRepository,
     @InjectRepository(AwardsAccountRepository)
     private accountRepository: AwardsAccountRepository,
-    @InjectRepository(AwardedMilesRepository)
-    private milesRepository: AwardedMilesRepository,
     private appProperties: AppProperties,
   ) {}
 

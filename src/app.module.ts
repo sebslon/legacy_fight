@@ -15,8 +15,8 @@ import { DriverTrackingController } from './controllers/driver-tracking.controll
 import { DriverController } from './controllers/driver.controller';
 import { TransitAnalyzerController } from './controllers/transit-analyzer.controller';
 import { TransitController } from './controllers/transit.controller';
+import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
-import { AwardedMilesRepository } from './repository/awarded-miles.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
 import {
   CarTypeActiveCounterRepository,
@@ -71,7 +71,6 @@ import { TransitService } from './service/transit.service';
       ClaimAttachmentRepository,
       AddressRepository,
       DriverAttributeRepository,
-      AwardedMilesRepository,
       AwardsAccountRepository,
       ContractAttachmentRepository,
       ContractRepository,
@@ -79,6 +78,7 @@ import { TransitService } from './service/transit.service';
       CarTypeEntityRepository,
       CarTypeActiveCounterRepository,
       ClaimsResolverRepository,
+      AwardedMiles,
     ]),
   ],
   controllers: [

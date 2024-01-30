@@ -214,6 +214,10 @@ export class AwardsAccount extends BaseEntity {
     this.transactions++;
   }
 
+  public getMiles(): readonly AwardedMiles[] {
+    return Object.freeze(this.miles);
+  }
+
   public getClient() {
     return this.client;
   }

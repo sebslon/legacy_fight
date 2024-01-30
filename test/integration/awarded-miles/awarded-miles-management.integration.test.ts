@@ -5,7 +5,7 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../../src/app.module';
 import { Money } from '../../../src/money/money';
 import { AddressRepository } from '../../../src/repository/address.repository';
-import { AwardedMilesRepository } from '../../../src/repository/awarded-miles.repository';
+import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
 import { ClientRepository } from '../../../src/repository/client.repository';
 import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../../src/repository/transit.repository';
@@ -22,7 +22,7 @@ describe('Awarded Miles Management', () => {
   let addressRepository: AddressRepository;
   let driverService: DriverService;
   let transitRepository: TransitRepository;
-  let awardedMilesRepository: AwardedMilesRepository;
+  let awardsAccountRepository: AwardsAccountRepository;
   let claimService: ClaimService;
   let fixtures: Fixtures;
 
@@ -39,8 +39,8 @@ describe('Awarded Miles Management', () => {
     claimService = module.get<ClaimService>(ClaimService);
     transitRepository = module.get<TransitRepository>(TransitRepository);
     addressRepository = module.get<AddressRepository>(AddressRepository);
-    awardedMilesRepository = module.get<AwardedMilesRepository>(
-      AwardedMilesRepository,
+    awardsAccountRepository = module.get<AwardsAccountRepository>(
+      AwardsAccountRepository,
     );
 
     fixtures = new Fixtures(
@@ -113,7 +113,9 @@ describe('Awarded Miles Management', () => {
     await awardsService.registerMiles(client.getId(), transit.getId());
 
     const account = await awardsService.findBy(client.getId());
-    const awardedMiles = await awardedMilesRepository.findAllByClient(client);
+    const awardedMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
 
     expect(account.getTransactions()).toEqual(1);
     expect(awardedMiles).toHaveLength(1);
@@ -128,7 +130,9 @@ describe('Awarded Miles Management', () => {
     await awardsService.registerNonExpiringMiles(client.getId(), 20);
 
     const account = await awardsService.findBy(client.getId());
-    const awardedMiles = await awardedMilesRepository.findAllByClient(client);
+    const awardedMiles = await awardsAccountRepository.findAllMilesByClient(
+      client,
+    );
 
     expect(account.getTransactions()).toEqual(1);
     expect(awardedMiles).toHaveLength(1);
