@@ -8,4 +8,14 @@ export class AwardsAccountRepository extends Repository<AwardsAccount> {
   public async findByClient(client: Client | undefined) {
     return this.findOne({ where: { client } });
   }
+
+  public async findByClientOrThrow(client: Client) {
+    const account = await this.findByClient(client);
+
+    if (!account) {
+      throw new Error(`Account does not exists, id = ${client.getId()}`);
+    }
+
+    return account;
+  }
 }

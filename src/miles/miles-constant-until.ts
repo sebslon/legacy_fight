@@ -13,7 +13,11 @@ export class MilesConstantUntil implements MilesInterface {
     return new MilesConstantUntil(amount, null);
   }
 
-  public static fromJSON(milesJSON: MilesJSONInterface): MilesInterface {
+  public static fromJSON(milesJSON: MilesJSONInterface): MilesInterface | null {
+    if (!milesJSON) {
+      return null;
+    }
+
     return new MilesConstantUntil(
       milesJSON.miles,
       milesJSON.expirationDate ? new Date(milesJSON.expirationDate) : null,

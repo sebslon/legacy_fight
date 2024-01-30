@@ -1,10 +1,11 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
 import { Client } from '../entity/client.entity';
 import { Transit } from '../entity/transit.entity';
 
+import { AwardsAccount } from './awards-account.entity';
 import { MilesInterface } from './interfaces/miles.interface';
 import { MilesConstantUntil } from './miles-constant-until';
 
@@ -16,6 +17,7 @@ export interface MilesJSONInterface {
 @Entity()
 export class AwardedMiles extends BaseEntity {
   @ManyToOne(() => Client)
+  @JoinColumn()
   public client: Client;
 
   @Column({
@@ -37,44 +39,38 @@ export class AwardedMiles extends BaseEntity {
   @ManyToOne(() => Transit)
   public transit: Transit | null;
 
-  public getClient() {
-    return this.client;
-  }
+  @ManyToOne(() => AwardsAccount)
+  public account: AwardsAccount;
 
-  public setClient(client: Client) {
-    this.client = client;
-  }
+  public constructor(
+    awardsAccount: AwardsAccount,
+    transit: Transit | null,
+    client: Client,
+    when: Date,
+    miles: MilesInterface,
+  ) {
+    super();
 
-  public getMiles(): MilesInterface {
-    return this.milesJSON;
-  }
-
-  public getMilesAmount(when: Date) {
-    return this.getMiles().getAmountFor(when);
-  }
-
-  public setMiles(miles: MilesInterface) {
-    this.milesJSON = miles;
-  }
-
-  public getDate() {
-    return this.date;
-  }
-
-  public setDate(date: number) {
-    this.date = date;
-  }
-
-  public getExpirationDate() {
-    return this.getMiles().expiresAt();
-  }
-
-  public cantExpire() {
-    return this.getExpirationDate() == null;
-  }
-
-  public setTransit(transit: Transit | null) {
+    this.account = awardsAccount;
     this.transit = transit;
+    this.client = client;
+    this.date = when?.getTime();
+
+    this.setMiles(miles);
+  }
+
+  public transferTo(account: AwardsAccount, amount: number) {
+    const expiration = this.getExpirationDate();
+    const transit = this.transit;
+
+    expiration && transit
+      ? account.addExpiringMiles(
+          amount,
+          expiration,
+          transit,
+          Clock.currentDate(),
+        )
+      : account.addNonExpiringMiles(amount, Clock.currentDate());
   }
 
   public removeAll(forWhen: Date) {
@@ -85,5 +81,33 @@ export class AwardedMiles extends BaseEntity {
 
   public subtract(miles: number, forWhen: Date) {
     this.setMiles(this.getMiles().subtract(miles, forWhen));
+  }
+
+  public getClient() {
+    return this.client;
+  }
+
+  public getMiles(): MilesInterface {
+    return this.milesJSON;
+  }
+
+  public getMilesAmount(when: Date) {
+    return this.getMiles().getAmountFor(when);
+  }
+
+  public getDate() {
+    return this.date;
+  }
+
+  public getExpirationDate() {
+    return this.getMiles().expiresAt();
+  }
+
+  public cantExpire() {
+    return this.getExpirationDate() == null;
+  }
+
+  private setMiles(miles: MilesInterface) {
+    this.milesJSON = miles;
   }
 }

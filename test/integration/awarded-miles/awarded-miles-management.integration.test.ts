@@ -15,6 +15,7 @@ import { ClaimService } from '../../../src/service/claim.service';
 import { DriverService } from '../../../src/service/driver.service';
 import { Fixtures } from '../../common/fixtures';
 
+jest.setTimeout(300000);
 describe('Awarded Miles Management', () => {
   let awardsService: AwardsService;
   let clientRepository: ClientRepository;
@@ -155,7 +156,7 @@ describe('Awarded Miles Management', () => {
     expect(miles).toEqual(40);
   });
 
-  it('Can transfer miles', async () => {
+  it('Can transfer non-expiring miles', async () => {
     const client = await fixtures.createTestClient();
     const secondClient = await fixtures.createTestClient();
 
@@ -163,7 +164,8 @@ describe('Awarded Miles Management', () => {
     await fixtures.createActiveAwardsAccount(secondClient);
 
     await awardsService.registerNonExpiringMiles(client.getId(), 10);
-    await awardsService.transferMiles(client.getId(), secondClient.getId(), 10);
+    await awardsService.registerNonExpiringMiles(client.getId(), 10);
+    await awardsService.transferMiles(client.getId(), secondClient.getId(), 7);
 
     const firstClientBalance = await awardsService.calculateBalance(
       client.getId(),
@@ -172,8 +174,37 @@ describe('Awarded Miles Management', () => {
       secondClient.getId(),
     );
 
-    expect(firstClientBalance).toEqual(0);
-    expect(secondClientBalance).toEqual(10);
+    expect(firstClientBalance).toEqual(13);
+    expect(secondClientBalance).toEqual(7);
+  });
+
+  it('Can transfer expiring miles', async () => {
+    const client = await fixtures.createTestClient();
+    const secondClient = await fixtures.createTestClient();
+
+    await fixtures.createActiveAwardsAccount(client);
+    await fixtures.createActiveAwardsAccount(secondClient);
+
+    const driver = await fixtures.createTestDriver();
+    const transit = await fixtures.createTestTransit(
+      driver,
+      new Money(80).toInt(),
+    );
+
+    await awardsService.registerMiles(client.getId(), transit.getId());
+    await awardsService.registerMiles(client.getId(), transit.getId());
+
+    await awardsService.transferMiles(client.getId(), secondClient.getId(), 7);
+
+    const firstClientBalance = await awardsService.calculateBalance(
+      client.getId(),
+    );
+    const secondClientBalance = await awardsService.calculateBalance(
+      secondClient.getId(),
+    );
+
+    expect(firstClientBalance).toEqual(13);
+    expect(secondClientBalance).toEqual(7);
   });
 
   it("Can't transfer miles when account is not active", async () => {
