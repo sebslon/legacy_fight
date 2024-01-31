@@ -4,11 +4,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Clock } from '../common/clock';
 import { AppProperties } from '../config/app-properties.config';
 import { AwardsAccountDto } from '../dto/awards-account.dto';
+import { Type } from '../entity/client.entity';
 import { AwardedMiles } from '../miles/awarded-miles.entity';
 import { AwardsAccount } from '../miles/awards-account.entity';
 import { AwardsAccountRepository } from '../repository/awards-account.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { TransitRepository } from '../repository/transit.repository';
+
+export interface MilesSortingStrategy {
+  comparators: ((m: AwardedMiles) => number | boolean | null | undefined)[];
+  orders?: ('asc' | 'desc' | boolean)[];
+}
 
 export interface IAwardsService {
   findBy: (clientId: string) => Promise<AwardsAccountDto>;
@@ -168,10 +174,12 @@ export class AwardsService implements IAwardsService {
     account.removeMiles(
       miles,
       Clock.currentDate(),
-      transits.length,
-      client.getClaims().length,
-      client.getType(),
-      this.isSunday(),
+      this.chooseSortingStrategy(
+        transits.length,
+        client.getClaims().length,
+        client.getType(),
+        this.isSunday(),
+      ),
     );
 
     await this.accountRepository.save(account);
@@ -223,6 +231,47 @@ export class AwardsService implements IAwardsService {
       this.accountRepository.save(accountFrom),
       this.accountRepository.save(accountTo),
     ]);
+  }
+
+  private chooseSortingStrategy(
+    transitsCounter: number,
+    claimsCounter: number,
+    clientType: Type,
+    isSunday: boolean,
+  ): MilesSortingStrategy {
+    if (claimsCounter >= 3) {
+      return {
+        comparators: [
+          (m) =>
+            m.getExpirationDate() ? m.getExpirationDate()?.getTime() : null,
+        ],
+        orders: ['desc', 'asc'],
+      };
+    } else if (clientType === Type.VIP) {
+      return {
+        comparators: [
+          (m) => m.cantExpire(),
+          (m) =>
+            m.getExpirationDate() ? m.getExpirationDate()?.getTime() : null,
+        ],
+      };
+    } else if (transitsCounter >= 15 && isSunday) {
+      return {
+        comparators: [
+          (m) => m.cantExpire(),
+          (m) =>
+            m.getExpirationDate() ? m.getExpirationDate()?.getTime() : null,
+        ],
+      };
+    } else if (transitsCounter >= 15) {
+      return {
+        comparators: [(m) => m.cantExpire(), (m) => m.getDate()],
+      };
+    } else {
+      return {
+        comparators: [(m) => m.getDate()],
+      };
+    }
   }
 
   private isSunday() {

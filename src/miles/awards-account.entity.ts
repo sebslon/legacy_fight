@@ -5,8 +5,9 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
-import { Client, Type } from '../entity/client.entity';
+import { Client } from '../entity/client.entity';
 import { Transit } from '../entity/transit.entity';
+import { MilesSortingStrategy } from '../service/awards.service';
 
 import { AwardedMiles } from './awarded-miles.entity';
 import { MilesConstantUntil } from './miles-constant-until';
@@ -95,40 +96,14 @@ export class AwardsAccount extends BaseEntity {
   public removeMiles(
     miles: number,
     when: Date,
-    transitsCounter: number,
-    claimsCounter: number,
-    clientType: Type,
-    isSunday: boolean,
+    strategy: MilesSortingStrategy,
   ) {
     const balance = this.calculateBalance(when);
 
     if (balance >= miles && this.isActive) {
       let milesList = this.miles;
 
-      if (claimsCounter >= 3) {
-        milesList = orderBy(
-          milesList,
-          [(m) => m.getExpirationDate() ?? m.getExpirationDate()?.getTime()],
-          ['desc', 'asc'],
-        );
-      } else if (clientType === Type.VIP) {
-        milesList = orderBy(milesList, [
-          (m) => m.cantExpire(),
-          (m) => m.getExpirationDate() ?? m.getExpirationDate()?.getTime(),
-        ]);
-      } else if (transitsCounter >= 15 && isSunday) {
-        milesList = orderBy(milesList, [
-          (m) => m.cantExpire(),
-          (m) => m.getExpirationDate() ?? m.getExpirationDate()?.getTime(),
-        ]);
-      } else if (transitsCounter >= 15) {
-        milesList = orderBy(milesList, [
-          (m) => m.cantExpire(),
-          (m) => m.getDate(),
-        ]);
-      } else {
-        milesList = orderBy(milesList, (m) => m.getDate());
-      }
+      milesList = orderBy(milesList, strategy.comparators, strategy.orders);
 
       const now = Clock.currentDate();
 
