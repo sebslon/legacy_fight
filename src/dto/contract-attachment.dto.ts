@@ -34,4 +34,12 @@ export class ContractAttachmentDto {
   public getData() {
     return this.data;
   }
+
+  public getStatus() {
+    return this.status;
+  }
+
+  public getId() {
+    return this.id;
+  }
 }

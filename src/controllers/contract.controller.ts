@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 
-import { ContractDto } from '../dto/contract.dto';
-import { CreateContractAttachmentDto } from '../dto/create-contract-attachment.dto';
-import { CreateContractDto } from '../dto/create-contract.dto';
+import { ContractDTO } from '../dto/contract.dto';
+import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
+import { CreateContractDTO } from '../dto/create-contract.dto';
 import { ContractService } from '../service/contract.service';
 
 @Controller('contracts')
@@ -10,11 +10,11 @@ export class ContractController {
   constructor(private contractService: ContractService) {}
 
   @Post()
-  public async create(@Body() createContractDto: CreateContractDto) {
+  public async create(@Body() createContractDto: CreateContractDTO) {
     const created = await this.contractService.createContract(
       createContractDto,
     );
-    return new ContractDto(created);
+    return new ContractDTO(created);
   }
 
   @Get(':contractId')
@@ -26,7 +26,7 @@ export class ContractController {
   @Post(':contractId/attachment')
   public async proposeAttachment(
     @Param('contractId') contractId: string,
-    @Body() createContractAttachmentDto: CreateContractAttachmentDto,
+    @Body() createContractAttachmentDto: CreateContractAttachmentDTO,
   ) {
     const dto = await this.contractService.proposeAttachment(
       contractId,

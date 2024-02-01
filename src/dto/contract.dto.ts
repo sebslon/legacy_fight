@@ -2,7 +2,7 @@ import { Contract, ContractStatus } from '../entity/contract.entity';
 
 import { ContractAttachmentDto } from './contract-attachment.dto';
 
-export class ContractDto {
+export class ContractDTO {
   private id: string;
 
   private subject: string;

@@ -6,9 +6,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { ContractAttachmentDto } from '../dto/contract-attachment.dto';
-import { ContractDto } from '../dto/contract.dto';
-import { CreateContractAttachmentDto } from '../dto/create-contract-attachment.dto';
-import { CreateContractDto } from '../dto/create-contract.dto';
+import { ContractDTO } from '../dto/contract.dto';
+import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
+import { CreateContractDTO } from '../dto/create-contract.dto';
 import {
   ContractAttachment,
   ContractAttachmentStatus,
@@ -26,7 +26,7 @@ export class ContractService {
     private contractAttachmentRepository: ContractAttachmentRepository,
   ) {}
 
-  public async createContract(createContractDto: CreateContractDto) {
+  public async createContract(createContractDto: CreateContractDTO) {
     const contract = new Contract();
     contract.setPartnerName(createContractDto.partnerName);
     contract.setCreationDate(Date.now());
@@ -120,12 +120,12 @@ export class ContractService {
   }
 
   public async findDto(id: string) {
-    return new ContractDto(await this.find(id));
+    return new ContractDTO(await this.find(id));
   }
 
   public async proposeAttachment(
     contractId: string,
-    contractAttachmentDto: CreateContractAttachmentDto,
+    contractAttachmentDto: CreateContractAttachmentDTO,
   ) {
     const contract = await this.find(contractId);
     const contractAttachment = new ContractAttachment();
