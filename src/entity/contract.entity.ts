@@ -2,7 +2,10 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 
-import { ContractAttachment } from './contract-attachment.entity';
+import {
+  ContractAttachment,
+  ContractAttachmentStatus,
+} from './contract-attachment.entity';
 
 export enum ContractStatus {
   NEGOTIATIONS_IN_PROGRESS = 'negotiations_in_progress',
@@ -15,9 +18,16 @@ export class Contract extends BaseEntity {
   @OneToMany(
     () => ContractAttachment,
     (contractAttachment) => contractAttachment.contract,
-    { eager: true },
+    { eager: true, cascade: true },
   )
   public attachments: ContractAttachment[];
+
+  public constructor(partnerName: string, subject: string, contractNo: string) {
+    super();
+    this.partnerName = partnerName;
+    this.subject = subject;
+    this.contractNo = contractNo;
+  }
 
   @Column()
   private partnerName: string;
@@ -47,71 +57,88 @@ export class Contract extends BaseEntity {
     return this.creationDate;
   }
 
-  public setCreationDate(creationDate: number) {
-    this.creationDate = creationDate;
-  }
-
   public getAcceptedAt() {
     return this.acceptedAt;
-  }
-
-  public setAcceptedAt(acceptedAt: number) {
-    this.acceptedAt = acceptedAt;
   }
 
   public getRejectedAt() {
     return this.rejectedAt;
   }
 
-  public setRejectedAt(rejectedAt: number) {
-    this.rejectedAt = rejectedAt;
-  }
-
   public getChangeDate() {
     return this.changeDate;
-  }
-
-  public setChangeDate(changeDate: number) {
-    this.changeDate = changeDate;
   }
 
   public getStatus() {
     return this.status;
   }
 
-  public setStatus(status: ContractStatus) {
-    this.status = status;
-  }
-
   public getContractNo() {
     return this.contractNo;
-  }
-
-  public setContractNo(contractNo: string) {
-    this.contractNo = contractNo;
-  }
-
-  public getAttachments() {
-    return this.attachments || [];
-  }
-
-  public setAttachments(attachments: ContractAttachment[]) {
-    this.attachments = attachments;
   }
 
   public getPartnerName() {
     return this.partnerName;
   }
 
-  public setPartnerName(partnerName: string) {
-    this.partnerName = partnerName;
-  }
-
   public getSubject() {
     return this.subject;
   }
 
-  public setSubject(subject: string) {
-    this.subject = subject;
+  public proposeAttachment(data: string) {
+    const contractAttachment = new ContractAttachment();
+
+    contractAttachment.setData(data);
+    contractAttachment.setContract(this);
+
+    this.attachments.push(contractAttachment);
+
+    return contractAttachment;
+  }
+
+  public accept() {
+    if (
+      this.attachments.every(
+        (a) =>
+          a.getStatus() === ContractAttachmentStatus.ACCEPTED_BY_BOTH_SIDES,
+      )
+    ) {
+      this.status = ContractStatus.ACCEPTED;
+    } else {
+      throw new Error('Not all attachments accepted by both sides');
+    }
+  }
+
+  public reject(): void {
+    this.status = ContractStatus.REJECTED;
+  }
+
+  public acceptAttachment(attachmentId: string) {
+    const contractAttachment = this.findAttachment(attachmentId);
+
+    if (
+      contractAttachment?.getStatus() ===
+        ContractAttachmentStatus.ACCEPTED_BY_ONE_SIDE ||
+      contractAttachment?.getStatus() ===
+        ContractAttachmentStatus.ACCEPTED_BY_BOTH_SIDES
+    ) {
+      contractAttachment.setStatus(
+        ContractAttachmentStatus.ACCEPTED_BY_BOTH_SIDES,
+      );
+    } else {
+      contractAttachment?.setStatus(
+        ContractAttachmentStatus.ACCEPTED_BY_ONE_SIDE,
+      );
+    }
+  }
+
+  public rejectAttachment(attachmentId: string) {
+    const contractAttachment = this.findAttachment(attachmentId);
+
+    contractAttachment?.setStatus(ContractAttachmentStatus.REJECTED);
+  }
+
+  private findAttachment(attachmentId: string) {
+    return this.attachments.find((a) => a.getId() === attachmentId) ?? null;
   }
 }

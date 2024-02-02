@@ -1,19 +1,11 @@
-import {
-  Injectable,
-  NotFoundException,
-  NotAcceptableException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { ContractAttachmentDto } from '../dto/contract-attachment.dto';
 import { ContractDTO } from '../dto/contract.dto';
 import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
 import { CreateContractDTO } from '../dto/create-contract.dto';
-import {
-  ContractAttachment,
-  ContractAttachmentStatus,
-} from '../entity/contract-attachment.entity';
-import { Contract, ContractStatus } from '../entity/contract.entity';
+import { Contract } from '../entity/contract.entity';
 import { ContractAttachmentRepository } from '../repository/contract-attachment.repository';
 import { ContractRepository } from '../repository/contract.repository';
 
@@ -26,89 +18,65 @@ export class ContractService {
     private contractAttachmentRepository: ContractAttachmentRepository,
   ) {}
 
-  public async createContract(createContractDto: CreateContractDTO) {
-    const contract = new Contract();
-    contract.setPartnerName(createContractDto.partnerName);
-    contract.setCreationDate(Date.now());
+  public async createContract(createContractDTO: CreateContractDTO) {
     const partnerContractsCount =
       (
         await this.contractRepository.findByPartnerName(
-          createContractDto.partnerName,
+          createContractDTO.partnerName,
         )
       ).length + 1;
-    contract.setSubject(createContractDto.subject);
-    contract.setContractNo(
-      'C/' + partnerContractsCount + '/' + createContractDto.partnerName,
+
+    const contract = new Contract(
+      createContractDTO.partnerName,
+      createContractDTO.subject,
+      'C/' + partnerContractsCount + '/' + createContractDTO.partnerName,
     );
+
     return this.contractRepository.save(contract);
   }
 
   public async acceptContract(id: string) {
     const contract = await this.find(id);
-    const attachments = await this.contractAttachmentRepository.findByContract(
-      contract,
-    );
-    if (
-      attachments.every(
-        (a) =>
-          a.getStatus() === ContractAttachmentStatus.ACCEPTED_BY_BOTH_SIDES,
-      )
-    ) {
-      contract.setStatus(ContractStatus.ACCEPTED);
-      contract.setAcceptedAt(Date.now());
-      await this.contractAttachmentRepository.save(attachments);
-      await this.contractRepository.save(contract);
-    } else {
-      throw new NotAcceptableException(
-        'Not all attachments accepted by both sides',
-      );
-    }
+
+    contract.accept();
+
+    await this.contractRepository.save(contract);
   }
 
   public async rejectContract(id: string) {
     const contract = await this.find(id);
-    contract.setStatus(ContractStatus.REJECTED);
+
+    contract.reject();
+
     await this.contractRepository.save(contract);
   }
 
   public async rejectAttachment(attachmentId: string) {
-    const contractAttachment = await this.contractAttachmentRepository.findOne(
+    const contract = await this.contractRepository.findByAttachmentId(
       attachmentId,
     );
-    if (!contractAttachment) {
-      throw new NotFoundException('Contract attachment does not exist');
+
+    if (!contract) {
+      throw new NotFoundException('Contract does not exist');
     }
-    contractAttachment.setStatus(ContractAttachmentStatus.REJECTED);
-    contractAttachment.setRejectedAt(Date.now());
-    await this.contractAttachmentRepository.save(contractAttachment);
+
+    contract.rejectAttachment(attachmentId);
+
+    await this.contractRepository.save(contract);
   }
 
   public async acceptAttachment(attachmentId: string) {
-    const contractAttachment = await this.contractAttachmentRepository.findOne(
+    const contract = await this.contractRepository.findByAttachmentId(
       attachmentId,
     );
-    if (!contractAttachment) {
-      throw new NotFoundException('Contract attachment does not exist');
+
+    if (!contract) {
+      throw new NotFoundException('Contract does not exist');
     }
 
-    if (
-      contractAttachment.getStatus() ===
-        ContractAttachmentStatus.ACCEPTED_BY_ONE_SIDE ||
-      contractAttachment.getStatus() ===
-        ContractAttachmentStatus.ACCEPTED_BY_BOTH_SIDES
-    ) {
-      contractAttachment.setStatus(
-        ContractAttachmentStatus.ACCEPTED_BY_BOTH_SIDES,
-      );
-    } else {
-      contractAttachment.setStatus(
-        ContractAttachmentStatus.ACCEPTED_BY_ONE_SIDE,
-      );
-    }
+    contract.acceptAttachment(attachmentId);
 
-    contractAttachment.setAcceptedAt(Date.now());
-
-    await this.contractAttachmentRepository.save(contractAttachment);
+    await this.contractRepository.save(contract);
   }
 
   public async find(id: string) {
@@ -120,21 +88,27 @@ export class ContractService {
   }
 
   public async findDto(id: string) {
-    return new ContractDTO(await this.find(id));
+    const [contract, attachments] = await Promise.all([
+      this.find(id),
+      this.contractAttachmentRepository.findByContractId(id),
+    ]);
+
+    return new ContractDTO(contract, attachments);
   }
 
   public async proposeAttachment(
     contractId: string,
-    contractAttachmentDto: CreateContractAttachmentDTO,
+    contractAttachmentDTO: CreateContractAttachmentDTO,
   ) {
-    const contract = await this.find(contractId);
-    const contractAttachment = new ContractAttachment();
-    contractAttachment.setContract(contract);
-    contractAttachment.setData(contractAttachmentDto.data);
-    await this.contractAttachmentRepository.save(contractAttachment);
-    contract.getAttachments().push(contractAttachment);
-    await this.contractRepository.save(contract);
-    return new ContractAttachmentDto(contractAttachment);
+    let contract = await this.find(contractId);
+
+    contract.proposeAttachment(contractAttachmentDTO.data);
+
+    contract = await this.contractRepository.save(contract);
+
+    return new ContractAttachmentDto(
+      contract.attachments[contract.attachments.length - 1],
+    );
   }
 
   public async removeAttachment(contractId: string, attachmentId: string) {

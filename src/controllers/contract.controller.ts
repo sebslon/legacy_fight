@@ -14,7 +14,7 @@ export class ContractController {
     const created = await this.contractService.createContract(
       createContractDto,
     );
-    return new ContractDTO(created);
+    return new ContractDTO(created, []);
   }
 
   @Get(':contractId')

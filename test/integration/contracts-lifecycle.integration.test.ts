@@ -61,7 +61,7 @@ describe('Contracts lifecycle', () => {
   it('Can add attachment to contract', async () => {
     const created = await createContract('partner_with_unique_name', 'subject');
 
-    addAttachmentToContract(created, 'content');
+    await addAttachmentToContract(created, 'content');
 
     const loaded = await loadContract(created.getId());
 
