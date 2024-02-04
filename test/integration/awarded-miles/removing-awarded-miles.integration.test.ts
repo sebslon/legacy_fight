@@ -142,6 +142,7 @@ describe('Removing Awarded Miles', () => {
       transit,
     );
 
+    isNotSunday();
     await awardsService.removeMiles(client.getId(), 15);
 
     const totalMiles = await awardsAccountRepository.findAllMilesByClient(
@@ -406,5 +407,11 @@ describe('Removing Awarded Miles', () => {
 
   function itIsSunday() {
     jest.spyOn(Clock, 'currentDate').mockReturnValue(SUNDAY);
+  }
+
+  function isNotSunday() {
+    jest
+      .spyOn(Clock, 'currentDate')
+      .mockReturnValue(new Date('2024-02-07T12:00:00.000Z'));
   }
 });

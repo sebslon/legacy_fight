@@ -168,7 +168,6 @@ export class AwardsService implements IAwardsService {
     }
 
     const account = await this.accountRepository.findByClientOrThrow(client);
-
     const transits = await this.transitRepository.findByClient(client);
 
     account.removeMiles(
