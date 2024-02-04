@@ -1,4 +1,4 @@
-import { ContractAttachment } from '../entity/contract-attachment.entity';
+import { ContractAttachmentData } from '../entity/contract-attachment-data.entity';
 import { Contract, ContractStatus } from '../entity/contract.entity';
 
 import { ContractAttachmentDto } from './contract-attachment.dto';
@@ -24,7 +24,7 @@ export class ContractDTO {
 
   private attachments: ContractAttachmentDto[] = [];
 
-  constructor(contract: Contract, attachments: ContractAttachment[]) {
+  constructor(contract: Contract, attachments: ContractAttachmentData[]) {
     this.setContractNo(contract.getContractNo());
     this.setAcceptedAt(contract.getAcceptedAt());
     this.setRejectedAt(contract.getRejectedAt());
@@ -33,11 +33,18 @@ export class ContractDTO {
     this.setStatus(contract.getStatus());
     this.setPartnerName(contract.getPartnerName());
     this.setSubject(contract.getSubject());
-    for (const attachment of attachments) {
-      this.attachments.push(
-        new ContractAttachmentDto(attachment, contract.getId()),
-      );
+
+    for (const attachmentData of attachments) {
+      const contractAttachmentNo = attachmentData.getContractAttachmentNo();
+      const attachment = contract.findAttachment(contractAttachmentNo);
+
+      attachment
+        ? this.attachments.push(
+            new ContractAttachmentDto(attachment, attachmentData),
+          )
+        : null;
     }
+
     this.setId(contract.getId());
   }
 

@@ -27,6 +27,10 @@ export class Contract extends BaseEntity {
     this.partnerName = partnerName;
     this.subject = subject;
     this.contractNo = contractNo;
+
+    if (contractNo) {
+      this.attachments = this.attachments ?? [];
+    }
   }
 
   @Column()
@@ -36,7 +40,7 @@ export class Contract extends BaseEntity {
   private subject: string;
 
   @Column({ default: Date.now(), type: 'bigint' })
-  private creationDate: number;
+  private creationDate: number = Date.now();
 
   @Column({ nullable: true, type: 'bigint' })
   private acceptedAt: number | null;
@@ -48,7 +52,7 @@ export class Contract extends BaseEntity {
   private changeDate: number | null;
 
   @Column({ default: ContractStatus.NEGOTIATIONS_IN_PROGRESS })
-  private status: ContractStatus;
+  private status: ContractStatus = ContractStatus.NEGOTIATIONS_IN_PROGRESS;
 
   @Column()
   private contractNo: string;
@@ -85,12 +89,14 @@ export class Contract extends BaseEntity {
     return this.subject;
   }
 
-  public proposeAttachment(data: string) {
+  public getAttachmentIds() {
+    return this.attachments.map((a) => a.getContractAttachmentNo());
+  }
+
+  public proposeAttachment() {
     const contractAttachment = new ContractAttachment();
 
-    contractAttachment.setData(data);
     contractAttachment.setContract(this);
-
     this.attachments.push(contractAttachment);
 
     return contractAttachment;
@@ -113,8 +119,8 @@ export class Contract extends BaseEntity {
     this.status = ContractStatus.REJECTED;
   }
 
-  public acceptAttachment(attachmentId: string) {
-    const contractAttachment = this.findAttachment(attachmentId);
+  public acceptAttachment(contractAttachmenNo: string) {
+    const contractAttachment = this.findAttachment(contractAttachmenNo);
 
     if (
       contractAttachment?.getStatus() ===
@@ -132,13 +138,28 @@ export class Contract extends BaseEntity {
     }
   }
 
-  public rejectAttachment(attachmentId: string) {
-    const contractAttachment = this.findAttachment(attachmentId);
+  public rejectAttachment(contractAttachmentNo: string) {
+    const contractAttachment = this.findAttachment(contractAttachmentNo);
 
     contractAttachment?.setStatus(ContractAttachmentStatus.REJECTED);
   }
 
-  private findAttachment(attachmentId: string) {
-    return this.attachments.find((a) => a.getId() === attachmentId) ?? null;
+  public remove(contractAttachemntNo: string) {
+    this.attachments = this.attachments.filter(
+      (a) => a.getContractAttachmentNo() !== contractAttachemntNo,
+    );
+  }
+
+  public findAttachment(attachmentNo: string) {
+    const attachment = this.attachments.find(
+      (a) => a.getContractAttachmentNo() === attachmentNo,
+    );
+
+    if (!attachment) {
+      return null;
+    }
+
+    attachment.contract = this;
+    return attachment;
   }
 }

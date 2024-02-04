@@ -15,6 +15,7 @@ import { DriverTrackingController } from './controllers/driver-tracking.controll
 import { DriverController } from './controllers/driver.controller';
 import { TransitAnalyzerController } from './controllers/transit-analyzer.controller';
 import { TransitController } from './controllers/transit.controller';
+import { ContractAttachment } from './entity/contract-attachment.entity';
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
@@ -27,7 +28,7 @@ import { ClaimAttachmentRepository } from './repository/claim-attachment.reposit
 import { ClaimRepository } from './repository/claim.repository';
 import { ClaimsResolverRepository } from './repository/claims-resolver.repository';
 import { ClientRepository } from './repository/client.repository';
-import { ContractAttachmentRepository } from './repository/contract-attachment.repository';
+import { ContractAttachmentDataRepository } from './repository/contract-attachment-data.repository';
 import { ContractRepository } from './repository/contract.repository';
 import { DriverAttributeRepository } from './repository/driver-attribute.repository';
 import { DriverFeeRepository } from './repository/driver-fee.repository';
@@ -72,13 +73,14 @@ import { TransitService } from './service/transit.service';
       AddressRepository,
       DriverAttributeRepository,
       AwardsAccountRepository,
-      ContractAttachmentRepository,
+      ContractAttachmentDataRepository,
       ContractRepository,
       TariffRepository,
       CarTypeEntityRepository,
       CarTypeActiveCounterRepository,
       ClaimsResolverRepository,
       AwardedMiles,
+      ContractAttachment,
     ]),
   ],
   controllers: [

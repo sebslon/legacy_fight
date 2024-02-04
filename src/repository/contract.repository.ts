@@ -14,6 +14,21 @@ export class ContractRepository extends Repository<Contract> {
     return this.createQueryBuilder('contract')
       .innerJoinAndSelect('contract.attachments', 'attachment')
       .where('attachment.id = :id', { id: attachmentId })
-      .getOne();
+      .getOne() as Promise<Contract | undefined>;
+  }
+
+  public async findContractAttachmentNoById(
+    attachmentId: string,
+  ): Promise<string> {
+    const contractAttachmentNos = await this.query(
+      `
+      SELECT "contractAttachmentNo"
+      FROM contract_attachment
+      WHERE id = $1
+    `,
+      [attachmentId],
+    );
+
+    return contractAttachmentNos[0]?.contractAttachmentNo;
   }
 }

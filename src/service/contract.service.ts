@@ -5,8 +5,9 @@ import { ContractAttachmentDto } from '../dto/contract-attachment.dto';
 import { ContractDTO } from '../dto/contract.dto';
 import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
 import { CreateContractDTO } from '../dto/create-contract.dto';
+import { ContractAttachmentData } from '../entity/contract-attachment-data.entity';
 import { Contract } from '../entity/contract.entity';
-import { ContractAttachmentRepository } from '../repository/contract-attachment.repository';
+import { ContractAttachmentDataRepository } from '../repository/contract-attachment-data.repository';
 import { ContractRepository } from '../repository/contract.repository';
 
 @Injectable()
@@ -14,8 +15,8 @@ export class ContractService {
   constructor(
     @InjectRepository(ContractRepository)
     private contractRepository: ContractRepository,
-    @InjectRepository(ContractAttachmentRepository)
-    private contractAttachmentRepository: ContractAttachmentRepository,
+    @InjectRepository(ContractAttachmentDataRepository)
+    private contractAttachmentDataRepository: ContractAttachmentDataRepository,
   ) {}
 
   public async createContract(createContractDTO: CreateContractDTO) {
@@ -60,7 +61,10 @@ export class ContractService {
       throw new NotFoundException('Contract does not exist');
     }
 
-    contract.rejectAttachment(attachmentId);
+    const contractAttachmentNo =
+      await this.contractRepository.findContractAttachmentNoById(attachmentId);
+
+    contract.rejectAttachment(contractAttachmentNo);
 
     await this.contractRepository.save(contract);
   }
@@ -74,7 +78,10 @@ export class ContractService {
       throw new NotFoundException('Contract does not exist');
     }
 
-    contract.acceptAttachment(attachmentId);
+    const contractAttachmentNo =
+      await this.contractRepository.findContractAttachmentNoById(attachmentId);
+
+    contract.acceptAttachment(contractAttachmentNo);
 
     await this.contractRepository.save(contract);
   }
@@ -88,12 +95,13 @@ export class ContractService {
   }
 
   public async findDto(id: string) {
-    const [contract, attachments] = await Promise.all([
-      this.find(id),
-      this.contractAttachmentRepository.findByContractId(id),
-    ]);
+    const contract = await this.find(id);
+    const attachmentsData =
+      await this.contractAttachmentDataRepository.findByContractAttachmentNoIn(
+        contract.getAttachmentIds(),
+      );
 
-    return new ContractDTO(contract, attachments);
+    return new ContractDTO(contract, attachmentsData);
   }
 
   public async proposeAttachment(
@@ -101,18 +109,39 @@ export class ContractService {
     contractAttachmentDTO: CreateContractAttachmentDTO,
   ) {
     let contract = await this.find(contractId);
-
-    contract.proposeAttachment(contractAttachmentDTO.data);
+    const contractAttachmentId = contract
+      .proposeAttachment()
+      .getContractAttachmentNo();
+    const contractAttachmentData = new ContractAttachmentData(
+      contractAttachmentId,
+      contractAttachmentDTO.data,
+    );
 
     contract = await this.contractRepository.save(contract);
-
-    return new ContractAttachmentDto(
-      contract.attachments[contract.attachments.length - 1],
+    const attachment = contract.findAttachment(contractAttachmentId);
+    const attachmentData = await this.contractAttachmentDataRepository.save(
+      contractAttachmentData,
     );
+
+    if (!attachment || !attachmentData) {
+      throw new NotFoundException('Failed to propose attachment');
+    }
+
+    return new ContractAttachmentDto(attachment, attachmentData);
   }
 
   public async removeAttachment(contractId: string, attachmentId: string) {
     //TODO sprawdzenie czy nalezy do kontraktu (JIRA: II-14455)
-    await this.contractAttachmentRepository.delete(attachmentId);
+    const contract = await this.find(contractId);
+    const contractAttachmentNo =
+      await this.contractRepository.findContractAttachmentNoById(attachmentId);
+
+    contract.remove(contractAttachmentNo);
+
+    await this.contractAttachmentDataRepository.deleteByAttachmentId(
+      attachmentId,
+    );
+
+    await this.contractRepository.save(contract);
   }
 }

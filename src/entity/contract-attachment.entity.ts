@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { v4 as uuid } from 'uuid';
 
 import { BaseEntity } from '../common/base.entity';
 
@@ -17,11 +18,8 @@ export class ContractAttachment extends BaseEntity {
   @JoinColumn()
   public contract: Contract;
 
-  @Column({ type: 'bytea' })
-  private data: Buffer;
-
-  @Column({ default: Date.now(), type: 'bigint' })
-  private creationDate: number;
+  @Column({ type: 'uuid', nullable: false })
+  private contractAttachmentNo: string = uuid();
 
   @Column({ nullable: true, type: 'bigint' })
   private acceptedAt: number | null;
@@ -33,25 +31,7 @@ export class ContractAttachment extends BaseEntity {
   private changeDate: number;
 
   @Column({ default: ContractAttachmentStatus.PROPOSED })
-  private status: ContractAttachmentStatus;
-
-  public getData() {
-    return this.data;
-  }
-
-  public setData(data: string) {
-    this.data = Buffer.from(
-      '\\x' + Buffer.from(data, 'base64').toString('hex'),
-    );
-  }
-
-  public getCreationDate() {
-    return this.creationDate;
-  }
-
-  public setCreationDate(creationDate: number) {
-    this.creationDate = creationDate;
-  }
+  private status: ContractAttachmentStatus = ContractAttachmentStatus.PROPOSED;
 
   public getAcceptedAt() {
     return this.acceptedAt;
@@ -91,5 +71,9 @@ export class ContractAttachment extends BaseEntity {
 
   public setContract(contract: Contract) {
     this.contract = contract;
+  }
+
+  public getContractAttachmentNo() {
+    return this.contractAttachmentNo;
   }
 }

@@ -1,3 +1,4 @@
+import { ContractAttachmentData } from '../entity/contract-attachment-data.entity';
 import {
   ContractAttachment,
   ContractAttachmentStatus,
@@ -8,9 +9,9 @@ export class ContractAttachmentDto {
 
   private contractId: string;
 
-  private data: string;
+  private data: Buffer;
 
-  private creationDate: number;
+  private creationDate: Date;
 
   private acceptedAt: number | null;
 
@@ -20,11 +21,11 @@ export class ContractAttachmentDto {
 
   private status: ContractAttachmentStatus;
 
-  constructor(attachment: ContractAttachment, contractId?: string) {
+  constructor(attachment: ContractAttachment, data: ContractAttachmentData) {
     this.id = attachment.getId();
-    this.data = attachment.getData().toString();
-    this.contractId = contractId || attachment.getContract().getId();
-    this.creationDate = attachment.getCreationDate();
+    this.data = data.getData();
+    this.contractId = attachment.getContract().getId();
+    this.creationDate = data.getCreationDate();
     this.rejectedAt = attachment.getRejectedAt();
     this.acceptedAt = attachment.getAcceptedAt();
     this.changeDate = attachment.getChangeDate();
