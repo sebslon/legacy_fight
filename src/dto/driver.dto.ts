@@ -1,6 +1,6 @@
 import { Driver, DriverStatus, DriverType } from '../entity/driver.entity';
 
-export class DriverDto {
+export class DriverDTO {
   private id: string;
 
   private status: DriverStatus;
@@ -15,7 +15,11 @@ export class DriverDto {
 
   private type: DriverType;
 
-  constructor(driver: Driver) {
+  constructor(driver?: Driver) {
+    if (!driver) {
+      return this;
+    }
+
     this.id = driver.getId();
     this.firstName = driver.getFirstName();
     this.lastName = driver.getLastName();
@@ -23,6 +27,26 @@ export class DriverDto {
     this.photo = driver.getPhoto();
     this.status = driver.getStatus();
     this.type = driver.getType();
+  }
+
+  public static createFromRawData(
+    id: string,
+    firstName: string,
+    lastName: string,
+    driverLicense: string,
+    photo: string | null,
+    status: DriverStatus,
+    type: DriverType,
+  ): DriverDTO {
+    const driver = new DriverDTO();
+    driver.id = id;
+    driver.firstName = firstName;
+    driver.lastName = lastName;
+    driver.driverLicense = driverLicense;
+    driver.photo = photo;
+    driver.status = status;
+    driver.type = type;
+    return driver;
   }
 
   public getId(): string {

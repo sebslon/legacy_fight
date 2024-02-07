@@ -5,21 +5,21 @@ import { Distance } from '../distance/distance';
 import { CarClass } from '../entity/car-type.entity';
 import { TransitStatus, Transit } from '../entity/transit.entity';
 
-import { AddressDto } from './address.dto';
-import { ClaimDto } from './claim.dto';
+import { AddressDTO } from './address.dto';
+import { ClaimDTO } from './claim.dto';
 import { ClientDto } from './client.dto';
-import { DriverDto } from './driver.dto';
+import { DriverDTO } from './driver.dto';
 
 dayjs.extend(dayOfYear);
 
-export class TransitDto {
+export class TransitDTO {
   public id: string;
 
   public tariff: string;
 
   public status: TransitStatus;
 
-  public driver: DriverDto;
+  public driver: DriverDTO;
 
   public factor: number | null;
 
@@ -49,17 +49,65 @@ export class TransitDto {
 
   public completeAt: number | null;
 
-  public claimDto: ClaimDto;
+  public claimDto: ClaimDTO | null;
 
-  public proposedDrivers: DriverDto[] = [];
+  public proposedDrivers: DriverDTO[] = [];
 
-  public to: AddressDto;
+  public to: AddressDTO;
 
-  public from: AddressDto;
+  public from: AddressDTO;
 
   public carClass: CarClass;
 
   public clientDto: ClientDto;
+
+  public static createFromRawData(
+    id: string,
+    tariffName: string,
+    status: TransitStatus,
+    driver: DriverDTO | null,
+    distance: Distance,
+    kmRate: number,
+    price: number,
+    driverFee: number,
+    estimatedPrice: number,
+    baseFee: number,
+    dateTime: number,
+    published: number,
+    acceptedAt: number,
+    started: number,
+    completeAt: number,
+    claimDto: ClaimDTO | null,
+    proposedDrivers: DriverDTO[] | null,
+    from: AddressDTO,
+    to: AddressDTO,
+    carClass: CarClass,
+    clientDto: ClientDto | null,
+  ) {
+    const transit = new TransitDTO();
+    transit.id = id;
+    transit.factor = 1;
+    transit.tariff = tariffName;
+    transit.status = status;
+    transit.distance = distance;
+    transit.kmRate = kmRate;
+    transit.price = price;
+    transit.driverFee = driverFee;
+    transit.estimatedPrice = estimatedPrice;
+    transit.baseFee = baseFee;
+    transit.dateTime = dateTime;
+    transit.published = published;
+    transit.acceptedAt = acceptedAt;
+    transit.started = started;
+    transit.completeAt = completeAt;
+    transit.claimDto = claimDto;
+    transit.proposedDrivers = proposedDrivers || [];
+    transit.to = to;
+    transit.from = from;
+    transit.carClass = carClass;
+    transit.clientDto = clientDto || new ClientDto(null);
+    return transit;
+  }
 
   constructor(transit?: Transit) {
     if (!transit) {
@@ -75,14 +123,16 @@ export class TransitDto {
     }
     this.date = transit.getDateTime();
     this.status = transit.getStatus();
-    this.setTariff(transit);
+    this.tariff = transit.getTariff().getName();
+    this.kmRate = transit.getTariff().getKmRate();
+    this.baseFee = transit.getTariff().getBaseFee();
 
     for (const d of transit.getProposedDrivers()) {
-      this.proposedDrivers.push(new DriverDto(d));
+      this.proposedDrivers.push(new DriverDTO(d));
     }
 
-    this.to = new AddressDto(transit.getTo());
-    this.from = new AddressDto(transit.getFrom());
+    this.to = new AddressDTO(transit.getTo());
+    this.from = new AddressDTO(transit.getFrom());
     this.carClass = transit.getCarType();
     this.clientDto = new ClientDto(transit.getClient());
     if (transit.getDriversFee() != null) {
@@ -103,12 +153,6 @@ export class TransitDto {
     return this.kmRate;
   }
 
-  public setTariff(transit: Transit) {
-    this.tariff = transit.getTariff().getName();
-    this.kmRate = transit.getTariff().getKmRate();
-    this.baseFee = transit.getTariff().getBaseFee();
-  }
-
   public getTariff() {
     return this.tariff;
   }
@@ -123,7 +167,7 @@ export class TransitDto {
     return this.proposedDrivers;
   }
 
-  public setProposedDrivers(proposedDrivers: DriverDto[]) {
+  public setProposedDrivers(proposedDrivers: DriverDTO[]) {
     this.proposedDrivers = proposedDrivers;
   }
 
@@ -131,7 +175,7 @@ export class TransitDto {
     return this.claimDto;
   }
 
-  public setClaimDTO(claimDto: ClaimDto) {
+  public setClaimDTO(claimDto: ClaimDTO) {
     this.claimDto = claimDto;
   }
 
@@ -139,7 +183,7 @@ export class TransitDto {
     return this.to;
   }
 
-  public setTo(to: AddressDto) {
+  public setTo(to: AddressDTO) {
     this.to = to;
   }
 
@@ -147,7 +191,7 @@ export class TransitDto {
     return this.from;
   }
 
-  public setFrom(from: AddressDto) {
+  public setFrom(from: AddressDTO) {
     this.from = from;
   }
 

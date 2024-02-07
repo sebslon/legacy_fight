@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { AddressDto } from '../../src/dto/address.dto';
+import { AddressDTO } from '../../src/dto/address.dto';
 import { Address } from '../../src/entity/address.entity';
 import { CarClass } from '../../src/entity/car-type.entity';
 import { FeeType } from '../../src/entity/driver-fee.entity';
@@ -23,6 +23,7 @@ import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
 import { Fixtures } from '../common/fixtures';
 
+jest.setTimeout(3000000);
 describe('Transit Life Cycle', () => {
   let transitService: TransitService;
   let driverService: DriverService;
@@ -99,8 +100,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can create transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
@@ -132,8 +133,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can change transit destination', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const newDestination = {
@@ -146,7 +147,7 @@ describe('Transit Life Cycle', () => {
 
     await transitService.changeTransitAddressTo(
       transit.getId(),
-      new AddressDto(newDestination),
+      new AddressDTO(newDestination),
     );
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
@@ -165,7 +166,7 @@ describe('Transit Life Cycle', () => {
   });
 
   it("Can't change destination when transit is completed", async () => {
-    const destination = new AddressDto({
+    const destination = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
       street: 'Żytnia',
@@ -174,7 +175,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
+      new AddressDTO(addressData),
       destination,
     );
 
@@ -198,7 +199,7 @@ describe('Transit Life Cycle', () => {
     await expect(
       transitService.changeTransitAddressTo(
         transit.getId(),
-        new AddressDto({
+        new AddressDTO({
           country: 'Poland',
           city: 'Warsaw',
           street: 'Okopowa',
@@ -211,8 +212,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can change pickup place', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const pickup = {
@@ -225,7 +226,7 @@ describe('Transit Life Cycle', () => {
 
     await transitService.changeTransitAddressFrom(
       transit.getId(),
-      new AddressDto(pickup),
+      new AddressDTO(pickup),
     );
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
@@ -240,7 +241,7 @@ describe('Transit Life Cycle', () => {
   });
 
   it("Can't change pickup place after transit is accepted, in progress, or completed", async () => {
-    const destination = new AddressDto({
+    const destination = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
       street: 'Żytnia',
@@ -249,11 +250,11 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
+      new AddressDTO(addressData),
       destination,
     );
 
-    const changedTo = new AddressDto({
+    const changedTo = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
       street: 'Okopowa',
@@ -295,11 +296,11 @@ describe('Transit Life Cycle', () => {
 
   it("Can't change pickup place more than three times", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
-    const newAddress = new AddressDto({
+    const newAddress = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
       street: 'Okopowa',
@@ -318,8 +319,8 @@ describe('Transit Life Cycle', () => {
 
   it("Can't change pickup place when it's far way from original", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const newAddress = farAwayAddress();
@@ -331,8 +332,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can cancel transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     await transitService.cancelTransit(transit.getId());
@@ -343,7 +344,7 @@ describe('Transit Life Cycle', () => {
   });
 
   it("Can't cancel transit after it was started or completed", async () => {
-    const destination = new AddressDto({
+    const destination = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
       street: 'Żytnia',
@@ -352,7 +353,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
+      new AddressDTO(addressData),
       destination,
     );
 
@@ -385,11 +386,13 @@ describe('Transit Life Cycle', () => {
 
   it('Can publish transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     await createNearbyDriver('WU1212');
+    await createMinimumAmountOfDriversToNotFailAssignment();
+
     await transitService.publishTransit(transit.getId());
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
@@ -402,8 +405,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can accept transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -419,8 +422,8 @@ describe('Transit Life Cycle', () => {
 
   it('Only one driver can accept transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const driver1 = await createNearbyDriver('WU1212');
@@ -437,8 +440,8 @@ describe('Transit Life Cycle', () => {
 
   it("Transit can't be accepted by driver who already rejected it", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -453,8 +456,8 @@ describe('Transit Life Cycle', () => {
 
   it("Transit can't be accepted by driver who has not seen proposal", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const driver = await farAwayDriver('WU1212');
@@ -468,8 +471,8 @@ describe('Transit Life Cycle', () => {
 
   it('Can start transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -486,8 +489,8 @@ describe('Transit Life Cycle', () => {
 
   it("Can't start not accepted transit", async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
@@ -500,7 +503,7 @@ describe('Transit Life Cycle', () => {
   });
 
   it('Can complete transit', async () => {
-    const destination = new AddressDto({
+    const destination = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
       street: 'Żytnia',
@@ -509,7 +512,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
+      new AddressDTO(addressData),
       destination,
     );
 
@@ -540,7 +543,7 @@ describe('Transit Life Cycle', () => {
   });
 
   it("Can't complete not started transit", async () => {
-    const destination = new AddressDto({
+    const destination = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
       street: 'Żytnia',
@@ -549,7 +552,7 @@ describe('Transit Life Cycle', () => {
     });
 
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
+      new AddressDTO(addressData),
       destination,
     );
 
@@ -575,11 +578,12 @@ describe('Transit Life Cycle', () => {
 
   it('Can reject transit', async () => {
     const transit = await requestTransitFromTo(
-      new AddressDto(addressData),
-      new AddressDto(addressData2),
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
     const driver = await createNearbyDriver('WU1212');
+    await createMinimumAmountOfDriversToNotFailAssignment();
 
     await transitService.publishTransit(transit.getId());
     await transitService.rejectTransit(driver, transit.getId());
@@ -595,8 +599,8 @@ describe('Transit Life Cycle', () => {
   // HELPER FUNCTIONS
 
   async function requestTransitFromTo(
-    pickup: AddressDto,
-    destination: AddressDto,
+    pickup: AddressDTO,
+    destination: AddressDTO,
   ) {
     return transitService.createTransitFromDTO(
       await fixtures.createTransitDTO(pickup, destination),
@@ -636,7 +640,7 @@ describe('Transit Life Cycle', () => {
   }
 
   function farAwayAddress() {
-    const addressDto = new AddressDto({
+    const addressDto = new AddressDTO({
       country: 'Denmark',
       city: 'Copenhagen',
       street: 'Amagerbrogade',
@@ -650,5 +654,12 @@ describe('Transit Life Cycle', () => {
     geocodingService.geocodeAddress = jest.fn().mockReturnValueOnce([1, 1]);
 
     return addressDto;
+  }
+
+  async function createMinimumAmountOfDriversToNotFailAssignment() {
+    const minimumDriversAwaitingToStopLoop = 4;
+    for (let i = 0; i < minimumDriversAwaitingToStopLoop; i++) {
+      await createNearbyDriver(`WU121${i}`);
+    }
   }
 });

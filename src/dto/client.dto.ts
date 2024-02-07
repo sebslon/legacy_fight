@@ -13,7 +13,10 @@ export class ClientDto {
 
   private clientType: ClientType;
 
-  constructor(client: Client) {
+  constructor(client: Client | null) {
+    if (!client) {
+      return this;
+    }
     this.id = client.getId();
     this.type = client.getType();
     this.name = client.getName();

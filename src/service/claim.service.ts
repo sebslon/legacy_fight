@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { AppProperties } from '../config/app-properties.config';
-import { ClaimDto } from '../dto/claim.dto';
+import { ClaimDTO } from '../dto/claim.dto';
 import { Claim, ClaimStatus } from '../entity/claim.entity';
 import { ClaimsResolver, WhoToAsk } from '../entity/claims-resolver.entity';
 import { Client, Type } from '../entity/client.entity';
@@ -34,7 +34,7 @@ export class ClaimService {
     private appProperties: AppProperties,
   ) {}
 
-  public async create(claimDTO: ClaimDto): Promise<Claim> {
+  public async create(claimDTO: ClaimDTO): Promise<Claim> {
     let claim = new Claim();
     claim.setCreationDate(Date.now());
     claim.setClaimNo(await this.claimNumberGenerator.generate(claim));
@@ -50,7 +50,7 @@ export class ClaimService {
     return claim;
   }
 
-  public async update(claimDTO: ClaimDto, claim: Claim) {
+  public async update(claimDTO: ClaimDTO, claim: Claim) {
     const client = await this.clientRepository.findOne(claimDTO.getClientId());
     const transit = await this.transitRepository.findOne(
       claimDTO.getTransitId(),

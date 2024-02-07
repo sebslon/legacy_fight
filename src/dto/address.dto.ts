@@ -1,6 +1,6 @@
 import { Address } from '../entity/address.entity';
 
-export class AddressDto {
+export class AddressDTO {
   public country: string;
 
   public district: string | null;

@@ -1,7 +1,7 @@
 import { CarClass } from '../entity/car-type.entity';
 import { DriverSession } from '../entity/driver-session.entity';
 
-export class DriverSessionDto {
+export class DriverSessionDTO {
   private loggedAt: number | null;
 
   private loggedOutAt: number | null;
@@ -12,7 +12,27 @@ export class DriverSessionDto {
 
   private carBrand: string;
 
-  constructor(session: DriverSession) {
+  public static createFromRawData(
+    loggedAt: number,
+    loggedOutAt: number,
+    platesNumber: string,
+    carClass: CarClass,
+    carBrand: string,
+  ) {
+    const session = new DriverSessionDTO(null);
+    session.loggedAt = loggedAt;
+    session.loggedOutAt = loggedOutAt;
+    session.platesNumber = platesNumber;
+    session.carClass = carClass;
+    session.carBrand = carBrand;
+    return session;
+  }
+
+  constructor(session: DriverSession | null) {
+    if (!session) {
+      return this;
+    }
+
     this.carBrand = session.getCarBrand();
     this.platesNumber = session.getPlatesNumber();
     this.loggedAt = session.getLoggedAt();

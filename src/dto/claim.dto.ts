@@ -6,7 +6,7 @@ import {
 
 import { CreateClaimDto } from './create-claim.dto';
 
-export class ClaimDto {
+export class ClaimDTO {
   private claimID: string;
 
   private clientId: string;
@@ -30,6 +30,34 @@ export class ClaimDto {
   private status: ClaimStatus;
 
   private claimNo: string;
+
+  public static createFromRawData(
+    claimID: string,
+    ownerId: string,
+    transitId: string,
+    reason: string,
+    incidentDescription: string | null,
+    creationDate: number,
+    completionDate: number | null,
+    changeDate: number | null,
+    completionMode: ClaimCompletionMode | null,
+    status: ClaimStatus,
+    claimNo: string,
+  ): ClaimDTO {
+    const claim = new ClaimDTO();
+    claim.setClaimID(claimID);
+    claim.setClientId(ownerId);
+    claim.setTransitId(transitId);
+    claim.setReason(reason);
+    claim.setIncidentDescription(incidentDescription);
+    claim.setCreationDate(creationDate);
+    claim.setCompletionDate(completionDate);
+    claim.setChangeDate(changeDate);
+    claim.setCompletionMode(completionMode);
+    claim.setStatus(status);
+    claim.setClaimNo(claimNo);
+    return claim;
+  }
 
   public constructor(claim?: Claim | CreateClaimDto) {
     if (!claim) {

@@ -7,9 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Clock } from '../common/clock';
 import { Distance } from '../distance/distance';
-import { AddressDto } from '../dto/address.dto';
+import { AddressDTO } from '../dto/address.dto';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
-import { TransitDto } from '../dto/transit.dto';
+import { TransitDTO } from '../dto/transit.dto';
 import { Address } from '../entity/address.entity';
 import { CarClass } from '../entity/car-type.entity';
 import { DriverStatus } from '../entity/driver.entity';
@@ -53,7 +53,7 @@ export class TransitService {
     private notificationService: DriverNotificationService,
   ) {}
 
-  public async createTransitFromDTO(transitDto: TransitDto) {
+  public async createTransitFromDTO(transitDto: TransitDTO) {
     const from = await this.addressFromDto(transitDto.getFrom());
     const to = await this.addressFromDto(transitDto.getTo());
 
@@ -103,7 +103,7 @@ export class TransitService {
     return this.transitRepository.save(transit);
   }
 
-  public changeTransitAddressFrom(transitId: string, newAddress: AddressDto) {
+  public changeTransitAddressFrom(transitId: string, newAddress: AddressDTO) {
     return this._changeTransitAddressFrom(
       transitId,
       newAddress.toAddressEntity(),
@@ -172,7 +172,7 @@ export class TransitService {
 
   public async changeTransitAddressTo(
     transitId: string,
-    newAddress: AddressDto,
+    newAddress: AddressDTO,
   ) {
     const savedAddress = await this.addressRepository.save(
       newAddress.toAddressEntity(),
@@ -460,7 +460,7 @@ export class TransitService {
   public completeTransitFromDto(
     driverId: string,
     transitId: string,
-    destinationAddress: AddressDto,
+    destinationAddress: AddressDTO,
   ) {
     return this.completeTransit(
       driverId,
@@ -530,10 +530,10 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    return new TransitDto(transit);
+    return new TransitDTO(transit);
   }
 
-  private async addressFromDto(addressDTO: AddressDto) {
+  private async addressFromDto(addressDTO: AddressDTO) {
     const address = addressDTO.toAddressEntity();
     return this.addressRepository.save(address);
   }

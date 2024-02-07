@@ -1,5 +1,5 @@
 import { Distance } from '../src/distance/distance';
-import { TransitDto } from '../src/dto/transit.dto';
+import { TransitDTO } from '../src/dto/transit.dto';
 import { Address } from '../src/entity/address.entity';
 import { CarClass } from '../src/entity/car-type.entity';
 import { Client, Type } from '../src/entity/client.entity';
@@ -31,7 +31,7 @@ describe('Calculate Transit Distance', () => {
     expect(transitForDistance(0).getDistance('miles')).toBe('0miles');
   });
 
-  function transitForDistance(km: number): TransitDto {
+  function transitForDistance(km: number): TransitDTO {
     const transit = Transit.create(
       new Address('test', 'test', 'test', 'test', 1),
       new Address('test', 'test', 'test', 'test', 1),
@@ -43,6 +43,6 @@ describe('Calculate Transit Distance', () => {
 
     transit.setPrice(new Money(10));
 
-    return new TransitDto(transit);
+    return new TransitDTO(transit);
   }
 });

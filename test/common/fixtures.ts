@@ -1,9 +1,9 @@
 import { Distance } from '../../src/distance/distance';
-import { AddressDto } from '../../src/dto/address.dto';
+import { AddressDTO } from '../../src/dto/address.dto';
 import { CarTypeDTO } from '../../src/dto/car-type.dto';
-import { ClaimDto } from '../../src/dto/claim.dto';
+import { ClaimDTO } from '../../src/dto/claim.dto';
 import { ClientDto } from '../../src/dto/client.dto';
-import { TransitDto } from '../../src/dto/transit.dto';
+import { TransitDTO } from '../../src/dto/transit.dto';
 import { Address } from '../../src/entity/address.entity';
 import { CarClass, CarType } from '../../src/entity/car-type.entity';
 import {
@@ -158,13 +158,13 @@ export class Fixtures {
   }
 
   public async createTransitDTO(
-    from: AddressDto,
-    to: AddressDto,
+    from: AddressDTO,
+    to: AddressDTO,
     client?: Client,
     carClass?: CarClass,
-  ): Promise<TransitDto> {
+  ): Promise<TransitDTO> {
     const transitClient = client ?? (await this.createTestClient());
-    const transitDto = new TransitDto();
+    const transitDto = new TransitDTO();
 
     transitDto.setClientDTO(new ClientDto(transitClient));
     transitDto.setFrom(from);
@@ -240,7 +240,7 @@ export class Fixtures {
     clientId: string,
     transitId: string,
   ) {
-    const claimDTO = new ClaimDto();
+    const claimDTO = new ClaimDTO();
 
     claimDTO.setClientId(clientId);
     claimDTO.setTransitId(transitId);

@@ -1,20 +1,22 @@
+import { DriverAttributeName } from '../entity/driver-attribute.entity';
+
 import { DriverAttributeDTO } from './driver-attribute.dto';
-import { DriverSessionDto } from './driver-session.dto';
-import { DriverDto } from './driver.dto';
-import { TransitDto } from './transit.dto';
+import { DriverSessionDTO } from './driver-session.dto';
+import { DriverDTO } from './driver.dto';
+import { TransitDTO } from './transit.dto';
 
 export class DriverReport {
-  public driverDto: DriverDto;
+  public driverDto: DriverDTO;
 
   public attributes: DriverAttributeDTO[] = [];
 
-  public sessions: Map<DriverSessionDto, TransitDto[]> = new Map();
+  public sessions: Map<DriverSessionDTO, TransitDTO[]> = new Map();
 
   public getDriverDto() {
     return this.driverDto;
   }
 
-  public setDriverDTO(driverDto: DriverDto) {
+  public setDriverDTO(driverDto: DriverDTO) {
     this.driverDto = driverDto;
   }
 
@@ -30,7 +32,11 @@ export class DriverReport {
     return this.sessions;
   }
 
-  public setSessions(sessions: Map<DriverSessionDto, TransitDto[]>) {
+  public setSessions(sessions: Map<DriverSessionDTO, TransitDTO[]>) {
     this.sessions = sessions;
+  }
+
+  public addAttr(name: DriverAttributeName, value: string) {
+    this.attributes.push(DriverAttributeDTO.createDriverAttribute(name, value));
   }
 }

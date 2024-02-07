@@ -6,7 +6,7 @@ import { Clock } from '../../src/common/clock';
 import { DriverReportController } from '../../src/controllers/driver-report.controller';
 import { CarTypeDTO } from '../../src/dto/car-type.dto';
 import { DriverReport } from '../../src/dto/driver-report.dto';
-import { TransitDto } from '../../src/dto/transit.dto';
+import { TransitDTO } from '../../src/dto/transit.dto';
 import { Address } from '../../src/entity/address.entity';
 import { CarClass } from '../../src/entity/car-type.entity';
 import { Client } from '../../src/entity/client.entity';
@@ -28,7 +28,6 @@ import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
 import { Fixtures } from '../common/fixtures';
 
-jest.setTimeout(30000000);
 describe('Create Driver Report', () => {
   const DAY_BEFORE_YESTERDAY = new Date('2021-01-01');
   const YESTERDAY = new Date('2021-01-02');
@@ -199,8 +198,6 @@ describe('Create Driver Report', () => {
         ),
     ).toBeFalsy();
 
-    // HERE IT FAILS
-
     expect(
       transitsInSessionIn('SCODA FABIA', driverReportWithin2days).length,
     ).toBe(1);
@@ -210,7 +207,7 @@ describe('Create Driver Report', () => {
         'SCODA FABIA',
         driverReportWithin2days,
       )[0].getClaimDTO(),
-    ).not.toBeDefined();
+    ).toBeNull();
 
     expect(
       transitsInSessionIn('SCODA OCTAVIA', driverReportWithin2days).length,
@@ -220,7 +217,7 @@ describe('Create Driver Report', () => {
         'SCODA OCTAVIA',
         driverReportWithin2days,
       )[0].getClaimDTO(),
-    ).not.toBeDefined();
+    ).toBeNull();
 
     expect(transitsInSessionIn('BMW M2', driverReportWithin2days).length).toBe(
       1,
@@ -231,7 +228,7 @@ describe('Create Driver Report', () => {
     expect(
       transitsInSessionIn('BMW M2', driverReportWithin2days)[0]
         .getClaimDTO()
-        .getReason(),
+        ?.getReason(),
     ).toBe('za szybko');
   });
 
@@ -251,7 +248,7 @@ describe('Create Driver Report', () => {
   function transitsInSessionIn(
     carBrand: string,
     driverReport: DriverReport,
-  ): TransitDto[] {
+  ): TransitDTO[] {
     const sessions = [...driverReport.getSessions().entries()];
     const transits = sessions
       .filter((e) => e[0].getCarBrand() === carBrand)

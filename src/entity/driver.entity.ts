@@ -29,7 +29,6 @@ export class Driver extends BaseEntity {
   private lastName: string;
 
   @Column({
-    name: 'driver_license',
     type: 'varchar',
     transformer: {
       to: (value: DriverLicense) => value.asString(),

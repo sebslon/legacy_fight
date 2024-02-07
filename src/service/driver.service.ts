@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 
 import { CreateDriverDto } from '../dto/create-driver.dto';
-import { DriverDto } from '../dto/driver.dto';
+import { DriverDTO } from '../dto/driver.dto';
 import { DriverLicense } from '../entity/driver-license';
 import { Driver, DriverStatus } from '../entity/driver.entity';
 import { DriverAttributeRepository } from '../repository/driver-attribute.repository';
@@ -62,7 +62,7 @@ export class DriverService {
     return this.driverRepository.save(driver);
   }
 
-  public async loadDriver(driverId: string): Promise<DriverDto> {
+  public async loadDriver(driverId: string): Promise<DriverDTO> {
     const driver = await this.driverRepository.findOne(driverId);
 
     if (!driver) {
@@ -71,7 +71,7 @@ export class DriverService {
       );
     }
 
-    return new DriverDto(driver);
+    return new DriverDTO(driver);
   }
 
   public async changeDriverStatus(driverId: string, status: DriverStatus) {

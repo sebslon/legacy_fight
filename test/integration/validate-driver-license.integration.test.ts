@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { DriverDto } from '../../src/dto/driver.dto';
+import { DriverDTO } from '../../src/dto/driver.dto';
 import {
   Driver,
   DriverStatus,
@@ -121,8 +121,8 @@ describe('Validate Driver License', () => {
     );
   }
 
-  async function load(driver: Driver): Promise<DriverDto> {
-    const loaded: DriverDto = await driverService.loadDriver(driver.getId());
+  async function load(driver: Driver): Promise<DriverDTO> {
+    const loaded: DriverDTO = await driverService.loadDriver(driver.getId());
 
     return loaded;
   }

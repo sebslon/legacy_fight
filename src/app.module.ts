@@ -15,6 +15,7 @@ import { DriverTrackingController } from './controllers/driver-tracking.controll
 import { DriverController } from './controllers/driver.controller';
 import { TransitAnalyzerController } from './controllers/transit-analyzer.controller';
 import { TransitController } from './controllers/transit.controller';
+import { SQLBasedDriverReportCreator } from './controllers/ui/sql-based-driver-report-creator';
 import { ContractAttachment } from './entity/contract-attachment.entity';
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
@@ -116,6 +117,7 @@ import { TransitService } from './service/transit.service';
     ContractService,
     TransitService,
     CarTypeRepository,
+    SQLBasedDriverReportCreator,
   ],
 })
 export class AppModule {}

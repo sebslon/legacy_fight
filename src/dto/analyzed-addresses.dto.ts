@@ -1,9 +1,9 @@
-import { AddressDto } from './address.dto';
+import { AddressDTO } from './address.dto';
 
-export class AnalyzedAddressesDto {
-  public addresses: AddressDto[];
+export class AnalyzedAddressesDTO {
+  public addresses: AddressDTO[];
 
-  constructor(addresses: AddressDto[]) {
+  constructor(addresses: AddressDTO[]) {
     this.addresses = addresses;
   }
 
@@ -11,7 +11,7 @@ export class AnalyzedAddressesDto {
     return this.addresses;
   }
 
-  public setAddresses(addresses: AddressDto[]) {
+  public setAddresses(addresses: AddressDTO[]) {
     this.addresses = addresses;
   }
 }

@@ -24,7 +24,7 @@ export class DriverAttribute extends BaseEntity {
   private value: string;
 
   @ManyToOne(() => Driver, (driver) => driver)
-  @JoinColumn({ name: 'DRIVER_ID' })
+  @JoinColumn({ name: 'driverId' })
   public driver: Driver;
 
   constructor(driver: Driver, attr: DriverAttributeName, value: string) {

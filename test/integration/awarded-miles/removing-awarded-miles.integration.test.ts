@@ -275,11 +275,9 @@ describe('Removing Awarded Miles', () => {
       client,
     );
 
-    // When
     itIsSunday();
     await awardsService.removeMiles(client.getId(), 21);
 
-    // Then
     const totalMiles = await awardsAccountRepository.findAllMilesByClient(
       client,
     );

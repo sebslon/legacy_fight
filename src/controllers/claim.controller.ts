@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
-import { ClaimDto } from '../dto/claim.dto';
+import { ClaimDTO } from '../dto/claim.dto';
 import { CreateClaimDto } from '../dto/create-claim.dto';
 import { Claim, ClaimStatus } from '../entity/claim.entity';
 import { ClaimService } from '../service/claim.service';
@@ -12,14 +12,14 @@ export class ClaimController {
   @Post('createDraft')
   public async create(@Body() createClaimDto: CreateClaimDto) {
     const created = await this.claimService.create(
-      new ClaimDto(createClaimDto),
+      new ClaimDTO(createClaimDto),
     );
     return this.toDto(created);
   }
 
   @Post('send')
   public async sendNew(@Body() createClaimDto: CreateClaimDto) {
-    const claimDto = new ClaimDto(createClaimDto);
+    const claimDto = new ClaimDTO(createClaimDto);
     claimDto.setDraft(false);
     const claim = await this.claimService.create(claimDto);
     return this.toDto(claim);
@@ -48,6 +48,6 @@ export class ClaimController {
   }
 
   private toDto(claim: Claim) {
-    return new ClaimDto(claim);
+    return new ClaimDTO(claim);
   }
 }
