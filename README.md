@@ -42,7 +42,9 @@ _____________
 - Problem: Data inconsistency, low performance
   - Solution: `Contract` - encapsulate the state, validation, and business rules, split the object into smaller parts
 
----
+**Other**:
+- Problem: Creating too heavy reads with use of entities
+  - Solution: `SQLBasedDriverReportCreator` - Use single SQL statement to create report instead of using entities and lazy/eager loaded collections
 
 ## Installation
 
