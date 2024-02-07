@@ -5,6 +5,7 @@ import { AppModule } from '../../src/app.module';
 import { TransitController } from '../../src/controllers/transit.controller';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
+import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
@@ -43,6 +44,7 @@ describe('Tariff recognizing', () => {
       {} as CarTypeService,
       {} as ClaimService,
       {} as AwardsService,
+      {} as DriverAttributeRepository,
     );
   });
 

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { CarTypeDto } from '../../src/dto/car-type.dto';
+import { CarTypeDTO } from '../../src/dto/car-type.dto';
 import { CarClass } from '../../src/entity/car-type.entity';
 import { CarTypeService } from '../../src/service/car-type.service';
 
@@ -81,7 +81,7 @@ describe('Car Type Update', () => {
   }
 
   async function createCarClass(description: string, carClass: CarClass) {
-    const carTypeDTO = new CarTypeDto();
+    const carTypeDTO = new CarTypeDTO();
 
     carTypeDTO.setCarClass(carClass);
     carTypeDTO.setDescription(description);

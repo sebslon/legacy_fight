@@ -12,6 +12,10 @@ import {
   PaymentType,
   Type,
 } from '../../src/entity/client.entity';
+import {
+  DriverAttribute,
+  DriverAttributeName,
+} from '../../src/entity/driver-attribute.entity';
 import { DriverFee, FeeType } from '../../src/entity/driver-fee.entity';
 import {
   Driver,
@@ -22,6 +26,7 @@ import { Transit } from '../../src/entity/transit.entity';
 import { Money } from '../../src/money/money';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
+import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
@@ -39,15 +44,21 @@ export class Fixtures {
     private readonly carTypeService: CarTypeService,
     private readonly claimService: ClaimService,
     private readonly awardsService: AwardsService,
+    private readonly driverAttributeRepository: DriverAttributeRepository,
   ) {}
 
-  public createTestDriver() {
+  public createTestDriver(
+    status?: DriverStatus,
+    firstName?: string,
+    lastName?: string,
+    driverLicense?: string,
+  ) {
     return this.driverService.createDriver({
-      firstName: 'Test',
-      lastName: 'Driver',
-      driverLicense: 'FARME100165AB5EW',
+      firstName: firstName ?? 'Test',
+      lastName: lastName ?? 'Driver',
+      driverLicense: driverLicense ?? 'FARME100165AB5EW',
       type: DriverType.REGULAR,
-      status: DriverStatus.ACTIVE,
+      status: status ?? DriverStatus.ACTIVE,
       photo: Buffer.from('test', 'utf-8').toString('base64'),
     });
   }
@@ -208,10 +219,10 @@ export class Fixtures {
     return carType;
   }
 
-  public async createClaim(client: Client, transit: Transit) {
+  public async createClaim(client: Client, transit: Transit, reason?: string) {
     const claimDto = this.createClaimDTO(
       'description',
-      'reason',
+      reason ?? 'reason',
       client.getId(),
       transit.getId(),
     );
@@ -287,5 +298,15 @@ export class Fixtures {
   public async createActiveAwardsAccount(client: Client) {
     await this.createAwardsAccount(client);
     await this.awardsService.activateAccount(client.getId());
+  }
+
+  public async driverHasAttribute(
+    driver: Driver,
+    attributeName: DriverAttributeName,
+    value: string,
+  ) {
+    await this.driverAttributeRepository.save(
+      new DriverAttribute(driver, attributeName, value),
+    );
   }
 }

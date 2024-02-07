@@ -11,6 +11,7 @@ import { Client, Type } from '../../src/entity/client.entity';
 import { Driver } from '../../src/entity/driver.entity';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
+import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
@@ -65,6 +66,7 @@ describe('Claim Automatic Resolving', () => {
       carTypeService,
       claimService,
       awardsService,
+      {} as DriverAttributeRepository,
     );
   });
 

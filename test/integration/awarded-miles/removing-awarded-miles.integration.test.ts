@@ -11,6 +11,7 @@ import { Money } from '../../../src/money/money';
 import { AddressRepository } from '../../../src/repository/address.repository';
 import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
 import { ClientRepository } from '../../../src/repository/client.repository';
+import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
 import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
@@ -60,6 +61,7 @@ describe('Removing Awarded Miles', () => {
       {} as CarTypeService,
       claimService,
       awardsService,
+      {} as DriverAttributeRepository,
     );
   });
 
