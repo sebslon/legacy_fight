@@ -1,15 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as dayjs from 'dayjs';
 
+import { Clock } from '../common/clock';
 import { ClaimDto } from '../dto/claim.dto';
-import { DriverAttributeDto } from '../dto/driver-attribute.dto';
+import { DriverAttributeDTO } from '../dto/driver-attribute.dto';
 import { DriverReport } from '../dto/driver-report.dto';
 import { DriverSessionDto } from '../dto/driver-session.dto';
 import { TransitDto } from '../dto/transit.dto';
@@ -35,13 +29,15 @@ export class DriverReportController {
   @Get(':driverId')
   public async loadReportForDriver(
     @Param('driverId') driverId: string,
-    @Body() body: { lastDays: number },
+    @Param('lastDays') lastDays: number,
   ): Promise<DriverReport> {
     const driverReport = new DriverReport();
     const driverDto = await this.driverService.loadDriver(driverId);
 
     driverReport.setDriverDTO(driverDto);
-    const driver = await this.driverRepository.findOne(driverId);
+    const driver = await this.driverRepository.findOne(driverId, {
+      relations: ['attributes', 'transits'],
+    });
 
     if (!driver) {
       throw new NotFoundException(`Driver with id ${driverId} not exists`);
@@ -54,11 +50,13 @@ export class DriverReportController {
           attr.getName() !== DriverAttributeName.MEDICAL_EXAMINATION_REMARKS,
       )
       .forEach((attr) =>
-        driverReport.getAttributes().push(new DriverAttributeDto(attr)),
+        driverReport.getAttributes().push(new DriverAttributeDTO(attr)),
       );
 
-    const beggingOfToday = dayjs().startOf('day');
-    const since = beggingOfToday.subtract(body.lastDays, 'days');
+    const beggingOfToday = Clock.currentDate().setHours(0, 0, 0, 0);
+    const daysToSubtract = lastDays * 24 * 60 * 60 * 1000;
+    const since = beggingOfToday - daysToSubtract;
+
     const allByDriverAndLoggedAtAfter =
       await this.driverSessionRepository.findAllByDriverAndLoggedAtAfter(
         driver,
@@ -72,8 +70,11 @@ export class DriverReportController {
       ).filter(
         (t) =>
           t.getStatus() === TransitStatus.COMPLETED &&
-          !dayjs(t.getCompleteAt()).isBefore(session.getLoggedAt()) &&
-          !dayjs(t.getCompleteAt()).isAfter(session.getLoggedOutAt()),
+          !Clock.isBefore(session.getLoggedAt(), t.getCompleteAt()) &&
+          !Clock.isAfter(
+            session.getLoggedOutAt() || Infinity,
+            t.getCompleteAt(),
+          ),
       );
 
       const transitsDtosInSession: TransitDto[] = [];

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { AppProperties } from '../config/app-properties.config';
-import { CarTypeDto } from '../dto/car-type.dto';
+import { CarTypeDTO } from '../dto/car-type.dto';
 import { CarClass, CarStatus, CarType } from '../entity/car-type.entity';
 import { CarTypeRepository } from '../repository/car-type.repository';
 
@@ -20,16 +20,16 @@ export class CarTypeService {
     return carType;
   }
 
-  public async loadDto(id: string): Promise<CarTypeDto> {
+  public async loadDto(id: string): Promise<CarTypeDTO> {
     const carType = await this.load(id);
     const activeCarsCounter = await this.carTypeRepository.findActiveCounter(
       carType.getCarClass(),
     );
 
-    return new CarTypeDto(carType, activeCarsCounter.getActiveCarsCounter());
+    return new CarTypeDTO(carType, activeCarsCounter.getActiveCarsCounter());
   }
 
-  public async create(carTypeDTO: CarTypeDto): Promise<CarType> {
+  public async create(carTypeDTO: CarTypeDTO): Promise<CarType> {
     const byCarClass = await this.carTypeRepository.findByCarClass(
       carTypeDTO.getCarClass(),
     );

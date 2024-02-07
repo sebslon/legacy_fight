@@ -36,4 +36,12 @@ export class DriverDto {
   public getDriverLicense(): string {
     return this.driverLicense;
   }
+
+  public getFirstName(): string {
+    return this.firstName;
+  }
+
+  public getLastName(): string {
+    return this.lastName;
+  }
 }

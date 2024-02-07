@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as dayjs from 'dayjs';
 
+import { Clock } from '../common/clock';
 import { Distance } from '../distance/distance';
 import { AddressDto } from '../dto/address.dto';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
@@ -53,7 +53,7 @@ export class TransitService {
     private notificationService: DriverNotificationService,
   ) {}
 
-  public async createTransit(transitDto: TransitDto) {
+  public async createTransitFromDTO(transitDto: TransitDto) {
     const from = await this.addressFromDto(transitDto.getFrom());
     const to = await this.addressFromDto(transitDto.getTo());
 
@@ -63,7 +63,7 @@ export class TransitService {
       );
     }
 
-    return this._createTransit(
+    return this.createTransit(
       transitDto.getClientDto().getId(),
       from,
       to,
@@ -71,7 +71,7 @@ export class TransitService {
     );
   }
 
-  public async _createTransit(
+  public async createTransit(
     clientId: string,
     from: Address,
     to: Address,
@@ -299,13 +299,14 @@ export class TransitService {
           const longitudeMin = longitude - (dLon * 180) / Math.PI;
           const longitudeMax = longitude + (dLon * 180) / Math.PI;
 
+          const fiveMinutes = 5 * 60 * 1000;
           let driversAvgPositions =
             await this.driverPositionRepository.findAverageDriverPositionSince(
               latitudeMin,
               latitudeMax,
               longitudeMin,
               longitudeMax,
-              dayjs().subtract(5, 'minutes').valueOf(),
+              Clock.currentDate().getTime() - fiveMinutes,
             );
 
           if (driversAvgPositions.length) {
@@ -498,7 +499,7 @@ export class TransitService {
       ),
     );
 
-    transit.completeTransitAt(new Date(), destination, distance);
+    transit.completeTransitAt(Clock.currentDate(), destination, distance);
 
     const driverFee = await this.driverFeeService.calculateDriverFee(
       transit.getId(),

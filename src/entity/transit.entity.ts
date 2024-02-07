@@ -100,11 +100,11 @@ export class Transit extends BaseEntity {
   @Column({ type: 'bigint', nullable: true })
   private date: number;
 
-  @ManyToOne(() => Address, { eager: true })
+  @ManyToOne(() => Address, { eager: true, cascade: true })
   @JoinColumn()
   private from: Address;
 
-  @ManyToOne(() => Address, { eager: true })
+  @ManyToOne(() => Address, { eager: true, cascade: true })
   @JoinColumn()
   private to: Address;
 
@@ -283,7 +283,10 @@ export class Transit extends BaseEntity {
   }
 
   public proposeTo(driver: Driver) {
-    if (this.canProposeTo(driver)) {
+    if (
+      this.canProposeTo(driver) &&
+      !this.proposedDrivers.some((d) => d.getId() === driver.getId())
+    ) {
       this.proposedDrivers.push(driver);
       this.awaitingDriversResponses = this.awaitingDriversResponses + 1;
     }

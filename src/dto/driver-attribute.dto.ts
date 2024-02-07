@@ -4,8 +4,9 @@ import {
   DriverAttribute,
   DriverAttributeName,
 } from '../entity/driver-attribute.entity';
+import { Driver } from '../entity/driver.entity';
 
-export class DriverAttributeDto {
+export class DriverAttributeDTO {
   public name: DriverAttributeName;
 
   public value: string;
@@ -15,9 +16,14 @@ export class DriverAttributeDto {
     this.value = driverAttribute.getValue();
   }
 
-  public createDriverAttribute(name: DriverAttributeName, value: string) {
-    this.name = name;
-    this.value = value;
+  // For testing purposes
+  public static createDriverAttribute(
+    name: DriverAttributeName,
+    value: string,
+  ) {
+    return new DriverAttributeDTO(
+      new DriverAttribute(new Driver(), name, value),
+    );
   }
 
   public getName() {

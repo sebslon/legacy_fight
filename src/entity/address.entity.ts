@@ -1,5 +1,5 @@
 import * as objectHash from 'object-hash';
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 
@@ -30,7 +30,7 @@ export class Address extends BaseEntity {
   private name: string | null;
 
   @Index()
-  @Column({ unique: true })
+  @PrimaryColumn({ unique: true, select: false })
   private hash: string;
 
   constructor(

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
-import { CarTypeDto } from '../dto/car-type.dto';
+import { CarTypeDTO } from '../dto/car-type.dto';
 import { CarClass } from '../entity/car-type.entity';
 import { CarTypeService } from '../service/car-type.service';
 
@@ -21,7 +21,7 @@ export class CarTypeController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  public async create(@Body() carTypeDTO: CarTypeDto): Promise<CarTypeDto> {
+  public async create(@Body() carTypeDTO: CarTypeDTO): Promise<CarTypeDTO> {
     const carType = await this.carTypeService.create(carTypeDTO);
 
     return this.carTypeService.loadDto(carType.getId());
@@ -64,7 +64,7 @@ export class CarTypeController {
   }
 
   @Get(':id')
-  public async find(@Param('id') id: string): Promise<CarTypeDto> {
+  public async find(@Param('id') id: string): Promise<CarTypeDTO> {
     return this.carTypeService.loadDto(id);
   }
 }

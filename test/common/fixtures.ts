@@ -1,6 +1,6 @@
 import { Distance } from '../../src/distance/distance';
 import { AddressDto } from '../../src/dto/address.dto';
-import { CarTypeDto } from '../../src/dto/car-type.dto';
+import { CarTypeDTO } from '../../src/dto/car-type.dto';
 import { ClaimDto } from '../../src/dto/claim.dto';
 import { ClientDto } from '../../src/dto/client.dto';
 import { TransitDto } from '../../src/dto/transit.dto';
@@ -195,7 +195,7 @@ export class Fixtures {
       'description',
       randomNumberFrom1to5,
     );
-    const carTypeDTO = new CarTypeDto(carTypeObj);
+    const carTypeDTO = new CarTypeDTO(carTypeObj);
 
     const carType = await this.carTypeService.create(carTypeDTO);
 

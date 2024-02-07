@@ -1,6 +1,6 @@
 import { CarClass, CarStatus, CarType } from '../entity/car-type.entity';
 
-export class CarTypeDto {
+export class CarTypeDTO {
   private id: string;
 
   private carClass: CarClass;

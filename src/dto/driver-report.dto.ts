@@ -1,4 +1,4 @@
-import { DriverAttributeDto } from './driver-attribute.dto';
+import { DriverAttributeDTO } from './driver-attribute.dto';
 import { DriverSessionDto } from './driver-session.dto';
 import { DriverDto } from './driver.dto';
 import { TransitDto } from './transit.dto';
@@ -6,7 +6,7 @@ import { TransitDto } from './transit.dto';
 export class DriverReport {
   public driverDto: DriverDto;
 
-  public attributes: DriverAttributeDto[] = [];
+  public attributes: DriverAttributeDTO[] = [];
 
   public sessions: Map<DriverSessionDto, TransitDto[]> = new Map();
 
@@ -22,7 +22,7 @@ export class DriverReport {
     return this.attributes;
   }
 
-  public setAttributes(attributes: DriverAttributeDto[]) {
+  public setAttributes(attributes: DriverAttributeDTO[]) {
     this.attributes = attributes;
   }
 
