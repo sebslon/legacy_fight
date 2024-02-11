@@ -45,6 +45,7 @@ _____________
 **Other**:
 - Problem: Creating too heavy reads with use of entities
   - Solution: `SQLBasedDriverReportCreator` - Use single SQL statement to create report instead of using entities and lazy/eager loaded collections
+  - Example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
 
 ## Installation
 

@@ -9,13 +9,15 @@ import { CarTypeController } from './controllers/car-type.controller';
 import { ClaimController } from './controllers/claim.controller';
 import { ClientController } from './controllers/client.controller';
 import { ContractController } from './controllers/contract.controller';
-import { DriverReportController } from './controllers/driver-report.controller';
 import { DriverSessionController } from './controllers/driver-session.controller';
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
 import { DriverController } from './controllers/driver.controller';
 import { TransitAnalyzerController } from './controllers/transit-analyzer.controller';
 import { TransitController } from './controllers/transit.controller';
-import { SQLBasedDriverReportCreator } from './controllers/ui/sql-based-driver-report-creator';
+import { DriverReportCreator } from './driver-report/driver-report-creator';
+import { DriverReportController } from './driver-report/driver-report.controller';
+import { OldDriverReportCreator } from './driver-report/old-driver-report-creator';
+import { SQLBasedDriverReportCreator } from './driver-report/sql-based-driver-report-creator';
 import { ContractAttachment } from './entity/contract-attachment.entity';
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
@@ -118,6 +120,8 @@ import { TransitService } from './service/transit.service';
     TransitService,
     CarTypeRepository,
     SQLBasedDriverReportCreator,
+    OldDriverReportCreator,
+    DriverReportCreator,
   ],
 })
 export class AppModule {}

@@ -3,7 +3,7 @@ import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
 import { Clock } from '../../src/common/clock';
-import { DriverReportController } from '../../src/controllers/driver-report.controller';
+import { DriverReportController } from '../../src/driver-report/driver-report.controller';
 import { CarTypeDTO } from '../../src/dto/car-type.dto';
 import { DriverReport } from '../../src/dto/driver-report.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';

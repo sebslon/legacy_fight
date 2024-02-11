@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
-import { Clock } from '../../common/clock';
-import { Distance } from '../../distance/distance';
-import { AddressDTO } from '../../dto/address.dto';
-import { ClaimDTO } from '../../dto/claim.dto';
-import { DriverReport } from '../../dto/driver-report.dto';
-import { DriverSessionDTO } from '../../dto/driver-session.dto';
-import { DriverDTO } from '../../dto/driver.dto';
-import { TransitDTO } from '../../dto/transit.dto';
-import { CarClass } from '../../entity/car-type.entity';
-import { ClaimCompletionMode, ClaimStatus } from '../../entity/claim.entity';
-import { DriverAttributeName } from '../../entity/driver-attribute.entity';
-import { DriverStatus, DriverType } from '../../entity/driver.entity';
-import { TransitStatus } from '../../entity/transit.entity';
+import { Clock } from '../common/clock';
+import { Distance } from '../distance/distance';
+import { AddressDTO } from '../dto/address.dto';
+import { ClaimDTO } from '../dto/claim.dto';
+import { DriverReport } from '../dto/driver-report.dto';
+import { DriverSessionDTO } from '../dto/driver-session.dto';
+import { DriverDTO } from '../dto/driver.dto';
+import { TransitDTO } from '../dto/transit.dto';
+import { CarClass } from '../entity/car-type.entity';
+import { ClaimCompletionMode, ClaimStatus } from '../entity/claim.entity';
+import { DriverAttributeName } from '../entity/driver-attribute.entity';
+import { DriverStatus, DriverType } from '../entity/driver.entity';
+import { TransitStatus } from '../entity/transit.entity';
 
 interface QueryForDriverWithAttributesResult {
   id: string;
@@ -71,14 +71,14 @@ interface QueryForSessionsResult {
 
 @Injectable()
 export class SQLBasedDriverReportCreator {
-  public QUERY_FOR_DRIVER_WITH_ATTRS = `
+  private QUERY_FOR_DRIVER_WITH_ATTRS = `
     SELECT d.id, d."firstName", d."lastName", d."driverLicense", d.photo, d.status, d.type, attr.name, attr.value
     FROM driver d
     LEFT JOIN driver_attribute attr ON d.id = attr."driverId"
     WHERE d.id = $1 AND attr.name != $2
   `;
 
-  public QUERY_FOR_SESSIONS = `
+  private QUERY_FOR_SESSIONS = `
     SELECT 
       ds."loggedAt", ds."loggedOutAt", ds."platesNumber", ds."carClass", ds."carBrand", 
       t.id AS "transitId", t.status AS "transitStatus", t.km, t.price, t."driversFee", 
@@ -101,7 +101,7 @@ export class SQLBasedDriverReportCreator {
 
   private entityManager: EntityManager;
 
-  constructor(entityManager: EntityManager) {
+  public constructor(entityManager: EntityManager) {
     this.entityManager = entityManager;
   }
 
