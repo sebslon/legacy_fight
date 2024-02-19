@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Clock } from '../common/clock';
 import { Distance } from '../distance/distance';
 import { DriverPosition } from '../entity/driver-position.entity';
 import { DriverStatus } from '../entity/driver.entity';
@@ -28,6 +27,7 @@ export class DriverTrackingService {
     driverId: string,
     latitude: number,
     longitude: number,
+    seenAt: Date,
   ): Promise<DriverPosition> {
     const driver = await this.driverRepository.findOne(driverId);
 
@@ -44,7 +44,7 @@ export class DriverTrackingService {
     const position = new DriverPosition();
 
     position.setDriver(driver);
-    position.setSeenAt(Clock.currentDate().getTime());
+    position.setSeenAt(seenAt.getTime());
     position.setLatitude(latitude);
     position.setLongitude(longitude);
 

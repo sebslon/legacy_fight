@@ -272,7 +272,12 @@ describe('Create Driver Report', () => {
 
     const driverId = driver.getId();
     await driverSessionService.logIn(driverId, plateNumber, carClass, carBrand);
-    await driverTrackingService.registerPosition(driverId, 10, 20);
+    await driverTrackingService.registerPosition(
+      driverId,
+      10,
+      20,
+      Clock.currentDate(),
+    );
 
     const from = await address('PL', 'MAZ', 'WAW', 'STREET', 1, 10, 20);
     const to = await address('PL', 'MAZ', 'WAW', 'STREET', 100, 10.01, 20.01);

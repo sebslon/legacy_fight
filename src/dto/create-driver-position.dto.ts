@@ -7,4 +7,7 @@ export class CreateDriverPositionDto {
 
   @IsNotEmpty()
   public driverId: string;
+
+  @IsNotEmpty()
+  public seenAt: Date;
 }

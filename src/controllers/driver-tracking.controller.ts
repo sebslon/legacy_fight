@@ -8,6 +8,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
+import { Clock } from '../common/clock';
 import { CreateDriverPositionDto } from '../dto/create-driver-position.dto';
 import { DriverPositionDto } from '../dto/driver-position.dto';
 import { DriverPosition } from '../entity/driver-position.entity';
@@ -27,6 +28,7 @@ export class DriverTrackingController {
       createDriverPositionDto.driverId,
       createDriverPositionDto.latitude,
       createDriverPositionDto.longitude,
+      createDriverPositionDto.seenAt ?? Clock.currentDate(),
     );
 
     return this.toDto(driverPosition);

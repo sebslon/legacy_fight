@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
+import { Clock } from '../../src/common/clock';
 import { AddressDTO } from '../../src/dto/address.dto';
 import { Address } from '../../src/entity/address.entity';
 import { CarClass } from '../../src/entity/car-type.entity';
@@ -619,7 +620,12 @@ describe('Transit Life Cycle', () => {
       'test',
     );
 
-    await driverTrackingService.registerPosition(driver.getId(), 1, 1);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      1,
+      1,
+      Clock.currentDate(),
+    );
 
     return driver.getId();
   }
@@ -634,7 +640,12 @@ describe('Transit Life Cycle', () => {
       CarClass.VAN,
       'test',
     );
-    await driverTrackingService.registerPosition(driver.getId(), 1000, 1000);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      1000,
+      1000,
+      Clock.currentDate(),
+    );
 
     return driver.getId();
   }

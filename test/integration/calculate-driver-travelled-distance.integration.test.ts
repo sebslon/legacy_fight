@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { Clock } from '../../src/common/clock';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
@@ -93,6 +92,7 @@ describe('Calculate Driver Travelled Distance', () => {
       driver.getId(),
       53.32055,
       -1.7297,
+      new Date(NOON),
     );
     const distance = await driverTrackingService.calculateTravelledDistance(
       driver.getId(),
@@ -106,75 +106,75 @@ describe('Calculate Driver Travelled Distance', () => {
   it('Can calculate travelled distance from short transit', async () => {
     const driver = await fixtures.createTestDriver();
 
-    itIsNoon();
-
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.3205,
       -1.7297,
+      new Date(NOON),
     );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.3186,
       -1.6997,
+      new Date(NOON),
     );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.3205,
       -1.7297,
+      new Date(NOON),
     );
 
-    //when
     const distance = await driverTrackingService.calculateTravelledDistance(
       driver.getId(),
       NOON,
       NOON_FIVE,
     );
 
-    //then
     expect(distance.toString('km')).toBe('4.008km');
   });
 
   it('Can calculate travelled distance with break within', async () => {
     const driver = await fixtures.createTestDriver();
 
-    itIsNoon();
-
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.32,
       -1.7297,
+      new Date(NOON),
     );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.3186,
       -1.6997,
+      new Date(NOON),
     );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.32,
       -1.7297,
+      new Date(NOON),
     );
-
-    itIsNoonFive();
 
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.32,
       -1.7297,
+      new Date(NOON_FIVE),
     );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.3186,
       -1.6997,
+      new Date(NOON_FIVE),
     );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.32,
       -1.7297,
+      new Date(NOON_FIVE),
     );
 
-    //when
     const distance = await driverTrackingService.calculateTravelledDistance(
       driver.getId(),
       NOON,
@@ -187,35 +187,62 @@ describe('Calculate Driver Travelled Distance', () => {
   it('Can calculate travelled distance with multiple breaks', async () => {
     const driver = await fixtures.createTestDriver();
 
-    itIsNoon();
-
-    await driverTrackingService.registerPosition(driver.getId(), 53.32, -1.729);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON),
+    );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.318,
       -1.699,
+      new Date(NOON),
     );
-    await driverTrackingService.registerPosition(driver.getId(), 53.32, -1.729);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON),
+    );
 
-    itIsNoonFive();
-
-    await driverTrackingService.registerPosition(driver.getId(), 53.32, -1.729);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_FIVE),
+    );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.318,
       -1.699,
+      new Date(NOON_FIVE),
     );
-    await driverTrackingService.registerPosition(driver.getId(), 53.32, -1.729);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_FIVE),
+    );
 
-    itIsNoonTen();
-
-    await driverTrackingService.registerPosition(driver.getId(), 53.32, -1.729);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_TEN),
+    );
     await driverTrackingService.registerPosition(
       driver.getId(),
       53.318,
       -1.699,
+      new Date(NOON_TEN),
     );
-    await driverTrackingService.registerPosition(driver.getId(), 53.32, -1.729);
+    await driverTrackingService.registerPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_TEN),
+    );
 
     const distance = await driverTrackingService.calculateTravelledDistance(
       driver.getId(),
@@ -225,17 +252,4 @@ describe('Calculate Driver Travelled Distance', () => {
 
     expect(distance.toString('km')).toBe('12.03km');
   });
-
-  // Helper Functions
-  function itIsNoon() {
-    jest.spyOn(Clock, 'currentDate').mockReturnValue(new Date(NOON));
-  }
-
-  function itIsNoonFive() {
-    jest.spyOn(Clock, 'currentDate').mockReturnValue(new Date(NOON_FIVE));
-  }
-
-  function itIsNoonTen() {
-    jest.spyOn(Clock, 'currentDate').mockReturnValue(new Date(NOON_TEN));
-  }
 });
