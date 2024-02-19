@@ -14,8 +14,12 @@ import { DriverTrackingController } from './controllers/driver-tracking.controll
 import { DriverController } from './controllers/driver.controller';
 import { TransitAnalyzerController } from './controllers/transit-analyzer.controller';
 import { TransitController } from './controllers/transit.controller';
-import { DriverReportCreator } from './driver-report/driver-report-creator';
+import {
+  DriverReportCreator,
+  TestDummyReconciliation,
+} from './driver-report/driver-report-creator';
 import { DriverReportController } from './driver-report/driver-report.controller';
+import { DriverReportTokens } from './driver-report/driver-report.tokens';
 import { OldDriverReportCreator } from './driver-report/old-driver-report-creator';
 import { SQLBasedDriverReportCreator } from './driver-report/sql-based-driver-report-creator';
 import { ContractAttachment } from './entity/contract-attachment.entity';
@@ -122,6 +126,10 @@ import { TransitService } from './service/transit.service';
     SQLBasedDriverReportCreator,
     OldDriverReportCreator,
     DriverReportCreator,
+    {
+      provide: DriverReportTokens.DriverReportReconciliation,
+      useClass: TestDummyReconciliation,
+    },
   ],
 })
 export class AppModule {}

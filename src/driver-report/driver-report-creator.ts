@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { FeatureFlags } from '../config/feature-flags';
 import { DriverReport } from '../dto/driver-report.dto';
 
+import { DriverReportTokens } from './driver-report.tokens';
 import { OldDriverReportCreator } from './old-driver-report-creator';
 import { SQLBasedDriverReportCreator } from './sql-based-driver-report-creator';
 
@@ -11,6 +12,7 @@ export class DriverReportCreator {
   constructor(
     private readonly sqlBasedDriverReportCreator: SQLBasedDriverReportCreator,
     private readonly oldDriverReportCreator: OldDriverReportCreator,
+    @Inject(DriverReportTokens.DriverReportReconciliation)
     private readonly driverReportReconciliation: DriverReportReconciliation,
   ) {}
 

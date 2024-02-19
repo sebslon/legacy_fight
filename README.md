@@ -46,7 +46,7 @@ _____________
 - Problem: Creating too heavy reads with use of entities
   - Solution: `SQLBasedDriverReportCreator` - Use single SQL statement to create report instead of using entities and lazy/eager loaded collections
     - Basic example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
-    - Usage of `Reconciliation` to compare old and new report
+    - Usage of `Reconciliation` to compare old and new report (#todo - remove - 686a8fe/cabs-java)
 
 ## Installation
 

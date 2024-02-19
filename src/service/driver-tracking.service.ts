@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { Clock } from '../common/clock';
+import { Distance } from '../distance/distance';
 import { DriverPosition } from '../entity/driver-position.entity';
 import { DriverStatus } from '../entity/driver.entity';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
@@ -42,7 +44,7 @@ export class DriverTrackingService {
     const position = new DriverPosition();
 
     position.setDriver(driver);
-    position.setSeenAt(Date.now());
+    position.setSeenAt(Clock.currentDate().getTime());
     position.setLatitude(latitude);
     position.setLongitude(longitude);
 
@@ -53,7 +55,7 @@ export class DriverTrackingService {
     driverId: string,
     from: number,
     to: number,
-  ) {
+  ): Promise<Distance> {
     const driver = await this.driverRepository.findOne(driverId);
     if (!driver) {
       throw new NotFoundException('Driver does not exists, id = ' + driverId);
@@ -81,6 +83,6 @@ export class DriverTrackingService {
       }
     }
 
-    return distanceTravelled;
+    return Distance.fromKm(distanceTravelled);
   }
 }
