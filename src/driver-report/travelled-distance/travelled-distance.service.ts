@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 import { Clock } from '../../common/clock';
 import { Distance } from '../../distance/distance';
-import { DriverPosition } from '../../entity/driver-position.entity';
 import { DistanceCalculator } from '../../service/distance-calculator.service';
 
 import { TimeSlot } from './time-slot';
@@ -29,18 +28,22 @@ export class TravelledDistanceService {
     );
   }
 
-  public async addPosition(driverPosition: DriverPosition) {
-    const driverId = driverPosition.getDriver().getId();
+  public async addPosition(
+    driverId: string,
+    latitude: number,
+    longitude: number,
+    seenAt: Date,
+  ) {
     const matchedSlot =
       await this.travelledDistanceRepository.findTravelledDistanceTimeSlotByTime(
-        new Date(driverPosition.getSeenAt()),
+        seenAt,
         driverId,
       );
     const now = Clock.currentDate();
 
     if (matchedSlot) {
       if (matchedSlot.contains(now)) {
-        this.addDistanceToSlot(driverPosition, matchedSlot);
+        this.addDistanceToSlot(matchedSlot, latitude, longitude);
 
         await this.travelledDistanceRepository.save(matchedSlot);
       } else if (matchedSlot.isBefore(now)) {
@@ -51,8 +54,8 @@ export class TravelledDistanceService {
 
         matchedSlot.addDistance(
           Distance.fromKm(newDistance),
-          driverPosition.getLatitude(),
-          driverPosition.getLongitude(),
+          latitude,
+          longitude,
         );
 
         await this.travelledDistanceRepository.save(matchedSlot);
@@ -68,37 +71,37 @@ export class TravelledDistanceService {
         );
 
       if (prevTravelledDistance) {
-        if (
-          prevTravelledDistance.endsAt(new Date(driverPosition.getSeenAt()))
-        ) {
-          this.addDistanceToSlot(driverPosition, prevTravelledDistance);
+        if (prevTravelledDistance.endsAt(seenAt)) {
+          this.addDistanceToSlot(prevTravelledDistance, latitude, longitude);
 
           await this.travelledDistanceRepository.save(prevTravelledDistance);
         }
       }
 
-      await this.createSlotForNow(driverPosition, driverId, currentTimeSlot);
+      await this.createSlotForNow(
+        driverId,
+        currentTimeSlot,
+        latitude,
+        longitude,
+      );
     }
   }
 
   private addDistanceToSlot(
-    driverPosition: DriverPosition,
     aggregatedDistance: TravelledDistance,
+    latitude: number,
+    longitude: number,
   ) {
     const travelled = Distance.fromKm(
       this.distanceCalculator.calculateByGeo(
-        driverPosition.getLatitude(),
-        driverPosition.getLongitude(),
+        latitude,
+        longitude,
         aggregatedDistance.getLastLatitude(),
         aggregatedDistance.getLastLongitude(),
       ),
     );
 
-    aggregatedDistance.addDistance(
-      travelled,
-      driverPosition.getLatitude(),
-      driverPosition.getLongitude(),
-    );
+    aggregatedDistance.addDistance(travelled, latitude, longitude);
   }
 
   private recalculateDistanceFor(
@@ -116,11 +119,17 @@ export class TravelledDistanceService {
   }
 
   private createSlotForNow(
-    driverPosition: DriverPosition,
     driverId: string,
     timeSlot: TimeSlot,
+    latitude: number,
+    longitude: number,
   ) {
-    const newSlot = new TravelledDistance(driverId, timeSlot, driverPosition);
+    const newSlot = new TravelledDistance(
+      driverId,
+      timeSlot,
+      latitude,
+      longitude,
+    );
 
     return this.travelledDistanceRepository.save(newSlot);
   }

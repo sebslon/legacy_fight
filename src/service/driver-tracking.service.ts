@@ -49,7 +49,12 @@ export class DriverTrackingService {
 
     position = await this.positionRepository.save(position);
 
-    await this.travelledDistanceService.addPosition(position);
+    await this.travelledDistanceService.addPosition(
+      driverId,
+      latitude,
+      longitude,
+      seenAt,
+    );
 
     return position;
   }

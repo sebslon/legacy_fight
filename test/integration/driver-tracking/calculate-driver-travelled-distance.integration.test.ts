@@ -4,8 +4,6 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { TravelledDistanceService } from '../../../src/driver-report/travelled-distance/travelled-distance.service';
-import { DriverPosition } from '../../../src/entity/driver-position.entity';
-import { Driver } from '../../../src/entity/driver.entity';
 import { AddressRepository } from '../../../src/repository/address.repository';
 import { ClientRepository } from '../../../src/repository/client.repository';
 import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
@@ -93,7 +91,12 @@ describe('Calculate Driver Travelled Distance', () => {
 
     itIsNoon();
 
-    await registerPosition(driver, 53.32055, -1.7297, NOON);
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32055,
+      -1.7297,
+      new Date(NOON),
+    );
     const distance = await travelledDistanceService.calculateDistance(
       driver.getId(),
       new Date(NOON),
@@ -108,9 +111,24 @@ describe('Calculate Driver Travelled Distance', () => {
 
     itIsNoon();
 
-    await registerPosition(driver, 53.3205, -1.7297, NOON);
-    await registerPosition(driver, 53.3186, -1.6997, NOON);
-    await registerPosition(driver, 53.3205, -1.7297, NOON);
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.3205,
+      -1.7297,
+      new Date(NOON),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.3186,
+      -1.6997,
+      new Date(NOON),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.3205,
+      -1.7297,
+      new Date(NOON),
+    );
 
     const distance = await travelledDistanceService.calculateDistance(
       driver.getId(),
@@ -126,15 +144,45 @@ describe('Calculate Driver Travelled Distance', () => {
 
     itIsNoon();
 
-    await registerPosition(driver, 53.32, -1.7297, NOON);
-    await registerPosition(driver, 53.3186, -1.6997, NOON);
-    await registerPosition(driver, 53.32, -1.7297, NOON);
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.7297,
+      new Date(NOON),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.3186,
+      -1.6997,
+      new Date(NOON),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.7297,
+      new Date(NOON),
+    );
 
     itIsNoonFive();
 
-    await registerPosition(driver, 53.32, -1.7297, NOON_FIVE);
-    await registerPosition(driver, 53.3186, -1.6997, NOON_FIVE);
-    await registerPosition(driver, 53.32, -1.7297, NOON_FIVE);
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.7297,
+      new Date(NOON_FIVE),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.3186,
+      -1.6997,
+      new Date(NOON_FIVE),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.7297,
+      new Date(NOON_FIVE),
+    );
 
     const distance = await travelledDistanceService.calculateDistance(
       driver.getId(),
@@ -150,21 +198,66 @@ describe('Calculate Driver Travelled Distance', () => {
 
     itIsNoon();
 
-    await registerPosition(driver, 53.32, -1.729, NOON);
-    await registerPosition(driver, 53.318, -1.699, NOON);
-    await registerPosition(driver, 53.32, -1.729, NOON);
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.318,
+      -1.699,
+      new Date(NOON),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON),
+    );
 
     itIsNoonFive();
 
-    await registerPosition(driver, 53.32, -1.729, NOON_FIVE);
-    await registerPosition(driver, 53.318, -1.699, NOON_FIVE);
-    await registerPosition(driver, 53.32, -1.729, NOON_FIVE);
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_FIVE),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.318,
+      -1.699,
+      new Date(NOON_FIVE),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_FIVE),
+    );
 
     itIsNoonTen();
 
-    await registerPosition(driver, 53.32, -1.729, NOON_TEN);
-    await registerPosition(driver, 53.318, -1.699, NOON_TEN);
-    await registerPosition(driver, 53.32, -1.729, NOON_TEN);
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_TEN),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.318,
+      -1.699,
+      new Date(NOON_TEN),
+    );
+    await travelledDistanceService.addPosition(
+      driver.getId(),
+      53.32,
+      -1.729,
+      new Date(NOON_TEN),
+    );
 
     const distance = await travelledDistanceService.calculateDistance(
       driver.getId(),
@@ -187,20 +280,5 @@ describe('Calculate Driver Travelled Distance', () => {
 
   function itIsNoonTen() {
     jest.spyOn(Clock, 'currentDate').mockReturnValue(new Date(NOON_TEN));
-  }
-
-  async function registerPosition(
-    driver: Driver,
-    latitude: number,
-    longitude: number,
-    seenAt: number,
-  ) {
-    const driverPosition = new DriverPosition(
-      driver,
-      seenAt,
-      latitude,
-      longitude,
-    );
-    await travelledDistanceService.addPosition(driverPosition);
   }
 });

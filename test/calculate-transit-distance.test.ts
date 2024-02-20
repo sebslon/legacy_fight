@@ -20,8 +20,8 @@ describe('Calculate Transit Distance', () => {
   });
 
   it('Should represent as meters', () => {
-    expect(transitForDistance(10).getDistance('m')).toBe('10,000m');
-    expect(transitForDistance(10.123).getDistance('m')).toBe('10,123m');
+    expect(transitForDistance(10).getDistance('m')).toBe('10000m');
+    expect(transitForDistance(10.123).getDistance('m')).toBe('10123m');
     expect(transitForDistance(0).getDistance('m')).toBe('0m');
   });
 

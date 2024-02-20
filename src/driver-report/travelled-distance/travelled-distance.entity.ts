@@ -1,7 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Distance } from '../../distance/distance';
-import { DriverPosition } from '../../entity/driver-position.entity';
 
 import { TimeSlot } from './time-slot';
 
@@ -46,12 +45,13 @@ export class TravelledDistance {
   public constructor(
     driverId: string,
     timeSlot: TimeSlot,
-    driverPosition: DriverPosition,
+    latitude: number,
+    longitude: number,
   ) {
     this.driverId = driverId;
     this.timeslot = timeSlot;
-    this.lastLatitude = driverPosition?.getLatitude();
-    this.lastLongitude = driverPosition?.getLongitude();
+    this.lastLatitude = latitude;
+    this.lastLongitude = longitude;
     this.distance = Distance.ZERO;
   }
 
