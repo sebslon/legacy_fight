@@ -22,6 +22,9 @@ import { DriverReportController } from './driver-report/driver-report.controller
 import { DriverReportTokens } from './driver-report/driver-report.tokens';
 import { OldDriverReportCreator } from './driver-report/old-driver-report-creator';
 import { SQLBasedDriverReportCreator } from './driver-report/sql-based-driver-report-creator';
+import { TravelledDistance } from './driver-report/travelled-distance/travelled-distance.entity';
+import { TravelledDistanceRepository } from './driver-report/travelled-distance/travelled-distance.repository';
+import { TravelledDistanceService } from './driver-report/travelled-distance/travelled-distance.service';
 import { ContractAttachment } from './entity/contract-attachment.entity';
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
@@ -88,6 +91,8 @@ import { TransitService } from './service/transit.service';
       ClaimsResolverRepository,
       AwardedMiles,
       ContractAttachment,
+      TravelledDistance,
+      TravelledDistanceRepository,
     ]),
   ],
   controllers: [
@@ -130,6 +135,7 @@ import { TransitService } from './service/transit.service';
       provide: DriverReportTokens.DriverReportReconciliation,
       useClass: TestDummyReconciliation,
     },
+    TravelledDistanceService,
   ],
 })
 export class AppModule {}

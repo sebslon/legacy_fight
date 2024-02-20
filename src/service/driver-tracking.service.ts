@@ -6,12 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Distance } from '../distance/distance';
+import { TravelledDistanceService } from '../driver-report/travelled-distance/travelled-distance.service';
 import { DriverPosition } from '../entity/driver-position.entity';
 import { DriverStatus } from '../entity/driver.entity';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
 import { DriverRepository } from '../repository/driver.repository';
-
-import { DistanceCalculator } from './distance-calculator.service';
 
 @Injectable()
 export class DriverTrackingService {
@@ -20,7 +19,7 @@ export class DriverTrackingService {
     private driverRepository: DriverRepository,
     @InjectRepository(DriverPositionRepository)
     private positionRepository: DriverPositionRepository,
-    private distanceCalculator: DistanceCalculator,
+    private travelledDistanceService: TravelledDistanceService,
   ) {}
 
   public async registerPosition(
@@ -41,14 +40,18 @@ export class DriverTrackingService {
       );
     }
 
-    const position = new DriverPosition();
+    let position = new DriverPosition();
 
     position.setDriver(driver);
     position.setSeenAt(seenAt.getTime());
     position.setLatitude(latitude);
     position.setLongitude(longitude);
 
-    return await this.positionRepository.save(position);
+    position = await this.positionRepository.save(position);
+
+    await this.travelledDistanceService.addPosition(position);
+
+    return position;
   }
 
   public async calculateTravelledDistance(
@@ -57,32 +60,15 @@ export class DriverTrackingService {
     to: number,
   ): Promise<Distance> {
     const driver = await this.driverRepository.findOne(driverId);
+
     if (!driver) {
       throw new NotFoundException('Driver does not exists, id = ' + driverId);
     }
-    const positions =
-      await this.positionRepository.findByDriverAndSeenAtBetweenOrderBySeenAtAsc(
-        driver,
-        from,
-        to,
-      );
-    let distanceTravelled = 0;
 
-    if (positions.length > 1) {
-      let previousPosition = positions[0];
-
-      for (const position of positions.slice(1)) {
-        distanceTravelled += this.distanceCalculator.calculateByGeo(
-          previousPosition.getLatitude(),
-          previousPosition.getLongitude(),
-          position.getLatitude(),
-          position.getLongitude(),
-        );
-
-        previousPosition = position;
-      }
-    }
-
-    return Distance.fromKm(distanceTravelled);
+    return this.travelledDistanceService.calculateDistance(
+      driverId,
+      new Date(from),
+      new Date(to),
+    );
   }
 }
