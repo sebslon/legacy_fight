@@ -18,35 +18,32 @@ export class DriverPosition extends BaseEntity {
   @Column({ type: 'bigint' })
   public seenAt: number;
 
-  public getDriver() {
-    return this.driver;
+  public constructor(
+    driver: Driver,
+    seenAt: number,
+    latitude: number,
+    longitude: number,
+  ) {
+    super();
+    this.driver = driver;
+    this.seenAt = seenAt;
+    this.latitude = latitude;
+    this.longitude = longitude;
   }
 
-  public setDriver(driver: Driver) {
-    this.driver = driver;
+  public getDriver() {
+    return this.driver;
   }
 
   public getLatitude() {
     return this.latitude;
   }
 
-  public setLatitude(latitude: number) {
-    this.latitude = latitude;
-  }
-
   public getLongitude() {
     return this.longitude;
   }
 
-  public setLongitude(longitude: number) {
-    this.longitude = longitude;
-  }
-
   public getSeenAt() {
     return this.seenAt;
-  }
-
-  public setSeenAt(seenAt: number) {
-    this.seenAt = seenAt;
   }
 }

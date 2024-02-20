@@ -45,6 +45,8 @@ _____________
 **CQRS**:
 - Problem: Data model that doesn't fit reads too well / too slow driver km report generation
   - Solution: Separate read and write models.
+    - `DriverPosition` - keeps info about last driver positions (very frequent writes)
+    - `TravelledDistance` - keeps read info about travelled distances
 
 **Other**:
 - Problem: Creating too heavy reads with use of entities

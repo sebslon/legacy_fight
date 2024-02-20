@@ -40,12 +40,12 @@ export class DriverTrackingService {
       );
     }
 
-    let position = new DriverPosition();
-
-    position.setDriver(driver);
-    position.setSeenAt(seenAt.getTime());
-    position.setLatitude(latitude);
-    position.setLongitude(longitude);
+    let position = new DriverPosition(
+      driver,
+      seenAt.getTime(),
+      latitude,
+      longitude,
+    );
 
     position = await this.positionRepository.save(position);
 
