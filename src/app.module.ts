@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Neo4jModule } from '@nhogs/nestjs-neo4j';
 
 import { AppProperties } from './config/app-properties.config';
 import typeormConfig from './config/typeorm.config';
@@ -70,6 +71,15 @@ import { TransitService } from './service/transit.service';
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
+    Neo4jModule.forRoot({
+      scheme: 'neo4j',
+      host: process.env.NEO4J_HOST || 'localhost',
+      port: process.env.NEO4j_PORT || 37687,
+      username: process.env.NEO4J_USER || 'neo4j',
+      password: process.env.NEO4j_PASSWORD || 'test_password',
+      database: 'LF-neo4j',
+      global: true,
+    }),
     TypeOrmModule.forFeature([
       DriverRepository,
       InvoiceRepository,
