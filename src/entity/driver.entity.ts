@@ -65,9 +65,8 @@ export class Driver extends BaseEntity {
   public transits: Transit[];
 
   public calculateEarningsForTransit(transit: Transit) {
-    console.log(transit);
+    console.log(transit.getId());
     return null;
-    // zdublować kod wyliczenia kosztu przejazdu
   }
 
   public setLastName(lastName: string) {

@@ -1,3 +1,4 @@
+import { Clock } from '../../src/common/clock';
 import { Distance } from '../../src/distance/distance';
 import { AddressDTO } from '../../src/dto/address.dto';
 import { CarTypeDTO } from '../../src/dto/car-type.dto';
@@ -32,7 +33,10 @@ import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
 import { CarTypeService } from '../../src/service/car-type.service';
 import { ClaimService } from '../../src/service/claim.service';
+import { DriverSessionService } from '../../src/service/driver-session.service';
+import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';
+import { TransitService } from '../../src/service/transit.service';
 
 export class Fixtures {
   constructor(
@@ -45,6 +49,9 @@ export class Fixtures {
     private readonly claimService: ClaimService,
     private readonly awardsService: AwardsService,
     private readonly driverAttributeRepository: DriverAttributeRepository,
+    private readonly transitService: TransitService,
+    private readonly driverSessionService: DriverSessionService,
+    private readonly driverTrackingService: DriverTrackingService,
   ) {}
 
   public createTestDriver(
@@ -61,6 +68,27 @@ export class Fixtures {
       status: status ?? DriverStatus.ACTIVE,
       photo: Buffer.from('test', 'utf-8').toString('base64'),
     });
+  }
+
+  public async createNearbyDriver(plateNumber: string) {
+    const driver = await this.createTestDriver();
+
+    await this.driverHasFee(driver, FeeType.FLAT, 10, 0);
+
+    await this.driverSessionService.logIn(
+      driver.getId(),
+      plateNumber,
+      CarClass.VAN,
+      'BRAND',
+    );
+    await this.driverTrackingService.registerPosition(
+      driver.getId(),
+      1,
+      1,
+      Clock.currentDate(),
+    );
+
+    return driver;
   }
 
   public async createTestTransit(
@@ -155,6 +183,43 @@ export class Fixtures {
     transit.setPrice(new Money(price));
 
     return this.transitRepository.save(transit);
+  }
+
+  public async aRequestedAndCompletedTransit(
+    price: number,
+    publishedAt: Date,
+    completedAt: Date,
+    client: Client,
+    driver: Driver,
+    from: Address,
+    to: Address,
+  ) {
+    from = await this.addressRepository.save(from);
+    to = await this.addressRepository.save(to);
+
+    jest.spyOn(Clock, 'currentDate').mockReturnValue(publishedAt);
+
+    const transit = await this.transitService.createTransit(
+      client.getId(),
+      from,
+      to,
+      CarClass.VAN,
+    );
+    await this.transitService.publishTransit(transit.getId());
+    await this.transitService.acceptTransit(driver.getId(), transit.getId());
+    await this.transitService.startTransit(driver.getId(), transit.getId());
+
+    jest.spyOn(Clock, 'currentDate').mockReturnValue(completedAt);
+
+    await this.transitService.completeTransit(
+      driver.getId(),
+      transit.getId(),
+      to,
+    );
+
+    jest.clearAllMocks();
+
+    return await this.transitRepository.findOneOrFail(transit.getId());
   }
 
   public async createTransitDTO(

@@ -127,7 +127,9 @@ export class Address extends BaseEntity {
   }
 
   public getHash() {
-    this.setHash();
+    if (!this.hash) {
+      this.setHash();
+    }
     return this.hash;
   }
 

@@ -23,7 +23,6 @@ export class DriverTrackingController {
   public async create(
     @Body() createDriverPositionDto: CreateDriverPositionDto,
   ): Promise<DriverPositionDto> {
-    console.log('dto', createDriverPositionDto);
     const driverPosition = await this.trackingService.registerPosition(
       createDriverPositionDto.driverId,
       createDriverPositionDto.latitude,

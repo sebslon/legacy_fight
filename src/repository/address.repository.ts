@@ -25,4 +25,12 @@ export class AddressRepository extends Repository<Address> {
       where: { hash },
     });
   }
+
+  public async findByHashOrFail(hash: string) {
+    const address = await this.findByHash(hash);
+    if (!address) {
+      throw new Error('Address not found');
+    }
+    return address;
+  }
 }

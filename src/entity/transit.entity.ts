@@ -283,11 +283,15 @@ export class Transit extends BaseEntity {
   }
 
   public proposeTo(driver: Driver) {
-    if (
-      this.canProposeTo(driver) &&
-      !this.proposedDrivers.some((d) => d.getId() === driver.getId())
-    ) {
-      this.proposedDrivers.push(driver);
+    if (this.canProposeTo(driver)) {
+      const isInProposed = this.proposedDrivers.some(
+        (d) => d.getId() === driver.getId(),
+      );
+
+      if (!isInProposed) {
+        this.proposedDrivers.push(driver);
+      }
+
       this.awaitingDriversResponses = this.awaitingDriversResponses + 1;
     }
   }
@@ -424,7 +428,7 @@ export class Transit extends BaseEntity {
   }
 
   public getCarType() {
-    return this.carType as CarClass;
+    return this.carType;
   }
 
   public getDriver() {

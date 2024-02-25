@@ -1,4 +1,4 @@
-import { Between, EntityRepository, Repository } from 'typeorm';
+import { Between, EntityRepository, MoreThan, Repository } from 'typeorm';
 
 import { Address } from '../entity/address.entity';
 import { Client } from '../entity/client.entity';
@@ -48,7 +48,7 @@ export class TransitRepository extends Repository<Transit> {
         client,
         from,
         status,
-        published: when,
+        published: MoreThan(when),
       },
       order: {
         dateTime: 'DESC',

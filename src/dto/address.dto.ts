@@ -17,6 +17,8 @@ export class AddressDTO {
 
   public name: string | null;
 
+  private hash: string;
+
   public constructor(
     a:
       | Address
@@ -37,6 +39,7 @@ export class AddressDTO {
       this.additionalNumber = a.getAdditionalNumber();
       this.postalCode = a.getPostalCode();
       this.name = a.getName();
+      this.hash = a.getHash();
     } else {
       this.country = a.country;
       this.city = a.city;
@@ -124,5 +127,9 @@ export class AddressDTO {
     address.setDistrict(this.getDistrict());
     address.setHash();
     return address;
+  }
+
+  public getHash() {
+    return this.hash;
   }
 }

@@ -11,8 +11,10 @@ import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
 import { CarTypeService } from '../../../src/service/car-type.service';
 import { ClaimService } from '../../../src/service/claim.service';
+import { DriverSessionService } from '../../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
 import { DriverService } from '../../../src/service/driver.service';
+import { TransitService } from '../../../src/service/transit.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Driver Tracking Service', () => {
@@ -48,6 +50,9 @@ describe('Driver Tracking Service', () => {
     driverAttributeRepository = module.get<DriverAttributeRepository>(
       DriverAttributeRepository,
     );
+    driverTrackingService = module.get<DriverTrackingService>(
+      DriverTrackingService,
+    );
 
     fixtures = new Fixtures(
       driverService,
@@ -59,10 +64,9 @@ describe('Driver Tracking Service', () => {
       claimService,
       awardsService,
       driverAttributeRepository,
-    );
-
-    driverTrackingService = module.get<DriverTrackingService>(
-      DriverTrackingService,
+      {} as TransitService,
+      {} as DriverSessionService,
+      driverTrackingService,
     );
   });
 

@@ -434,7 +434,7 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    transit.start(new Date());
+    transit.start(Clock.currentDate());
 
     await this.transitRepository.save(transit);
   }

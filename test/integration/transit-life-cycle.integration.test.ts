@@ -24,7 +24,6 @@ import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
 import { Fixtures } from '../common/fixtures';
 
-jest.setTimeout(3000000);
 describe('Transit Life Cycle', () => {
   let transitService: TransitService;
   let driverService: DriverService;
@@ -86,6 +85,9 @@ describe('Transit Life Cycle', () => {
       {} as ClaimService,
       {} as AwardsService,
       {} as DriverAttributeRepository,
+      transitService,
+      driverSessionService,
+      driverTrackingService,
     );
   });
 
@@ -358,7 +360,7 @@ describe('Transit Life Cycle', () => {
       destination,
     );
 
-    const driver = await createNearbyDriver('WU1212');
+    const driver = await createNearbyDriver('WU1212'); // HERE CHECK
 
     await transitService.publishTransit(transit.getId());
     await transitService.acceptTransit(driver, transit.getId());

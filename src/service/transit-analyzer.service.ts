@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import dayjs from 'dayjs';
 
 import { Address } from '../entity/address.entity';
 import { Client } from '../entity/client.entity';
@@ -25,13 +24,19 @@ export class TransitAnalyzerService {
     addressId: string,
   ): Promise<Address[]> {
     const client = await this.clientRepository.findOne(clientId);
+
     if (!client) {
       throw new NotFoundException('Client does not exists, id = ' + clientId);
     }
-    const address = await this.addressRepository.findOne(addressId);
+
+    const [address] = await this.addressRepository.find({
+      where: { id: addressId },
+    });
+
     if (!address) {
       throw new NotFoundException('Address does not exists, id = ' + addressId);
     }
+
     return this._analyze(client, address, null);
   }
 
@@ -40,66 +45,69 @@ export class TransitAnalyzerService {
   private async _analyze(
     client: Client,
     from: Address,
-    t: Transit | null,
+    currTransit: Transit | null,
   ): Promise<Address[]> {
-    let ts: Transit[] = [];
+    let transits: Transit[] = [];
 
-    if (!t) {
-      ts =
+    if (!currTransit) {
+      transits =
         await this.transitRepository.findAllByClientAndFromAndStatusOrderByDateTimeDesc(
           client,
           from,
           TransitStatus.COMPLETED,
         );
     } else {
-      ts =
+      transits =
         await this.transitRepository.findAllByClientAndFromAndPublishedAfterAndStatusOrderByDateTimeDesc(
           client,
           from,
-          t.getPublished(),
+          currTransit.getPublished(),
           TransitStatus.COMPLETED,
         );
     }
 
     // Workaround for performance reasons.
-    if (ts.length > 1000 && client.getId() == '666') {
+    if (transits.length > 1000 && client.getId() == '666') {
       // No one will see a difference for this customer ;)
-      ts = ts.slice(0, 1000);
+      transits = transits.slice(0, 1000);
     }
 
     //        if (ts.isEmpty()) {
     //            return List.of(t.getTo());
     //        }
 
-    if (t) {
-      ts = ts.filter((_t) =>
-        dayjs(t.getCompleteAt()).add(15, 'minutes').isAfter(_t.getStarted()),
-      );
-      // Before 2018-01-01:
-      //.filter(t -> t.getCompleteAt().plus(15, ChronoUnit.MINUTES).isAfter(t.getPublished()))
+    if (currTransit) {
+      const fifteenMinutes = 15 * 60 * 1000;
+      const completedAt = new Date(+currTransit.getCompleteAt());
+
+      transits = transits.filter((_t) => {
+        const startedAt = new Date(Number(_t.getStarted() ?? 0));
+
+        return completedAt.getTime() + fifteenMinutes > startedAt.getTime();
+      });
     }
 
-    if (!ts.length && t) {
-      return [t.getTo()];
+    if (!transits.length && currTransit) {
+      return [currTransit.getTo()];
     }
 
-    const mappedTs: Address[][] = [];
+    const accumulatedTransits: Address[][] = [];
 
-    for (const _t of ts) {
+    for (const t of transits) {
       const result = [];
-      result.push(_t.getFrom());
-      result.push(...(await this._analyze(client, _t.getTo(), _t)));
-      mappedTs.push(result);
+      result.push(t.getFrom());
+      result.push(...(await this._analyze(client, t.getTo(), t)));
+      accumulatedTransits.push(result);
     }
 
-    function compare(a: Address[], b: Address[]) {
+    function sortByLength(a: Address[], b: Address[]) {
       if (a.length > b.length) return -1;
       if (a.length < b.length) return 1;
       return 0;
     }
 
-    mappedTs.sort(compare);
+    accumulatedTransits.sort(sortByLength);
 
-    return mappedTs[0]?.length ? mappedTs[0] : [];
+    return accumulatedTransits[0] ?? [];
   }
 }

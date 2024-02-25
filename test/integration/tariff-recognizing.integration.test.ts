@@ -11,7 +11,10 @@ import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
 import { CarTypeService } from '../../src/service/car-type.service';
 import { ClaimService } from '../../src/service/claim.service';
+import { DriverSessionService } from '../../src/service/driver-session.service';
+import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';
+import { TransitService } from '../../src/service/transit.service';
 import { Fixtures } from '../common/fixtures';
 
 describe('Tariff recognizing', () => {
@@ -45,6 +48,9 @@ describe('Tariff recognizing', () => {
       {} as ClaimService,
       {} as AwardsService,
       {} as DriverAttributeRepository,
+      {} as TransitService,
+      {} as DriverSessionService,
+      {} as DriverTrackingService,
     );
   });
 
