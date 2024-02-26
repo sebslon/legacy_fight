@@ -2,7 +2,8 @@ import { Controller, Get, Param } from '@nestjs/common';
 
 import { AddressDTO } from '../dto/address.dto';
 import { AnalyzedAddressesDTO } from '../dto/analyzed-addresses.dto';
-import { TransitAnalyzerService } from '../service/transit-analyzer.service';
+
+import { TransitAnalyzerService } from './transit-analyzer.service';
 
 @Controller('transitAnalyze')
 export class TransitAnalyzerController {

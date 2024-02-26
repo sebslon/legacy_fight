@@ -1,24 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
-import { AppModule } from '../../src/app.module';
-import { TransitAnalyzerController } from '../../src/controllers/transit-analyzer.controller';
-import { Address } from '../../src/entity/address.entity';
-import { CarClass } from '../../src/entity/car-type.entity';
-import { AddressRepository } from '../../src/repository/address.repository';
-import { ClientRepository } from '../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../src/repository/transit.repository';
-import { AwardsService } from '../../src/service/awards.service';
-import { CarTypeService } from '../../src/service/car-type.service';
-import { ClaimService } from '../../src/service/claim.service';
-import { DriverSessionService } from '../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../src/service/driver-tracking.service';
-import { DriverService } from '../../src/service/driver.service';
-import { GeocodingService } from '../../src/service/geocoding.service';
-import { TransitService } from '../../src/service/transit.service';
-import { Fixtures } from '../common/fixtures';
+import { AppModule } from '../../../src/app.module';
+import { Address } from '../../../src/entity/address.entity';
+import { CarClass } from '../../../src/entity/car-type.entity';
+import { AddressRepository } from '../../../src/repository/address.repository';
+import { ClientRepository } from '../../../src/repository/client.repository';
+import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
+import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
+import { TransitRepository } from '../../../src/repository/transit.repository';
+import { AwardsService } from '../../../src/service/awards.service';
+import { CarTypeService } from '../../../src/service/car-type.service';
+import { ClaimService } from '../../../src/service/claim.service';
+import { DriverSessionService } from '../../../src/service/driver-session.service';
+import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
+import { DriverService } from '../../../src/service/driver.service';
+import { GeocodingService } from '../../../src/service/geocoding.service';
+import { TransitService } from '../../../src/service/transit.service';
+import { TransitAnalyzerController } from '../../../src/transit-analyzer/transit-analyzer.controller';
+import { Fixtures } from '../../common/fixtures';
 
 describe('Analyze Nearby Transits', () => {
   let fixtures: Fixtures;

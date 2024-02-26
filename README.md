@@ -2,9 +2,20 @@
 
 _____________
 
+
 ## General Informations
 
+This is part of 'Legacy Fighter' course.
+
+This is just a pet project to learn and practice refactoring techniques and patterns. 
+It's a fork of the original project written in Java. I've decided to finish it in TypeScript/Node.js using Nest.js framework.
+
 - Commits are done to the main branch directly because it's just a 'pet/learning project'.
+- There is no docker-compose/setup files (maybe todo) - I've used already running databases on my local machine.
+- Not every part of code is perfect (as it is legacy) - Focus was on refactoring techniques/process.
+
+#### Project Structure
+
 - Project is a legacy application with domain logic and some business rules about CABS which is a fictional cab/taxi company.
 - Goal is to refactor the codebase and make it more maintainable and scalable - step by step.
 
@@ -53,6 +64,10 @@ _____________
   - Solution: `SQLBasedDriverReportCreator` - Use single SQL statement to create report instead of using entities and lazy/eager loaded collections
     - Basic example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
     - Usage of `Reconciliation` to compare old and new report (#todo - remove - 686a8fe/cabs-java)
+- Problem: Mismatched database paradigm (Graph representation of Transits History)
+  - Solution: `GraphTransitAnalyzer` - Use graph database to analyze transit history
+  - Usage of `Transactional Outbox` pattern to ensure consistency between graph and SQL database (TODO)
+  - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - Only TransitAnalyzer is covered with tests
 
 ## Installation
 

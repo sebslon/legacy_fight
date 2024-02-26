@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Neo4jModule } from '@nhogs/nestjs-neo4j';
 
 import { AppProperties } from './config/app-properties.config';
+import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
 import { AwardsAccountController } from './controllers/awards-account.controller';
 import { CarTypeController } from './controllers/car-type.controller';
@@ -13,7 +13,6 @@ import { ContractController } from './controllers/contract.controller';
 import { DriverSessionController } from './controllers/driver-session.controller';
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
 import { DriverController } from './controllers/driver.controller';
-import { TransitAnalyzerController } from './controllers/transit-analyzer.controller';
 import { TransitController } from './controllers/transit.controller';
 import {
   DriverReportCreator,
@@ -64,8 +63,10 @@ import { DriverTrackingService } from './service/driver-tracking.service';
 import { DriverService } from './service/driver.service';
 import { GeocodingService } from './service/geocoding.service';
 import { InvoiceGenerator } from './service/invoice-generator.service';
-import { TransitAnalyzerService } from './service/transit-analyzer.service';
 import { TransitService } from './service/transit.service';
+import { GraphTransitAnalyzer } from './transit-analyzer/graph-transit-analyzer';
+import { TransitAnalyzerController } from './transit-analyzer/transit-analyzer.controller';
+import { TransitAnalyzerService } from './transit-analyzer/transit-analyzer.service';
 
 @Module({
   imports: [
@@ -77,7 +78,7 @@ import { TransitService } from './service/transit.service';
       port: process.env.NEO4j_PORT || 37687,
       username: process.env.NEO4J_USER || 'neo4j',
       password: process.env.NEO4j_PASSWORD || 'test_password',
-      database: 'LF-neo4j',
+      database: 'neo4j',
       global: true,
     }),
     TypeOrmModule.forFeature([
@@ -141,6 +142,7 @@ import { TransitService } from './service/transit.service';
     SQLBasedDriverReportCreator,
     OldDriverReportCreator,
     DriverReportCreator,
+    GraphTransitAnalyzer,
     {
       provide: DriverReportTokens.DriverReportReconciliation,
       useClass: TestDummyReconciliation,
