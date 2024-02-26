@@ -28,8 +28,6 @@ import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
 import { Fixtures } from '../common/fixtures';
 
-jest.setTimeout(300000000);
-
 describe('Create Driver Report', () => {
   const DAY_BEFORE_YESTERDAY = new Date('2021-01-01');
   const YESTERDAY = new Date('2021-01-02');

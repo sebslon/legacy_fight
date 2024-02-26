@@ -67,7 +67,7 @@ It's a fork of the original project written in Java. I've decided to finish it i
 - Problem: Mismatched database paradigm (Graph representation of Transits History)
   - Solution: `GraphTransitAnalyzer` - Use graph database to analyze transit history
   - Usage of `Transactional Outbox` pattern to ensure consistency between graph and SQL database (TODO)
-  - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - Only TransitAnalyzer is covered with tests
+  - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - TransitAnalyzer is covered with tests, plug-in graph db implementation
 
 ## Installation
 

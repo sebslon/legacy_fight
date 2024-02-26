@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { AppProperties } from './config/app-properties.config';
@@ -70,6 +71,7 @@ import { TransitAnalyzerService } from './transit-analyzer/transit-analyzer.serv
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
     Neo4jModule.forRoot({

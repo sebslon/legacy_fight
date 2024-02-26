@@ -19,7 +19,6 @@ import { DriverService } from '../../../src/service/driver.service';
 import { TransitService } from '../../../src/service/transit.service';
 import { Fixtures } from '../../common/fixtures';
 
-jest.setTimeout(300000);
 describe('Awarded Miles Management', () => {
   let awardsService: AwardsService;
   let clientRepository: ClientRepository;

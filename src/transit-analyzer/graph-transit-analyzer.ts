@@ -1,11 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { Neo4jService } from '@nhogs/nestjs-neo4j';
+
+import { TransitCompletedEvent } from './events/transit-completed.event';
 
 @Injectable()
 export class GraphTransitAnalyzer {
   constructor(private readonly neo4jService: Neo4jService) {}
 
-  public async analyze(clientId: string, addressHash: string): Promise<any> {
+  public async analyze(
+    clientId: string,
+    addressHash: string,
+  ): Promise<string[] | undefined> {
     try {
       const result = await this.neo4jService.run({
         cypher: `
@@ -68,6 +74,26 @@ export class GraphTransitAnalyzer {
       {
         write: true,
       },
+    );
+  }
+
+  @OnEvent('transit.completed')
+  public async handleTransitCompletedEvent(event: TransitCompletedEvent) {
+    const {
+      clientId,
+      transitId,
+      addressFromHash,
+      addressToHash,
+      started,
+      completedAt,
+    } = event;
+    await this.addTransitBetweenAddresses(
+      clientId,
+      transitId,
+      addressFromHash,
+      addressToHash,
+      started,
+      completedAt,
     );
   }
 }

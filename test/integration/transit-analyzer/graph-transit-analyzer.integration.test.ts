@@ -3,7 +3,6 @@ import { NEO4J_DRIVER } from '@nhogs/nestjs-neo4j';
 import { Driver } from 'neo4j-driver-core';
 
 import { AppModule } from '../../../src/app.module';
-import { Clock } from '../../../src/common/clock';
 import { GraphTransitAnalyzer } from '../../../src/transit-analyzer/graph-transit-analyzer';
 
 describe('Graph Transit Analyzer', () => {
@@ -25,10 +24,6 @@ describe('Graph Transit Analyzer', () => {
   });
 
   it('Can recocgnize new address', async () => {
-    jest
-      .spyOn(Clock, 'currentDate')
-      .mockReturnValue(new Date('2021-01-01T00:00:00Z'));
-
     await graphTransitAnalyzer.addTransitBetweenAddresses(
       'client-id-1',
       'transit-id-1',

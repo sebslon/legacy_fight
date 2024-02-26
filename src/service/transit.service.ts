@@ -3,6 +3,7 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Clock } from '../common/clock';
@@ -20,6 +21,7 @@ import { DriverPositionRepository } from '../repository/driver-position.reposito
 import { DriverSessionRepository } from '../repository/driver-session.repository';
 import { DriverRepository } from '../repository/driver.repository';
 import { TransitRepository } from '../repository/transit.repository';
+import { TransitCompletedEvent } from '../transit-analyzer/events/transit-completed.event';
 
 import { AwardsService } from './awards.service';
 import { CarTypeService } from './car-type.service';
@@ -51,6 +53,7 @@ export class TransitService {
     private invoiceGenerator: InvoiceGenerator,
     private distanceCalculator: DistanceCalculator,
     private notificationService: DriverNotificationService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   public async createTransitFromDTO(transitDto: TransitDTO) {
@@ -520,6 +523,18 @@ export class TransitService {
     await this.invoiceGenerator.generate(
       transit.getPrice()?.toInt() ?? 0,
       transit.getClient().getName() + ' ' + transit.getClient().getLastName(),
+    );
+
+    await this.eventEmitter.emit(
+      'transit.completed',
+      new TransitCompletedEvent(
+        transit.getClient().getId(),
+        transitId,
+        transit.getFrom().getHash(),
+        transit.getTo().getHash(),
+        new Date(transit.getStarted() ?? 0),
+        new Date(transit.getCompleteAt() ?? 0),
+      ),
     );
   }
 
