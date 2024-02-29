@@ -14,14 +14,14 @@ It's a fork of the original project written in Java. I've decided to finish it i
 - There is no docker-compose/setup files (maybe todo) - I've used already running databases on my local machine.
 - Not every part of code is perfect (as it is legacy) - Focus was on refactoring techniques/process.
 
-#### Project Structure
+### Project Structure
 
 - Project is a legacy application with domain logic and some business rules about CABS which is a fictional cab/taxi company.
 - Goal is to refactor the codebase and make it more maintainable and scalable - step by step.
 
 ## Introduced Refactorings
 
-#### General Approach**:
+### General Approach**:
 - Build safety net with tests (unit or e2e) - cover at least all of the observable behaviors
 - Introduce new concept
 - Replace old concept with new concept
@@ -30,7 +30,7 @@ It's a fork of the original project written in Java. I've decided to finish it i
 
 #### Some of refactorings:
 
-**Value Objects**:
+##### Value Objects:
 
 - Problem: Repeated validation logic in many places
   - Solution: `Driver License` Value Object
@@ -41,7 +41,7 @@ It's a fork of the original project written in Java. I've decided to finish it i
 - Problem: Hidden domain concept - unreadable, duplicated code, missing proper domain concept mapping
   - Solution: `Tariff` Value Object
 
-**Aggregates / Entities**:
+##### Aggregates / Entities:
 - Problem: Data inconsistency - lots of setters to bring the object to expected state, repeated
   - Solution: `Transit` Aggregate - interface with business methods, encapsulation of the state, validation, and business rules
 - Problem: Too big object / too big database transactions
@@ -53,13 +53,13 @@ It's a fork of the original project written in Java. I've decided to finish it i
 - Problem: Data inconsistency, low performance
   - Solution: `Contract` - encapsulate the state, validation, and business rules, split the object into smaller parts
 
-**CQRS**:
+##### CQRS:
 - Problem: Data model that doesn't fit reads too well / too slow driver km report generation
   - Solution: Separate read and write models.
     - `DriverPosition` - keeps info about last driver positions (very frequent writes)
     - `TravelledDistance` - keeps read info about travelled distances
 
-**Other**:
+##### Other:
 - Problem: Creating too heavy reads with use of entities
   - Solution: `SQLBasedDriverReportCreator` - Use single SQL statement to create report instead of using entities and lazy/eager loaded collections
     - Basic example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
@@ -67,7 +67,11 @@ It's a fork of the original project written in Java. I've decided to finish it i
 - Problem: Mismatched database paradigm (Graph representation of Transits History)
   - Solution: `GraphTransitAnalyzer` - Use graph database to analyze transit history
   - Usage of `Transactional Outbox` pattern to ensure consistency between graph and SQL database (TODO)
-  - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - TransitAnalyzer is covered with tests, plug-in graph db implementation
+  - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - TransitAnalyzer is covered with tests, plug-in graph db implementation / prepare migration
+
+##### Archetypes - with use of parallel models approach
+
+Based on `repair` module.
 
 ## Installation
 
