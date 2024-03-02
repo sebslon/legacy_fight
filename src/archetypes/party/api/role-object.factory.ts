@@ -8,7 +8,8 @@ import { PartyBasedRole } from '../model/role/party-based-role';
  * TODO introduce an interface to convert to Abstract Factory Pattern to be able to choose factory impl
  */
 export class RoleObjectFactory {
-  private readonly roleMap: Map<string, PartyBasedRole> = new Map();
+  // <object type/class name, object instance>
+  private readonly roleMap: Map<string, PartyBasedRole> = new Map(); // PolymporphicHashMap
 
   public hasRole(role: string): boolean {
     return this.roleMap.has(role);
@@ -21,6 +22,7 @@ export class RoleObjectFactory {
   }
 
   private add(partyRelationship: PartyRelationship) {
+    // fix this - should be more like a reflection in JAVA, should create a proper type
     const roleA = partyRelationship.getRoleA();
     const roleB = partyRelationship.getRoleB();
     const partyA = partyRelationship.getPartyA();

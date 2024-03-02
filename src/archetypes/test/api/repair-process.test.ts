@@ -10,7 +10,7 @@ import { ContractManager } from '../../repair/api/contract-manager';
 import { RepairProcess } from '../../repair/api/repair-process';
 import { RepairRequest } from '../../repair/api/repair-request';
 import { Parts } from '../../repair/legacy/parts/parts';
-import { RoleForRepairer } from '../../repair/model/roles/repair/role-for-repairer';
+import { PartyRolesDictionary } from '../../repair/model/dict/party-roles-dictionary';
 
 import { VehicleRepairAssertion } from './vehicle-repair.assertion';
 
@@ -34,21 +34,6 @@ describe.skip('Repair Test', () => {
   });
 
   test('Warranty by insurance covers all but not paint', async () => {
-    const party1 = new Party(handlingParty.toUUID());
-    const party2 = new Party(vehicle.toUUID());
-
-    partyMapper.mapRelation.mockResolvedValueOnce(
-      new PartyRelationship(
-        'party',
-        RoleForRepairer.name,
-        'roleB',
-        party1,
-        party2,
-      ),
-    );
-
-    contractManager.extendedWarrantyContractSigned(handlingParty, vehicle);
-
     const parts = new Set([
       Parts.ENGINE,
       Parts.GEARBOX,
@@ -56,7 +41,23 @@ describe.skip('Repair Test', () => {
       Parts.SUSPENSION,
     ]);
 
+    contractManager.extendedWarrantyContractSigned(handlingParty, vehicle);
+
+    const insurer = new Party(handlingParty.toUUID());
+    const insured = new Party(vehicle.toUUID());
+
+    partyMapper.mapRelation.mockResolvedValueOnce(
+      new PartyRelationship(
+        'Insurance',
+        PartyRolesDictionary.INSURER.getRoleName(),
+        PartyRolesDictionary.INSURED.getRoleName(),
+        insurer,
+        insured,
+      ),
+    );
+
     const repairRequest = new RepairRequest(vehicle, parts);
+
     const result = await vehicleRepairProcess.resolve(repairRequest);
 
     new VehicleRepairAssertion(result)
