@@ -5,17 +5,17 @@ import { Parts } from '../parts/parts';
 @Entity()
 export class SignedContract extends BaseEntity {
   @Column({ type: 'varchar', array: true })
-  private coveredParts: Parts[];
+  private coveredParts: Set<Parts>;
 
   @Column({ type: 'float' })
   private coverageRatio: number;
 
-  public getCoveredParts(): Parts[] {
+  public getCoveredParts(): Set<Parts> {
     return this.coveredParts;
   }
 
-  public setCoveredParts(parts: Parts[]) {
-    this.coveredParts = parts;
+  public setCoveredParts(parts: Set<Parts>) {
+    this.coveredParts = new Set(parts);
   }
 
   public getCoverageRatio(): number {

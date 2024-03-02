@@ -6,7 +6,7 @@ export enum JobDecision {
 
 export class JobResult {
   private decision: JobDecision;
-  private params: Map<string, unknown>;
+  private params: Map<string, unknown> = new Map();
 
   public constructor(decision: JobDecision) {
     this.decision = decision;

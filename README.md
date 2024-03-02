@@ -71,7 +71,13 @@ It's a fork of the original project written in Java. I've decided to finish it i
 
 ##### Archetypes - with use of parallel models approach
 
-Based on `repair` module.
+Based on `repair` module - Example and introduction to archetypes.
+
+This module is isolated - it's not finished. 
+
+⚙️ TODO: Finish the implementation of `Party, PartyRole, PartyRelationship` archetypes. (tag#archetypes-repair-better)
+
+- Introduction to `Party, PartyRole, PartyRelationship` archetypes - responsible for organizing informations about people in different organizations 
 
 ## Installation
 

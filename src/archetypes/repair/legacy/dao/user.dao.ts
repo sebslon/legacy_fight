@@ -12,7 +12,7 @@ export class UserDAO {
 
     const contract = new SignedContract();
 
-    contract.setCoveredParts(Object.values(Parts));
+    contract.setCoveredParts(new Set(Object.values(Parts)));
     contract.setCoverageRatio(100);
 
     const user = new EmployeeDriverWithOwnCar();

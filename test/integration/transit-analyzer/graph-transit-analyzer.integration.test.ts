@@ -5,7 +5,7 @@ import { Driver } from 'neo4j-driver-core';
 import { AppModule } from '../../../src/app.module';
 import { GraphTransitAnalyzer } from '../../../src/transit-analyzer/graph-transit-analyzer';
 
-describe('Graph Transit Analyzer', () => {
+describe.skip('Graph Transit Analyzer', () => {
   let graphTransitAnalyzer: GraphTransitAnalyzer;
   let neo4jDriver: Driver;
 

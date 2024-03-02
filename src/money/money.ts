@@ -1,5 +1,6 @@
 export class Money {
   private value: number;
+  public static ZERO = new Money(0);
 
   constructor(value: number) {
     this.value = value;

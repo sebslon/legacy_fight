@@ -15,7 +15,7 @@ export class EmployeeDriverWithOwnCar extends EmployeeDriver {
     const acceptedParts = new Set(this.contract.getCoveredParts());
 
     acceptedParts.forEach((part) => {
-      if (!this.contract.getCoveredParts().includes(part)) {
+      if (!this.contract.getCoveredParts().has(part)) {
         acceptedParts.delete(part);
       }
     });
