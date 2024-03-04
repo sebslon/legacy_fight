@@ -78,6 +78,7 @@ This module is isolated - it's not finished.
 ⚙️ TODO: Finish the implementation of `Party, PartyRole, PartyRelationship` archetypes. (tag#archetypes-repair-better)
 
 - Introduction to `Party, PartyRole, PartyRelationship` archetypes - responsible for organizing informations about people in different organizations 
+- State (`Contracts` (tag#archetypes-contracts-better))
 
 ## Installation
 
