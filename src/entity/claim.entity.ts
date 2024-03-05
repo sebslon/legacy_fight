@@ -3,7 +3,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 
 import { Client } from './client.entity';
-import { Transit } from './transit.entity';
+import { Transit } from './transit/transit.entity';
 
 export enum ClaimStatus {
   DRAFT = 'draft',

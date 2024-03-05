@@ -11,16 +11,17 @@ import {
   OneToOne,
 } from 'typeorm';
 
-import { BaseEntity } from '../common/base.entity';
-import { Distance } from '../distance/distance';
-import { Money } from '../money/money';
+import { BaseEntity } from '../../common/base.entity';
+import { Distance } from '../../distance/distance';
+import { Money } from '../../money/money';
+import { Address } from '../address.entity';
+import { CarClass } from '../car-type.entity';
+import { Claim } from '../claim.entity';
+import { Client, PaymentType, Type } from '../client.entity';
+import { Driver } from '../driver.entity';
+import { Tariff } from '../tariff.entity';
 
-import { Address } from './address.entity';
-import { CarClass } from './car-type.entity';
-import { Claim } from './claim.entity';
-import { Client, PaymentType, Type } from './client.entity';
-import { Driver } from './driver.entity';
-import { Tariff } from './tariff.entity';
+import { ChangeDestinationRule } from './rules/change-destination-rule.interface';
 
 export enum TransitStatus {
   DRAFT = 'draft',
@@ -312,8 +313,12 @@ export class Transit extends BaseEntity {
     );
   }
 
-  public changeDestinationTo(newAddress: Address, newDistance: Distance) {
-    if (this.status === TransitStatus.COMPLETED) {
+  public changeDestinationTo(
+    newAddress: Address,
+    newDistance: Distance,
+    rule: ChangeDestinationRule,
+  ) {
+    if (!rule.isSatisfied(this, newDistance)) {
       throw new NotAcceptableException(
         "Address 'to' cannot be changed, id = " + this.getId(),
       );

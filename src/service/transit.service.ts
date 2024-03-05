@@ -15,7 +15,10 @@ import { TransitDTO } from '../dto/transit.dto';
 import { Address } from '../entity/address.entity';
 import { CarClass } from '../entity/car-type.entity';
 import { DriverStatus } from '../entity/driver.entity';
-import { Transit, TransitStatus } from '../entity/transit.entity';
+import { NoFurtherThan } from '../entity/transit/rules/no-further-than.rule';
+import { NotPublished } from '../entity/transit/rules/not-published.rule';
+import { OrRule } from '../entity/transit/rules/or-rule';
+import { Transit, TransitStatus } from '../entity/transit/transit.entity';
 import { AddressRepository } from '../repository/address.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
@@ -168,7 +171,17 @@ export class TransitService {
       ),
     );
 
-    transit.changeDestinationTo(savedAddress, newDistance);
+    // Change of destination is allowed when
+    // 1. Transit is not published - no limit on distance
+    // 2. Waiting for driver - to 5km from original destination
+    // 3. In progress - to 1km from original destination
+    const rules = new OrRule([
+      new NotPublished(),
+      new NoFurtherThan(TransitStatus.IN_TRANSIT, Distance.fromKm(5)),
+      new NoFurtherThan(TransitStatus.IN_TRANSIT, Distance.fromKm(1)),
+    ]);
+
+    transit.changeDestinationTo(savedAddress, newDistance, rules);
 
     await this.transitRepository.save(transit);
 

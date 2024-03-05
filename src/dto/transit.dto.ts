@@ -3,7 +3,7 @@ import * as dayOfYear from 'dayjs/plugin/dayOfYear';
 
 import { Distance } from '../distance/distance';
 import { CarClass } from '../entity/car-type.entity';
-import { TransitStatus, Transit } from '../entity/transit.entity';
+import { TransitStatus, Transit } from '../entity/transit/transit.entity';
 
 import { AddressDTO } from './address.dto';
 import { ClaimDTO } from './claim.dto';

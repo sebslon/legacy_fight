@@ -3,7 +3,9 @@ import { Address } from '../src/entity/address.entity';
 import { CarClass } from '../src/entity/car-type.entity';
 import { Client, Type } from '../src/entity/client.entity';
 import { Driver } from '../src/entity/driver.entity';
-import { Transit, TransitStatus } from '../src/entity/transit.entity';
+import { NotPublished } from '../src/entity/transit/rules/not-published.rule';
+import { OrRule } from '../src/entity/transit/rules/or-rule';
+import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';
 
 describe('Transit - Life Cycle', () => {
   it('Can create transit', () => {
@@ -42,6 +44,7 @@ describe('Transit - Life Cycle', () => {
     transit.changeDestinationTo(
       new Address('Poland', 'Warsaw', '00-000', 'Otherstreet', 120),
       Distance.fromKm(20),
+      new OrRule([new NotPublished()]),
     );
 
     expect(transit.getTo().getBuildingNumber()).toBe(120);
@@ -69,6 +72,7 @@ describe('Transit - Life Cycle', () => {
       transit.changeDestinationTo(
         new Address('Poland', 'Warsaw', '00-000', 'Otherstreet', 120),
         Distance.fromKm(20),
+        new OrRule([new NotPublished()]),
       );
     }).toThrow();
   });

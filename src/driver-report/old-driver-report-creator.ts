@@ -7,7 +7,7 @@ import { DriverReport } from '../dto/driver-report.dto';
 import { DriverSessionDTO } from '../dto/driver-session.dto';
 import { TransitDTO } from '../dto/transit.dto';
 import { DriverAttributeName } from '../entity/driver-attribute.entity';
-import { Transit, TransitStatus } from '../entity/transit.entity';
+import { Transit, TransitStatus } from '../entity/transit/transit.entity';
 import { ClaimRepository } from '../repository/claim.repository';
 import { DriverSessionRepository } from '../repository/driver-session.repository';
 import { DriverRepository } from '../repository/driver.repository';

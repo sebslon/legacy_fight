@@ -4,7 +4,7 @@ import { BaseEntity } from '../common/base.entity';
 
 import { Claim, ClaimStatus } from './claim.entity';
 import { Client, Type } from './client.entity';
-import { Transit } from './transit.entity';
+import { Transit } from './transit/transit.entity';
 
 export enum WhoToAsk {
   ASK_DRIVER = 'ASK_DRIVER',

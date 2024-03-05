@@ -3,7 +3,7 @@ import { TransitDTO } from '../src/dto/transit.dto';
 import { Address } from '../src/entity/address.entity';
 import { CarClass } from '../src/entity/car-type.entity';
 import { Client, Type } from '../src/entity/client.entity';
-import { Transit } from '../src/entity/transit.entity';
+import { Transit } from '../src/entity/transit/transit.entity';
 import { Money } from '../src/money/money';
 
 describe('Calculate Transit Distance', () => {

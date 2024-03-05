@@ -1,7 +1,7 @@
 import { Claim, ClaimStatus } from '../src/entity/claim.entity';
 import { ClaimsResolver, WhoToAsk } from '../src/entity/claims-resolver.entity';
 import { Client, Type } from '../src/entity/client.entity';
-import { Transit } from '../src/entity/transit.entity';
+import { Transit } from '../src/entity/transit/transit.entity';
 import { Money } from '../src/money/money';
 
 describe('Claim Automatic Resolving (ClaimsResolver)', () => {

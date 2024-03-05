@@ -4,7 +4,7 @@ import { BaseEntity } from '../common/base.entity';
 import { Distance } from '../distance/distance';
 import { Money } from '../money/money';
 
-import { DayOfWeek, Month } from './transit.entity';
+import { DayOfWeek, Month } from './transit/transit.entity';
 
 @Entity()
 export class Tariff extends BaseEntity {

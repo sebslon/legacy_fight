@@ -3,7 +3,7 @@ import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
 import { FeeType } from '../../src/entity/driver-fee.entity';
-import { Month } from '../../src/entity/transit.entity';
+import { Month } from '../../src/entity/transit/transit.entity';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';

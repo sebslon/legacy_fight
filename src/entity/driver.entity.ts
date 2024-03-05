@@ -5,7 +5,7 @@ import { BaseEntity } from '../common/base.entity';
 import { DriverAttribute } from './driver-attribute.entity';
 import { DriverFee } from './driver-fee.entity';
 import { DriverLicense } from './driver-license';
-import { Transit } from './transit.entity';
+import { Transit } from './transit/transit.entity';
 
 export enum DriverStatus {
   INACTIVE = 'inactive',

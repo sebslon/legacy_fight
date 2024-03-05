@@ -23,7 +23,7 @@ import {
   DriverStatus,
   DriverType,
 } from '../../src/entity/driver.entity';
-import { Transit } from '../../src/entity/transit.entity';
+import { Transit } from '../../src/entity/transit/transit.entity';
 import { Money } from '../../src/money/money';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';

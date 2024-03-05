@@ -7,7 +7,7 @@ import { AddressDTO } from '../../src/dto/address.dto';
 import { Address } from '../../src/entity/address.entity';
 import { CarClass } from '../../src/entity/car-type.entity';
 import { FeeType } from '../../src/entity/driver-fee.entity';
-import { TransitStatus } from '../../src/entity/transit.entity';
+import { TransitStatus } from '../../src/entity/transit/transit.entity';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';

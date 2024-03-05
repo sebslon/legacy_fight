@@ -5,7 +5,7 @@ import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
 import { Client, Type } from '../../../src/entity/client.entity';
-import { Transit } from '../../../src/entity/transit.entity';
+import { Transit } from '../../../src/entity/transit/transit.entity';
 import { AwardedMiles } from '../../../src/miles/awarded-miles.entity';
 import { Money } from '../../../src/money/money';
 import { AddressRepository } from '../../../src/repository/address.repository';

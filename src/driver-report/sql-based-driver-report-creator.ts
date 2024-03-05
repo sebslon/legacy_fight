@@ -13,7 +13,7 @@ import { CarClass } from '../entity/car-type.entity';
 import { ClaimCompletionMode, ClaimStatus } from '../entity/claim.entity';
 import { DriverAttributeName } from '../entity/driver-attribute.entity';
 import { DriverStatus, DriverType } from '../entity/driver.entity';
-import { TransitStatus } from '../entity/transit.entity';
+import { TransitStatus } from '../entity/transit/transit.entity';
 
 interface QueryForDriverWithAttributesResult {
   id: string;
