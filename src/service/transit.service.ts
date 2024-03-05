@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
@@ -126,40 +127,8 @@ export class TransitService {
     }
 
     // FIXME later: add some exceptions handling
-    const geoFromNew = this.geocodingService.geocodeAddress(newAddress);
-    const geoFromOld = this.geocodingService.geocodeAddress(transit.getFrom());
-
-    // https://www.geeksforgeeks.org/program-distance-two-points-earth/
-    // The math module contains a function
-    // named toRadians which converts from
-    // degrees to radians.
-    const lon1 = DistanceCalculator.degreesToRadians(geoFromNew[1]);
-    const lon2 = DistanceCalculator.degreesToRadians(geoFromOld[1]);
-    const lat1 = DistanceCalculator.degreesToRadians(geoFromNew[0]);
-    const lat2 = DistanceCalculator.degreesToRadians(geoFromOld[0]);
-
-    // Haversine formula
-    const dlon = lon2 - lon1;
-    const dlat = lat2 - lat1;
-    const a =
-      Math.pow(Math.sin(dlat / 2), 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
-
-    const c = 2 * Math.asin(Math.sqrt(a));
-
-    // Radius of earth in kilometers. Use 3956 for miles
-    const r = 6371;
-
-    // calculate the result
-    const distanceInKMeters = c * r;
-    const newDistance = Distance.fromKm(
-      this.distanceCalculator.calculateByMap(
-        geoFromNew[0],
-        geoFromNew[1],
-        geoFromOld[0],
-        geoFromOld[1],
-      ),
-    );
+    const { newDistance, distanceInKMeters } =
+      this.calculateDistanceBetweenAddresses(newAddress, transit.getFrom());
 
     transit.changePickupTo(newAddress, newDistance, distanceInKMeters);
 
@@ -270,11 +239,7 @@ export class TransitService {
 
       distanceToCheck++;
 
-      if (
-        transit.shouldNotWaitForDriverAnymore() ||
-        distanceToCheck >= 20
-        // Should it be here? How is it even possible due to previous status check above loop?
-      ) {
+      if (transit.shouldNotWaitForDriverAnymore() || distanceToCheck >= 20) {
         transit.failDriverAssignment();
 
         await this.transitRepository.save(transit);
@@ -286,40 +251,17 @@ export class TransitService {
       try {
         geocoded = this.geocodingService.geocodeAddress(transit.getFrom());
       } catch (e) {
+        Logger.error('Geocoding failed while finding drivers for transit.');
         // Geocoding failed! Ask Jessica or Bryan for some help if needed.
       }
 
-      const longitude = geocoded[1];
-      const latitude = geocoded[0];
+      const [latitude, longitude] = geocoded;
 
-      //https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
-      //Earth’s radius, sphere
-      //double R = 6378;
-      const R = 6371; // Changed to 6371 due to Copy&Paste pattern from different source
-
-      //offsets in meters
-      const dn = distanceToCheck;
-      const de = distanceToCheck;
-
-      //Coordinate offsets in radians
-      const dLat = dn / R;
-      const dLon = de / (R * Math.cos((Math.PI * latitude) / 180));
-
-      //Offset positions, decimal degrees
-      const latitudeMin = latitude - (dLat * 180) / Math.PI;
-      const latitudeMax = latitude + (dLat * 180) / Math.PI;
-      const longitudeMin = longitude - (dLon * 180) / Math.PI;
-      const longitudeMax = longitude + (dLon * 180) / Math.PI;
-
-      const fiveMinutes = 5 * 60 * 1000;
-      let driversAvgPositions =
-        await this.driverPositionRepository.findAverageDriverPositionSince(
-          latitudeMin,
-          latitudeMax,
-          longitudeMin,
-          longitudeMax,
-          Clock.currentDate().getTime() - fiveMinutes,
-        );
+      let driversAvgPositions = await this.getCloseDriversAvgPositions(
+        distanceToCheck,
+        latitude,
+        longitude,
+      );
 
       if (driversAvgPositions.length) {
         const comparator = (
@@ -547,6 +489,83 @@ export class TransitService {
     }
 
     return new TransitDTO(transit);
+  }
+
+  private async getCloseDriversAvgPositions(
+    distanceToCheck: number,
+    latitude: number,
+    longitude: number,
+    timeInMinutes = 5,
+  ) {
+    //https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
+    //Earth’s radius, sphere
+    //double R = 6378;
+    const R = 6371; // Changed to 6371 due to Copy&Paste pattern from different source
+
+    //offsets in meters
+    const dn = distanceToCheck;
+    const de = distanceToCheck;
+
+    //Coordinate offsets in radians
+    const dLat = dn / R;
+    const dLon = de / (R * Math.cos((Math.PI * latitude) / 180));
+
+    //Offset positions, decimal degrees
+    const latitudeMin = latitude - (dLat * 180) / Math.PI;
+    const latitudeMax = latitude + (dLat * 180) / Math.PI;
+    const longitudeMin = longitude - (dLon * 180) / Math.PI;
+    const longitudeMax = longitude + (dLon * 180) / Math.PI;
+
+    const offsetTime = timeInMinutes * 60 * 1000;
+
+    return await this.driverPositionRepository.findAverageDriverPositionSince(
+      latitudeMin,
+      latitudeMax,
+      longitudeMin,
+      longitudeMax,
+      Clock.currentDate().getTime() - offsetTime,
+    );
+  }
+
+  private calculateDistanceBetweenAddresses(
+    newAddress: Address,
+    oldAddress: Address,
+  ) {
+    const geoFromNew = this.geocodingService.geocodeAddress(newAddress);
+    const geoFromOld = this.geocodingService.geocodeAddress(oldAddress);
+
+    // https://www.geeksforgeeks.org/program-distance-two-points-earth/
+    // The math module contains a function
+    // named toRadians which converts from
+    // degrees to radians.
+    const lon1 = DistanceCalculator.degreesToRadians(geoFromNew[1]);
+    const lon2 = DistanceCalculator.degreesToRadians(geoFromOld[1]);
+    const lat1 = DistanceCalculator.degreesToRadians(geoFromNew[0]);
+    const lat2 = DistanceCalculator.degreesToRadians(geoFromOld[0]);
+
+    // Haversine formula
+    const dlon = lon2 - lon1;
+    const dlat = lat2 - lat1;
+    const a =
+      Math.pow(Math.sin(dlat / 2), 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+
+    const c = 2 * Math.asin(Math.sqrt(a));
+
+    // Radius of earth in kilometers. Use 3956 for miles
+    const r = 6371;
+
+    // calculate the result
+    const distanceInKMeters = c * r;
+    const newDistance = Distance.fromKm(
+      this.distanceCalculator.calculateByMap(
+        geoFromNew[0],
+        geoFromNew[1],
+        geoFromOld[0],
+        geoFromOld[1],
+      ),
+    );
+    return { newDistance, distanceInKMeters };
   }
 
   private async addressFromDto(addressDTO: AddressDTO) {
