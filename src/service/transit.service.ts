@@ -204,6 +204,7 @@ export class TransitService {
     await this.transitRepository.save(transit);
 
     const driver = transit.getDriver();
+
     if (driver) {
       this.notificationService.notifyAboutChangedTransitAddress(
         driver.getId(),
@@ -250,156 +251,158 @@ export class TransitService {
   public async findDriversForTransit(transitId: string) {
     const transit = await this.transitRepository.findOne(transitId);
 
-    if (transit) {
-      if (transit.getStatus() === TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT) {
-        let distanceToCheck = 0;
+    if (!transit) {
+      throw new NotFoundException('Transit does not exist, id = ' + transitId);
+    }
 
-        while (true) {
-          if (transit.getAwaitingDriversResponses() > 4) {
-            return transit;
+    if (transit.getStatus() !== TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT) {
+      throw new NotAcceptableException(
+        'Wrong status for transit id = ' + transitId,
+      );
+    }
+
+    let distanceToCheck = 0;
+
+    while (true) {
+      if (transit.getAwaitingDriversResponses() > 4) {
+        return transit;
+      }
+
+      distanceToCheck++;
+
+      if (
+        transit.shouldNotWaitForDriverAnymore() ||
+        distanceToCheck >= 20
+        // Should it be here? How is it even possible due to previous status check above loop?
+      ) {
+        transit.failDriverAssignment();
+
+        await this.transitRepository.save(transit);
+        return transit;
+      }
+
+      let geocoded: number[] = new Array(2);
+
+      try {
+        geocoded = this.geocodingService.geocodeAddress(transit.getFrom());
+      } catch (e) {
+        // Geocoding failed! Ask Jessica or Bryan for some help if needed.
+      }
+
+      const longitude = geocoded[1];
+      const latitude = geocoded[0];
+
+      //https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
+      //Earth’s radius, sphere
+      //double R = 6378;
+      const R = 6371; // Changed to 6371 due to Copy&Paste pattern from different source
+
+      //offsets in meters
+      const dn = distanceToCheck;
+      const de = distanceToCheck;
+
+      //Coordinate offsets in radians
+      const dLat = dn / R;
+      const dLon = de / (R * Math.cos((Math.PI * latitude) / 180));
+
+      //Offset positions, decimal degrees
+      const latitudeMin = latitude - (dLat * 180) / Math.PI;
+      const latitudeMax = latitude + (dLat * 180) / Math.PI;
+      const longitudeMin = longitude - (dLon * 180) / Math.PI;
+      const longitudeMax = longitude + (dLon * 180) / Math.PI;
+
+      const fiveMinutes = 5 * 60 * 1000;
+      let driversAvgPositions =
+        await this.driverPositionRepository.findAverageDriverPositionSince(
+          latitudeMin,
+          latitudeMax,
+          longitudeMin,
+          longitudeMax,
+          Clock.currentDate().getTime() - fiveMinutes,
+        );
+
+      if (driversAvgPositions.length) {
+        const comparator = (
+          d1: DriverPositionV2Dto,
+          d2: DriverPositionV2Dto,
+        ) => {
+          const a = Math.sqrt(
+            Math.pow(latitude - d1.getLatitude(), 2) +
+              Math.pow(longitude - d1.getLongitude(), 2),
+          );
+          const b = Math.sqrt(
+            Math.pow(latitude - d2.getLatitude(), 2) +
+              Math.pow(longitude - d2.getLongitude(), 2),
+          );
+          if (a < b) {
+            return -1;
           }
-
-          distanceToCheck++;
-
-          if (
-            transit.shouldNotWaitForDriverAnymore() ||
-            distanceToCheck >= 20
-            // Should it be here? How is it even possible due to previous status check above loop?
-          ) {
-            transit.failDriverAssignment();
-
-            await this.transitRepository.save(transit);
-            return transit;
+          if (a > b) {
+            return 1;
           }
+          return 0;
+        };
+        driversAvgPositions.sort(comparator);
+        driversAvgPositions = driversAvgPositions.slice(0, 20);
 
-          let geocoded: number[] = new Array(2);
+        const carClasses: CarClass[] = [];
+        const activeCarClasses =
+          await this.carTypeService.findActiveCarClasses();
 
-          try {
-            geocoded = this.geocodingService.geocodeAddress(transit.getFrom());
-          } catch (e) {
-            // Geocoding failed! Ask Jessica or Bryan for some help if needed.
-          }
+        if (activeCarClasses.length === 0) {
+          return transit;
+        }
 
-          const longitude = geocoded[1];
-          const latitude = geocoded[0];
-
-          //https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
-          //Earth’s radius, sphere
-          //double R = 6378;
-          const R = 6371; // Changed to 6371 due to Copy&Paste pattern from different source
-
-          //offsets in meters
-          const dn = distanceToCheck;
-          const de = distanceToCheck;
-
-          //Coordinate offsets in radians
-          const dLat = dn / R;
-          const dLon = de / (R * Math.cos((Math.PI * latitude) / 180));
-
-          //Offset positions, decimal degrees
-          const latitudeMin = latitude - (dLat * 180) / Math.PI;
-          const latitudeMax = latitude + (dLat * 180) / Math.PI;
-          const longitudeMin = longitude - (dLon * 180) / Math.PI;
-          const longitudeMax = longitude + (dLon * 180) / Math.PI;
-
-          const fiveMinutes = 5 * 60 * 1000;
-          let driversAvgPositions =
-            await this.driverPositionRepository.findAverageDriverPositionSince(
-              latitudeMin,
-              latitudeMax,
-              longitudeMin,
-              longitudeMax,
-              Clock.currentDate().getTime() - fiveMinutes,
-            );
-
-          if (driversAvgPositions.length) {
-            const comparator = (
-              d1: DriverPositionV2Dto,
-              d2: DriverPositionV2Dto,
-            ) => {
-              const a = Math.sqrt(
-                Math.pow(latitude - d1.getLatitude(), 2) +
-                  Math.pow(longitude - d1.getLongitude(), 2),
-              );
-              const b = Math.sqrt(
-                Math.pow(latitude - d2.getLatitude(), 2) +
-                  Math.pow(longitude - d2.getLongitude(), 2),
-              );
-              if (a < b) {
-                return -1;
-              }
-              if (a > b) {
-                return 1;
-              }
-              return 0;
-            };
-            driversAvgPositions.sort(comparator);
-            driversAvgPositions = driversAvgPositions.slice(0, 20);
-
-            const carClasses: CarClass[] = [];
-            const activeCarClasses =
-              await this.carTypeService.findActiveCarClasses();
-            if (activeCarClasses.length === 0) {
-              return transit;
-            }
-            if (transit.getCarType()) {
-              if (activeCarClasses.includes(transit.getCarType())) {
-                carClasses.push(transit.getCarType());
-              } else {
-                return transit;
-              }
-            } else {
-              carClasses.push(...activeCarClasses);
-            }
-
-            const drivers = driversAvgPositions.map((item) => item.getDriver());
-
-            const fetchedCars =
-              await this.driverSessionRepository.findAllByLoggedOutAtNullAndDriverInAndCarClassIn(
-                drivers,
-                carClasses,
-              );
-            const activeDriverIdsInSpecificCar = fetchedCars.map((ds) =>
-              ds.getDriver().getId(),
-            );
-
-            driversAvgPositions = driversAvgPositions.filter((dp) =>
-              activeDriverIdsInSpecificCar.includes(dp.getDriver().getId()),
-            );
-
-            // Iterate across average driver positions
-            for (const driverAvgPosition of driversAvgPositions) {
-              const driver = driverAvgPosition.getDriver();
-              if (
-                driver.getStatus() === DriverStatus.ACTIVE &&
-                !driver.getOccupied()
-              ) {
-                if (transit.canProposeTo(driver)) {
-                  transit.proposeTo(driver);
-
-                  await this.notificationService.notifyAboutPossibleTransit(
-                    driver.getId(),
-                    transitId,
-                  );
-                }
-              } else {
-                // Not implemented yet!
-              }
-            }
-
-            await this.transitRepository.save(transit);
+        if (transit.getCarType()) {
+          if (activeCarClasses.includes(transit.getCarType())) {
+            carClasses.push(transit.getCarType());
           } else {
-            // Next iteration, no drivers at specified area
-            continue;
+            return transit;
+          }
+        } else {
+          carClasses.push(...activeCarClasses);
+        }
+
+        const drivers = driversAvgPositions.map((item) => item.getDriver());
+
+        const fetchedCars =
+          await this.driverSessionRepository.findAllByLoggedOutAtNullAndDriverInAndCarClassIn(
+            drivers,
+            carClasses,
+          );
+        const activeDriverIdsInSpecificCar = fetchedCars.map((ds) =>
+          ds.getDriver().getId(),
+        );
+
+        driversAvgPositions = driversAvgPositions.filter((dp) =>
+          activeDriverIdsInSpecificCar.includes(dp.getDriver().getId()),
+        );
+
+        // Iterate across average driver positions
+        for (const driverAvgPosition of driversAvgPositions) {
+          const driver = driverAvgPosition.getDriver();
+          if (
+            driver.getStatus() === DriverStatus.ACTIVE &&
+            !driver.getOccupied()
+          ) {
+            if (transit.canProposeTo(driver)) {
+              transit.proposeTo(driver);
+
+              await this.notificationService.notifyAboutPossibleTransit(
+                driver.getId(),
+                transitId,
+              );
+            }
+          } else {
+            // Not implemented yet!
           }
         }
+
+        await this.transitRepository.save(transit);
       } else {
-        throw new NotAcceptableException(
-          'Wrong status for transit id = ' + transitId,
-        );
+        // Next iteration, no drivers at specified area
+        continue;
       }
-    } else {
-      throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
   }
 
@@ -408,20 +411,18 @@ export class TransitService {
 
     if (!driver) {
       throw new NotFoundException('Driver does not exist, id = ' + driverId);
-    } else {
-      const transit = await this.transitRepository.findOne(transitId);
-
-      if (!transit) {
-        throw new NotFoundException(
-          'Transit does not exist, id = ' + transitId,
-        );
-      } else {
-        transit.acceptBy(driver, new Date());
-
-        await this.transitRepository.save(transit);
-        await this.driverRepository.save(driver);
-      }
     }
+
+    const transit = await this.transitRepository.findOne(transitId);
+
+    if (!transit) {
+      throw new NotFoundException('Transit does not exist, id = ' + transitId);
+    }
+
+    transit.acceptBy(driver, new Date());
+
+    await this.transitRepository.save(transit);
+    await this.driverRepository.save(driver);
   }
 
   public async startTransit(driverId: string, transitId: string) {
