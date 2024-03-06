@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
+import { Coordinates } from '../entity/coordinates';
+
+// TODO: Remove class when Coordinates will replace it
 @Injectable()
 export class DistanceCalculator {
   public static degreesToRadians(degrees: number) {
-    return degrees * (Math.PI / 180);
+    return Coordinates.degreesToRadians(degrees);
   }
 
   public calculateByMap(
@@ -23,30 +26,9 @@ export class DistanceCalculator {
     latitudeTo: number,
     longitudeTo: number,
   ) {
-    // https://www.geeksforgeeks.org/program-distance-two-points-earth/
-    // The math module contains a function
-    // named toRadians which converts from
-    // degrees to radians.
-    const lon1 = DistanceCalculator.degreesToRadians(longitudeFrom);
-    const lon2 = DistanceCalculator.degreesToRadians(longitudeTo);
-    const lat1 = DistanceCalculator.degreesToRadians(latitudeFrom);
-    const lat2 = DistanceCalculator.degreesToRadians(latitudeTo);
+    const coordinates = new Coordinates(latitudeFrom, longitudeFrom);
+    const otherCoordinates = new Coordinates(latitudeTo, longitudeTo);
 
-    // Haversine formula
-    const dlon = lon2 - lon1;
-    const dlat = lat2 - lat1;
-    const a =
-      Math.pow(Math.sin(dlat / 2), 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
-
-    const c = 2 * Math.asin(Math.sqrt(a));
-
-    // Radius of earth in kilometers. Use 3956 for miles
-    const r = 6371;
-
-    // calculate the result
-    const distanceInKMeters = c * r;
-
-    return distanceInKMeters;
+    return coordinates.distanceTo(otherCoordinates).toKmInFloat();
   }
 }
