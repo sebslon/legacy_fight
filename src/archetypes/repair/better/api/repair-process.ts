@@ -1,8 +1,8 @@
-import { PartyMapper } from '../party/api/party.mapper';
-import { RoleObjectFactory } from '../party/api/role-object.factory';
 import { PartyRelationshipDictionary } from '../model/dict/party-relationship-dictionary';
 import { PartyRolesDictionary } from '../model/dict/party-roles-dictionary';
 import { RoleForRepairer } from '../model/roles/repair/role-for-repairer';
+import { PartyMapper } from '../party/api/party.mapper';
+import { RoleObjectFactory } from '../party/api/role-object.factory';
 
 import { RepairRequest } from './repair-request';
 import { ResolveResult, ResolveResultStatus } from './resolve-result';

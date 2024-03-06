@@ -1,9 +1,9 @@
 import { Money } from '../../../money/money';
-import { PartyId } from '../../repair/better/party/api/party-id';
 import {
   ResolveResult,
   ResolveResultStatus,
 } from '../../repair/better/api/resolve-result';
+import { PartyId } from '../../repair/better/party/api/party-id';
 import { Parts } from '../../repair/legacy/parts/parts';
 
 export class VehicleRepairAssertion {

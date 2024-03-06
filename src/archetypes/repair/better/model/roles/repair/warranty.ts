@@ -1,7 +1,7 @@
 import { Money } from '../../../../../../money/money';
-import { Party } from '../../../party/model/party/party';
-import { RepairRequest } from '../../../api/repair-request';
 import { Parts } from '../../../../legacy/parts/parts';
+import { RepairRequest } from '../../../api/repair-request';
+import { Party } from '../../../party/model/party/party';
 
 import { RepairingResult } from './repairing-results';
 import { RoleForRepairer } from './role-for-repairer';

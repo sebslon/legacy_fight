@@ -1,6 +1,6 @@
+import { RepairRequest } from '../../../api/repair-request';
 import { Party } from '../../../party/model/party/party';
 import { PartyBasedRole } from '../../../party/model/role/party-based-role';
-import { RepairRequest } from '../../../api/repair-request';
 
 import { RepairingResult } from './repairing-results';
 
