@@ -1,5 +1,5 @@
-import { Money } from '../../../../../money/money';
-import { Parts } from '../../../legacy/parts/parts';
+import { Money } from '../../../../../../money/money';
+import { Parts } from '../../../../legacy/parts/parts';
 
 export class RepairingResult {
   private handlingParty: string;

@@ -1,7 +1,10 @@
-import { PartyId } from '../../../party/api/party-id';
-import { RepairProcess } from '../../api/repair-process';
-import { RepairRequest } from '../../api/repair-request';
-import { ResolveResult, ResolveResultStatus } from '../../api/resolve-result';
+import { RepairProcess } from '../../better/api/repair-process';
+import { RepairRequest } from '../../better/api/repair-request';
+import {
+  ResolveResult,
+  ResolveResultStatus,
+} from '../../better/api/resolve-result';
+import { PartyId } from '../../better/party/api/party-id';
 import { UserDAO } from '../dao/user.dao';
 import { CommonBaseAbstractJob } from '../job/common-base-abstract-job';
 import { JobDecision, JobResult } from '../job/job-result';

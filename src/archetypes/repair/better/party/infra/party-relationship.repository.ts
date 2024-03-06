@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 
-import { PartyRelationshipDictionary } from '../../repair/model/dict/party-relationship-dictionary';
+import { PartyRelationshipDictionary } from '../../model/dict/party-relationship-dictionary';
 import { PartyId } from '../api/party-id';
 import { Party } from '../model/party/party';
 import { PartyRelationship } from '../model/party/party-relationship';

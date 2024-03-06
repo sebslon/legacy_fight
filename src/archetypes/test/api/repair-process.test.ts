@@ -1,16 +1,16 @@
 import { createMock } from '@golevelup/nestjs-testing';
 
-import { PartyId } from '../../party/api/party-id';
-import { PartyMapper } from '../../party/api/party.mapper';
-import { PartyRelationshipRepository } from '../../party/infra/party-relationship.repository';
-import { PartyRepository } from '../../party/infra/party.repository';
-import { Party } from '../../party/model/party/party';
-import { PartyRelationship } from '../../party/model/party/party-relationship';
-import { ContractManager } from '../../repair/api/contract-manager';
-import { RepairProcess } from '../../repair/api/repair-process';
-import { RepairRequest } from '../../repair/api/repair-request';
+import { PartyId } from '../../repair/better/party/api/party-id';
+import { PartyMapper } from '../../repair/better/party/api/party.mapper';
+import { PartyRelationshipRepository } from '../../repair/better/party/infra/party-relationship.repository';
+import { PartyRepository } from '../../repair/better/party/infra/party.repository';
+import { Party } from '../../repair/better/party/model/party/party';
+import { PartyRelationship } from '../../repair/better/party/model/party/party-relationship';
+import { ContractManager } from '../../repair/better/api/contract-manager';
+import { RepairProcess } from '../../repair/better/api/repair-process';
+import { RepairRequest } from '../../repair/better/api/repair-request';
 import { Parts } from '../../repair/legacy/parts/parts';
-import { PartyRolesDictionary } from '../../repair/model/dict/party-roles-dictionary';
+import { PartyRolesDictionary } from '../../repair/better/model/dict/party-roles-dictionary';
 
 import { VehicleRepairAssertion } from './vehicle-repair.assertion';
 

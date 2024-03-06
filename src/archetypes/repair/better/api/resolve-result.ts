@@ -1,5 +1,5 @@
-import { Money } from '../../../../src/money/money';
-import { Parts } from '../legacy/parts/parts';
+import { Money } from '../../../../money/money';
+import { Parts } from '../../legacy/parts/parts';
 
 export enum ResolveResultStatus {
   SUCCESS = 'SUCCESS',

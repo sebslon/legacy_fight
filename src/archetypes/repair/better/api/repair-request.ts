@@ -1,5 +1,5 @@
-import { PartyId } from '../../party/api/party-id';
-import { Parts } from '../legacy/parts/parts';
+import { Parts } from '../../legacy/parts/parts';
+import { PartyId } from '../party/api/party-id';
 
 export class RepairRequest {
   private vehicle: PartyId;

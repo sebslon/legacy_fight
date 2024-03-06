@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { PartyId } from '../../party/api/party-id';
-import { PartyRelationshipRepository } from '../../party/infra/party-relationship.repository';
-import { PartyRepository } from '../../party/infra/party.repository';
+import { PartyId } from '../party/api/party-id';
+import { PartyRelationshipRepository } from '../party/infra/party-relationship.repository';
+import { PartyRepository } from '../party/infra/party.repository';
 import { PartyRelationshipDictionary } from '../model/dict/party-relationship-dictionary';
 import { PartyRolesDictionary } from '../model/dict/party-roles-dictionary';
 
