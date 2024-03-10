@@ -1,16 +1,16 @@
 import { createMock } from '@golevelup/nestjs-testing';
 
-import { ContractManager } from '../../repair/better/api/contract-manager';
-import { RepairProcess } from '../../repair/better/api/repair-process';
-import { RepairRequest } from '../../repair/better/api/repair-request';
-import { PartyRolesDictionary } from '../../repair/better/model/dict/party-roles-dictionary';
-import { PartyId } from '../../repair/better/party/api/party-id';
-import { PartyMapper } from '../../repair/better/party/api/party.mapper';
-import { PartyRelationshipRepository } from '../../repair/better/party/infra/party-relationship.repository';
-import { PartyRepository } from '../../repair/better/party/infra/party.repository';
-import { Party } from '../../repair/better/party/model/party/party';
-import { PartyRelationship } from '../../repair/better/party/model/party/party-relationship';
-import { Parts } from '../../repair/legacy/parts/parts';
+import { ContractManager } from '../../../../src/archetypes/repair/better/api/contract-manager';
+import { RepairProcess } from '../../../../src/archetypes/repair/better/api/repair-process';
+import { RepairRequest } from '../../../../src/archetypes/repair/better/api/repair-request';
+import { PartyRolesDictionary } from '../../../../src/archetypes/repair/better/model/dict/party-roles-dictionary';
+import { PartyId } from '../../../../src/archetypes/repair/better/party/api/party-id';
+import { PartyMapper } from '../../../../src/archetypes/repair/better/party/api/party.mapper';
+import { PartyRelationshipRepository } from '../../../../src/archetypes/repair/better/party/infra/party-relationship.repository';
+import { PartyRepository } from '../../../../src/archetypes/repair/better/party/infra/party.repository';
+import { Party } from '../../../../src/archetypes/repair/better/party/model/party/party';
+import { PartyRelationship } from '../../../../src/archetypes/repair/better/party/model/party/party-relationship';
+import { Parts } from '../../../../src/archetypes/repair/legacy/parts/parts';
 
 import { VehicleRepairAssertion } from './vehicle-repair.assertion';
 

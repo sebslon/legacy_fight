@@ -1,9 +1,9 @@
-import { Money } from '../../../../money/money';
-import { JobDecision } from '../../../repair/legacy/job/job-result';
-import { RepairJob } from '../../../repair/legacy/job/repair-job';
-import { Parts } from '../../../repair/legacy/parts/parts';
-import { EmployeeDriverWithOwnCar } from '../../../repair/legacy/user/employee-driver-with-own-car';
-import { SignedContract } from '../../../repair/legacy/user/signed-contract';
+import { JobDecision } from '../../../../../src/archetypes/repair/legacy/job/job-result';
+import { RepairJob } from '../../../../../src/archetypes/repair/legacy/job/repair-job';
+import { Parts } from '../../../../../src/archetypes/repair/legacy/parts/parts';
+import { EmployeeDriverWithOwnCar } from '../../../../../src/archetypes/repair/legacy/user/employee-driver-with-own-car';
+import { SignedContract } from '../../../../../src/archetypes/repair/legacy/user/signed-contract';
+import { Money } from '../../../../../src/money/money';
 
 describe('Repair', () => {
   test('Employee driver with own car covered by warranty should repair for free', () => {

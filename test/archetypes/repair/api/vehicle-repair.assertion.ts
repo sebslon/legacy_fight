@@ -1,10 +1,10 @@
-import { Money } from '../../../money/money';
 import {
   ResolveResult,
   ResolveResultStatus,
-} from '../../repair/better/api/resolve-result';
-import { PartyId } from '../../repair/better/party/api/party-id';
-import { Parts } from '../../repair/legacy/parts/parts';
+} from '../../../../src/archetypes/repair/better/api/resolve-result';
+import { PartyId } from '../../../../src/archetypes/repair/better/party/api/party-id';
+import { Parts } from '../../../../src/archetypes/repair/legacy/parts/parts';
+import { Money } from '../../../../src/money/money';
 
 export class VehicleRepairAssertion {
   private result: ResolveResult;

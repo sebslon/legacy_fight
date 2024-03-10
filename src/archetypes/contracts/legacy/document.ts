@@ -110,4 +110,12 @@ export class Document extends BaseAggregateRoot implements Printable {
   protected getContent(): string {
     return this.content;
   }
+
+  public getStatus(): DocumentStatus {
+    return this.status;
+  }
+
+  public getTitle(): string {
+    return this.title;
+  }
 }

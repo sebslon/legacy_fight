@@ -1,9 +1,9 @@
-import { Money } from '../../../../money/money';
-import { UserDAO } from '../../../repair/legacy/dao/user.dao';
-import { JobDecision } from '../../../repair/legacy/job/job-result';
-import { RepairJob } from '../../../repair/legacy/job/repair-job';
-import { Parts } from '../../../repair/legacy/parts/parts';
-import { JobDoer } from '../../../repair/legacy/service/job-doer';
+import { UserDAO } from '../../../../../src/archetypes/repair/legacy/dao/user.dao';
+import { JobDecision } from '../../../../../src/archetypes/repair/legacy/job/job-result';
+import { RepairJob } from '../../../../../src/archetypes/repair/legacy/job/repair-job';
+import { Parts } from '../../../../../src/archetypes/repair/legacy/parts/parts';
+import { JobDoer } from '../../../../../src/archetypes/repair/legacy/service/job-doer';
+import { Money } from '../../../../../src/money/money';
 
 describe('JobDoer', () => {
   const ANY_USER = '1';

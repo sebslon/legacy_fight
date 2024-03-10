@@ -14,6 +14,8 @@ It's a fork of the original project written in Java. I've decided to finish it i
 - There is no docker-compose/setup files (maybe todo) - I've used already running databases on my local machine.
 - Not every part of code is perfect (as it is legacy) - Focus was on refactoring techniques/process.
 
+Repository isn't perfect and fully refactored, there is still big room for improvements but main goal was to practice few of refactoring techinques and apply them to the most important parts based on business value they provide in the context of the application.
+
 ### Project Structure
 
 - Project is a legacy application with domain logic and some business rules about CABS which is a fictional cab/taxi company.
@@ -58,27 +60,32 @@ It's a fork of the original project written in Java. I've decided to finish it i
   - Solution: Separate read and write models.
     - `DriverPosition` - keeps info about last driver positions (very frequent writes)
     - `TravelledDistance` - keeps read info about travelled distances
-
-##### Other:
 - Problem: Creating too heavy reads with use of entities
   - Solution: `SQLBasedDriverReportCreator` - Use single SQL statement to create report instead of using entities and lazy/eager loaded collections
     - Basic example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
     - Usage of `Reconciliation` to compare old and new report (#todo - remove - 686a8fe/cabs-java)
+
+##### Archetypes - with use of parallel models approach
+
+Archetypes in software design provide common patterns and models for developers to follow, aiding in creating more maintainable and scalable codebases. They help streamline development by offering proven solutions to recurring problems, fostering consistency and efficiency in the software development process.
+
+`repair`/`contracts` module - Examples of archetypes.
+
+⚙️ TODO: Finish the implementation of `Party, PartyRole, PartyRelationship` archetypes. (tag#archetypes-repair-better)
+
+- Introduction to `Party, PartyRole, PartyRelationship` patterns/archetypes - responsible for organizing informations about people in different organizations 
+- State (`Contracts` (tag#archetypes-contracts-better)) - complex state transitions, state management
+
+##### Local Code Structure
+
+- Some refactorings like `Extract Method`, `Introduce Parameter Object`, `Move Method`, `Move Field`, `Inline Method`, `Extract Class`, `Extract Interface`, `Replace Type Code with State/Strategy`, `Replace Conditional with Polymorphism`, etc. but still there is a lot of work to do. :)
+
+##### Other:
+
 - Problem: Mismatched database paradigm (Graph representation of Transits History)
   - Solution: `GraphTransitAnalyzer` - Use graph database to analyze transit history
   - Usage of `Transactional Outbox` pattern to ensure consistency between graph and SQL database (TODO)
   - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - TransitAnalyzer is covered with tests, plug-in graph db implementation / prepare migration
-
-##### Archetypes - with use of parallel models approach
-
-Based on `repair` module - Example and introduction to archetypes.
-
-This module is isolated - it's not finished. 
-
-⚙️ TODO: Finish the implementation of `Party, PartyRole, PartyRelationship` archetypes. (tag#archetypes-repair-better)
-
-- Introduction to `Party, PartyRole, PartyRelationship` archetypes - responsible for organizing informations about people in different organizations 
-- State (`Contracts` (tag#archetypes-contracts-better))
 
 ## Installation
 
