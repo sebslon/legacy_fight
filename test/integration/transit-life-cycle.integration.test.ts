@@ -22,6 +22,7 @@ import { DriverTrackingService } from '../../src/service/driver-tracking.service
 import { DriverService } from '../../src/service/driver.service';
 import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Transit Life Cycle', () => {
@@ -37,6 +38,7 @@ describe('Transit Life Cycle', () => {
   let geocodingService: GeocodingService;
   let fixtures: Fixtures;
   let positionRepository: DriverPositionRepository;
+  let transitDetailsFacade: TransitDetailsFacade;
 
   const addressData = {
     country: 'Poland',
@@ -74,8 +76,11 @@ describe('Transit Life Cycle', () => {
     positionRepository = module.get<DriverPositionRepository>(
       DriverPositionRepository,
     );
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       driverFeeRepository,
       transitRepository,

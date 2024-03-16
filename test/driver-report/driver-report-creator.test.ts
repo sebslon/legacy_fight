@@ -1,8 +1,8 @@
 import {
   DriverReportCreator,
   DriverReportReconciliation,
-} from '../../src/driver-report/driver-report-creator';
-import { OldDriverReportCreator } from '../../src/driver-report/old-driver-report-creator';
+} from '../../src/driver-report/old/driver-report-creator';
+import { OldDriverReportCreator } from '../../src/driver-report/old/old-driver-report-creator';
 import { SQLBasedDriverReportCreator } from '../../src/driver-report/sql-based-driver-report-creator';
 import { DriverReport } from '../../src/dto/driver-report.dto';
 

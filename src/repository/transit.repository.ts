@@ -1,3 +1,4 @@
+import { TransitDetails } from 'src/transit-details/transit-details.entity';
 import { Between, EntityRepository, MoreThan, Repository } from 'typeorm';
 
 import { Address } from '../entity/address.entity';
@@ -15,43 +16,18 @@ export class TransitRepository extends Repository<Transit> {
     return await this.find({
       where: {
         driver,
-        dateTime: Between(from, to),
+        transitDetails: {
+          dateTime: Between(from, to),
+        },
       },
+      relations: ['transitDetails'],
     });
   }
 
-  public async findAllByClientAndFromAndStatusOrderByDateTimeDesc(
-    client: Client,
-    from: Address,
-    status: TransitStatus,
-  ): Promise<Transit[]> {
+  public async findAllByStatus(status: TransitStatus): Promise<Transit[]> {
     return await this.find({
       where: {
-        client,
-        from,
         status,
-      },
-      order: {
-        dateTime: 'DESC',
-      },
-    });
-  }
-
-  public async findAllByClientAndFromAndPublishedAfterAndStatusOrderByDateTimeDesc(
-    client: Client,
-    from: Address,
-    when: number,
-    status: TransitStatus,
-  ): Promise<Transit[]> {
-    return this.find({
-      where: {
-        client,
-        from,
-        status,
-        published: MoreThan(when),
-      },
-      order: {
-        dateTime: 'DESC',
       },
     });
   }
@@ -59,8 +35,11 @@ export class TransitRepository extends Repository<Transit> {
   public async findByClient(client: Client): Promise<Transit[]> {
     return this.find({
       where: {
-        client,
+        transitDetails: {
+          client,
+        },
       },
+      relations: ['transitDetails'],
     });
   }
 }

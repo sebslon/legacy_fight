@@ -21,6 +21,7 @@ import { DriverSessionService } from '../../../src/service/driver-session.servic
 import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
 import { DriverService } from '../../../src/service/driver.service';
 import { TransitService } from '../../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Removing Awarded Miles', () => {
@@ -38,6 +39,8 @@ describe('Removing Awarded Miles', () => {
   let transitRepository: TransitRepository;
   let claimService: ClaimService;
   let fixtures: Fixtures;
+  let transitDetailsFacade: TransitDetailsFacade;
+  let transitService: TransitService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -54,8 +57,12 @@ describe('Removing Awarded Miles', () => {
     awardsAccountRepository = module.get<AwardsAccountRepository>(
       AwardsAccountRepository,
     );
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
+    transitService = module.get<TransitService>(TransitService);
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       {} as DriverFeeRepository,
       transitRepository,
@@ -65,7 +72,7 @@ describe('Removing Awarded Miles', () => {
       claimService,
       awardsService,
       {} as DriverAttributeRepository,
-      {} as TransitService,
+      transitService,
       {} as DriverSessionService,
       {} as DriverTrackingService,
     );
@@ -244,6 +251,7 @@ describe('Removing Awarded Miles', () => {
   });
 
   it('Should remove soon to expire miles first when removing on sunday and client has done many transits', async () => {
+    // HERE FAILS
     const client = await clientWithAnActiveMilesProgram(Type.NORMAL);
 
     await fixtures.clientHasDoneTransits(client, 15);
@@ -412,6 +420,7 @@ describe('Removing Awarded Miles', () => {
   }
 
   function itIsSunday() {
+    jest.spyOn(Date, 'now').mockReturnValue(SUNDAY.getTime());
     jest.spyOn(Clock, 'currentDate').mockReturnValue(SUNDAY);
   }
 

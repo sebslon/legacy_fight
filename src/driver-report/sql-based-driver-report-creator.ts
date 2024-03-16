@@ -40,9 +40,9 @@ interface QueryForSessionsResult {
   driversFee: number;
   estimatedPrice: number;
   dateTime: number;
-  published: number;
+  publishedAt: number;
   acceptedAt: number;
-  started: number;
+  startedAt: number;
   completeAt: number;
   completionMode: ClaimCompletionMode;
   changeDate: number;
@@ -78,25 +78,27 @@ export class SQLBasedDriverReportCreator {
     WHERE d.id = $1 AND attr.name != $2
   `;
 
+  // TODO: Update query
   private QUERY_FOR_SESSIONS = `
     SELECT 
       ds."loggedAt", ds."loggedOutAt", ds."platesNumber", ds."carClass", ds."carBrand", 
-      t.id AS "transitId", t.status AS "transitStatus", t.km, t.price, t."driversFee", 
-      t."estimatedPrice", t."dateTime", t.published, t."acceptedAt", t.started, t."completeAt", t."carType",
+      td."transitId" AS "transitId", td.status AS "transitStatus", td.distance, td.price, td."driversFee", 
+      td."estimatedPrice", td."dateTime", td."publishedAt", td."acceptedAt", td."startedAt", td."completeAt", td."carType",
       tar."kmRate", tar.name AS "tariffName", tar."baseFee",
       cl.id as "claimId", cl."ownerId", cl.reason, cl."incidentDescription", cl.status as "claimStatus", cl."creationDate", cl."completionMode", cl."claimNo", cl."changeDate",
       af.country as "afCountry", af.city as "afCity", af.street as "afStreet", af."buildingNumber" as "afNumber", af."postalCode" as "afPostalCode",
       ato.country as "atoCountry", ato.city as "atoCity", ato.street as "atoStreet", ato."buildingNumber" as "atoNumber", ato."postalCode" as "atoPostalCode"
     FROM driver_session ds
-    LEFT JOIN transit t ON t."driverId" = ds."driverId"
-    LEFT JOIN tariff tar ON t."tariffId" = tar.id
-    LEFT JOIN address af ON t."fromId" = af.id
-    LEFT JOIN address ato ON t."toId" = ato.id
-    LEFT JOIN claim cl ON cl."transitId" = t.id
-    WHERE ds."driverId" = $1 AND t.status = $2
+    LEFT JOIN transit_details td ON ds."driverId" = td."driverId"
+    LEFT JOIN tariff tar ON td."tariffId" = tar.id
+    LEFT JOIN address af ON td."fromHash" = af.hash
+    LEFT JOIN address ato ON td."toHash" = ato.hash
+    LEFT JOIN claim cl ON cl."transitId" = td."transitId"
+    WHERE ds."driverId" = $1 AND td.status = $2
     AND ds."loggedAt" >= $3
-    AND t."completeAt" >= ds."loggedAt" AND t."completeAt" <= ds."loggedOutAt"
-    GROUP BY ds.id, t.id, tar.name, tar."kmRate", tar."baseFee", cl.id, af.country, af.city, af.street, af."buildingNumber", af."postalCode", ato.country, ato.city, ato.street, ato."buildingNumber", ato."postalCode";
+    AND td."completeAt" >= ds."loggedAt" 
+    AND td."completeAt" <= ds."loggedOutAt"
+    GROUP BY ds.id, td."transitId", tar.name, tar."kmRate", tar."baseFee", cl.id, af.country, af.city, af.street, af."buildingNumber", af."postalCode", ato.country, ato.city, ato.street, ato."buildingNumber", ato."postalCode";
   `;
 
   private entityManager: EntityManager;
@@ -158,9 +160,9 @@ export class SQLBasedDriverReportCreator {
       object['estimatedPrice'] as number,
       object['baseFee'] as number,
       object['dateTime'] as number,
-      object['published'] as number,
+      object['publishedAt'] as number,
       object['acceptedAt'] as number,
-      object['started'] as number,
+      object['startedAt'] as number,
       object['completeAt'] as number,
       this.retrieveClaim(object),
       null,

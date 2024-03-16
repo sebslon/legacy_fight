@@ -20,6 +20,27 @@ export class AddressRepository extends Repository<Address> {
     return super.save(address);
   }
 
+  public async getOrCreate(addresss: Address) {
+    const address = new Address(
+      addresss.getCountry(),
+      addresss.getCity(),
+      addresss.getPostalCode(),
+      addresss.getStreet(),
+      addresss.getBuildingNumber(),
+    );
+
+    const addressByHash = await this.findOne({
+      where: { hash: address.getHash() },
+    });
+
+    if (addressByHash) {
+      return addressByHash;
+    }
+
+    return this.save(address);
+  }
+
+
   public async findByHash(hash: string) {
     return this.findOne({
       where: { hash },
@@ -32,5 +53,9 @@ export class AddressRepository extends Repository<Address> {
       throw new Error('Address not found');
     }
     return address;
+  }
+
+  public findHashById(id: string) {
+    return this.findOneOrFail(id).then((address) => address.getHash());
   }
 }

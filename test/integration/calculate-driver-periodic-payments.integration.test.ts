@@ -16,6 +16,7 @@ import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';
 import { TransitService } from '../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Calculate Driver Periodic Payments', () => {
@@ -24,6 +25,7 @@ describe('Calculate Driver Periodic Payments', () => {
   let driverFeeRepository: DriverFeeRepository;
   let clientRepository: ClientRepository;
   let addressRepository: AddressRepository;
+  let transitDetailsFacade: TransitDetailsFacade;
   let fixtures: Fixtures;
 
   beforeAll(async () => {
@@ -36,8 +38,11 @@ describe('Calculate Driver Periodic Payments', () => {
     driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
     clientRepository = module.get<ClientRepository>(ClientRepository);
     addressRepository = module.get<AddressRepository>(AddressRepository);
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       driverFeeRepository,
       transitRepository,

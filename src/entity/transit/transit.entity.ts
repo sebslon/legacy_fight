@@ -10,14 +10,15 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
+import { v4 as uuid } from 'uuid';
 
 import { BaseEntity } from '../../common/base.entity';
 import { Distance } from '../../distance/distance';
 import { Money } from '../../money/money';
+import { TransitDetails } from '../../transit-details/transit-details.entity';
 import { Address } from '../address.entity';
-import { CarClass } from '../car-type.entity';
 import { Claim } from '../claim.entity';
-import { Client, PaymentType, Type } from '../client.entity';
+import { PaymentType } from '../client.entity';
 import { Driver } from '../driver.entity';
 import { Tariff } from '../tariff.entity';
 
@@ -98,23 +99,6 @@ export class Transit extends BaseEntity {
   @Column()
   private status: TransitStatus;
 
-  @Column({ type: 'bigint', nullable: true })
-  private date: number;
-
-  @ManyToOne(() => Address, { eager: true, cascade: true })
-  @JoinColumn()
-  private from: Address;
-
-  @ManyToOne(() => Address, { eager: true, cascade: true })
-  @JoinColumn()
-  private to: Address;
-
-  @Column({ nullable: true, type: 'bigint' })
-  public acceptedAt: number | null;
-
-  @Column({ nullable: true, type: 'bigint' })
-  public started: number | null;
-
   @Column({ default: 0 })
   public pickupAddressChangeCounter: number;
 
@@ -131,6 +115,11 @@ export class Transit extends BaseEntity {
 
   @Column({ nullable: false, default: 0 })
   private km: number;
+
+  @OneToOne(() => TransitDetails, (td) => td.transit, {
+    eager: true,
+  })
+  public transitDetails: TransitDetails;
 
   // https://stackoverflow.com/questions/37107123/sould-i-store-price-as-decimal-or-integer-in-mysql
   @Column({
@@ -164,65 +153,32 @@ export class Transit extends BaseEntity {
   private driversFee: Money;
 
   @Column({ type: 'bigint', nullable: true })
-  public dateTime: number;
-
-  @Column({ type: 'bigint', nullable: true })
   private published: number;
 
-  @ManyToOne(() => Client, { eager: true })
-  @JoinColumn()
-  private client: Client;
-
-  @Column()
-  private carType: CarClass;
-
-  @Column({ type: 'bigint', nullable: true })
-  private completeAt: number;
-
-  private constructor(
-    from: Address,
-    to: Address,
-    client: Client,
-    carClass: CarClass,
-    dateTime: number,
-    distance: Distance,
+  public constructor(
     status: TransitStatus = TransitStatus.DRAFT,
+    when: Date,
+    distance: Distance,
   ) {
     super();
+    this.id = uuid();
 
-    this.from = from;
-    this.to = to;
-    this.client = client;
-    this.carType = carClass;
-    this.setDateTime(dateTime);
+    this.setDateTime(when?.getTime());
     this.km = distance?.toKmInFloat();
     this.status = status;
   }
 
   public static create(
-    from: Address,
-    to: Address,
-    client: Client,
-    carClass: CarClass,
-    dateTime: number,
+    when: Date,
     distance: Distance,
     status: TransitStatus = TransitStatus.DRAFT,
   ) {
-    const transit = new Transit(
-      from,
-      to,
-      client,
-      carClass,
-      dateTime,
-      distance,
-      status,
-    );
+    const transit = new Transit(status, when, distance);
 
     transit.driversRejections = [];
     transit.proposedDrivers = [];
     transit.pickupAddressChangeCounter = 0;
     transit.price = null;
-    transit.acceptedAt = null;
 
     return transit;
   }
@@ -235,8 +191,6 @@ export class Transit extends BaseEntity {
     if (this.status === TransitStatus.IN_TRANSIT) {
       this.km = distance.toKmInFloat();
       this.estimateCost();
-      this.completeAt = when.getTime();
-      this.to = destinationAddress;
       this.status = TransitStatus.COMPLETED;
       this.calculateFinalCosts();
     } else {
@@ -251,7 +205,7 @@ export class Transit extends BaseEntity {
     this.awaitingDriversResponses = this.awaitingDriversResponses - 1;
   }
 
-  public acceptBy(driver: Driver, when: Date) {
+  public acceptBy(driver: Driver) {
     if (this.driver) {
       throw new NotAcceptableException(
         'Transit already accepted, id = ' + this.getId(),
@@ -272,7 +226,6 @@ export class Transit extends BaseEntity {
       this.driver = driver;
       this.driver.setOccupied(true);
       this.awaitingDriversResponses = 0;
-      this.acceptedAt = when.getTime();
       this.status = TransitStatus.TRANSIT_TO_PASSENGER;
     }
 
@@ -324,7 +277,6 @@ export class Transit extends BaseEntity {
       );
     }
 
-    this.to = newAddress;
     this.km = newDistance.toKmInFloat();
 
     this.estimateCost();
@@ -356,7 +308,6 @@ export class Transit extends BaseEntity {
       );
     }
 
-    this.from = newAddress;
     this.km = newDistance.toKmInFloat();
     this.pickupAddressChangeCounter = this.pickupAddressChangeCounter + 1;
 
@@ -382,7 +333,7 @@ export class Transit extends BaseEntity {
     this.awaitingDriversResponses = 0;
   }
 
-  public start(when: Date) {
+  public start() {
     if (this.status !== TransitStatus.TRANSIT_TO_PASSENGER) {
       throw new NotAcceptableException(
         'Transit cannot be started, id = ' + this.getId(),
@@ -390,7 +341,6 @@ export class Transit extends BaseEntity {
     }
 
     this.status = TransitStatus.IN_TRANSIT;
-    this.started = when.getTime();
   }
 
   public publishAt(when: Date) {
@@ -400,7 +350,6 @@ export class Transit extends BaseEntity {
 
   public setDateTime(dateTime: number) {
     this.tariff = Tariff.ofTime(new Date(dateTime));
-    this.dateTime = dateTime;
   }
 
   public estimateCost() {
@@ -432,10 +381,6 @@ export class Transit extends BaseEntity {
     return this.tariff;
   }
 
-  public getCarType() {
-    return this.carType;
-  }
-
   public getDriver() {
     return this.driver;
   }
@@ -453,18 +398,6 @@ export class Transit extends BaseEntity {
     return this.status;
   }
 
-  public getCompleteAt() {
-    return this.completeAt;
-  }
-
-  public getClient() {
-    return this.client;
-  }
-
-  public getDateTime() {
-    return this.dateTime;
-  }
-
   public getPublished() {
     return this.published;
   }
@@ -479,22 +412,6 @@ export class Transit extends BaseEntity {
 
   public getProposedDrivers() {
     return this.proposedDrivers || [];
-  }
-
-  public getAcceptedAt() {
-    return this.acceptedAt;
-  }
-
-  public getStarted() {
-    return this.started;
-  }
-
-  public getFrom() {
-    return this.from;
-  }
-
-  public getTo() {
-    return this.to;
   }
 
   public getPickupAddressChangeCounter() {
@@ -522,22 +439,14 @@ export class Transit extends BaseEntity {
   // For testing purposes
   public static _createWithId(
     id: string,
-    from?: Address,
-    to?: Address,
-    client?: Client,
-    carClass?: CarClass,
     dateTime?: number,
     distance?: Distance,
     status?: TransitStatus,
   ) {
     const transit = new Transit(
-      from ?? new Address('', '', '', '', 5),
-      to ?? new Address('', '', '', '', 5),
-      client ?? new Client(Type.NORMAL),
-      carClass ?? CarClass.ECO,
-      dateTime ?? Date.now(),
-      distance ?? Distance.fromKm(0),
       status ?? TransitStatus.DRAFT,
+      dateTime ? new Date(dateTime) : new Date(),
+      distance ?? Distance.fromKm(0),
     );
 
     transit.id = id;

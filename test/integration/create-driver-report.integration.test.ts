@@ -26,6 +26,7 @@ import { DriverTrackingService } from '../../src/service/driver-tracking.service
 import { DriverService } from '../../src/service/driver.service';
 import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Create Driver Report', () => {
@@ -47,6 +48,7 @@ describe('Create Driver Report', () => {
   let addressRepository: AddressRepository;
   let claimService: ClaimService;
   let fixtures: Fixtures;
+  let transitDetailsFacade: TransitDetailsFacade;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -71,8 +73,11 @@ describe('Create Driver Report', () => {
     driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
     claimService = module.get<ClaimService>(ClaimService);
     transitService = module.get<TransitService>(TransitService);
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       driverFeeRepository,
       transitRepository,

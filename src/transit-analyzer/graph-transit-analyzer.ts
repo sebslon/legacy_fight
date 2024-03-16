@@ -1,8 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
 import { Neo4jService } from '@nhogs/nestjs-neo4j';
-
-import { TransitCompletedEvent } from './events/transit-completed.event';
 
 @Injectable()
 export class GraphTransitAnalyzer {
@@ -11,11 +8,12 @@ export class GraphTransitAnalyzer {
   public async analyze(
     clientId: string,
     addressHash: string,
-  ): Promise<string[] | undefined> {
+  ): Promise<string[]> {
     try {
       const result = await this.neo4jService.run({
         cypher: `
-          MATCH p=(a:Address)-[:Transit*]->(:Address) WHERE a.hash = $addressHash
+          MATCH p=(a:Address)-[:Transit*]->(:Address) 
+          WHERE a.hash = $addressHash
           AND (ALL(x IN range(1, length(p)-1) WHERE ((relationships(p)[x]).clientId = $clientId) AND 0 <= duration.inSeconds( (relationships(p)[x-1]).completeAt, (relationships(p)[x]).started).minutes <= 15)) 
           AND length(p) >= 1
           RETURN [x in nodes(p) | x.hash] AS hashes ORDER BY length(p) DESC LIMIT 1
@@ -23,10 +21,11 @@ export class GraphTransitAnalyzer {
         parameters: { clientId, addressHash },
       });
 
-      return result.records.map((record) => record.get('hashes'));
+      return result.records.map((record) => record.get('hashes')).flat();
     } catch (e) {
       Logger.error(e);
       Logger.error('Error while analyzing transit');
+      return [];
     }
   }
 
@@ -74,26 +73,6 @@ export class GraphTransitAnalyzer {
       {
         write: true,
       },
-    );
-  }
-
-  @OnEvent('transit.completed')
-  public async handleTransitCompletedEvent(event: TransitCompletedEvent) {
-    const {
-      clientId,
-      transitId,
-      addressFromHash,
-      addressToHash,
-      started,
-      completedAt,
-    } = event;
-    await this.addTransitBetweenAddresses(
-      clientId,
-      transitId,
-      addressFromHash,
-      addressToHash,
-      started,
-      completedAt,
     );
   }
 }

@@ -23,6 +23,7 @@ import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';
 import { TransitService } from '../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Claim Automatic Resolving', () => {
@@ -38,6 +39,10 @@ describe('Claim Automatic Resolving', () => {
   let awardsService: AwardsService;
   let clientNotificationService: ClientNotificationService;
   let driverNotificationService: DriverNotificationService;
+  let transitDetailsFacade: TransitDetailsFacade;
+  let transitService: TransitService;
+  let driverSessionService: DriverSessionService;
+  let driverTrackingService: DriverTrackingService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -59,8 +64,17 @@ describe('Claim Automatic Resolving', () => {
     driverNotificationService = module.get<DriverNotificationService>(
       DriverNotificationService,
     );
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
+    transitService = module.get<TransitService>(TransitService);
+    driverSessionService =
+      module.get<DriverSessionService>(DriverSessionService);
+    driverTrackingService = module.get<DriverTrackingService>(
+      DriverTrackingService,
+    );
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       driverFeeRepository,
       transitRepository,
@@ -70,9 +84,9 @@ describe('Claim Automatic Resolving', () => {
       claimService,
       awardsService,
       {} as DriverAttributeRepository,
-      {} as TransitService,
-      {} as DriverSessionService,
-      {} as DriverTrackingService,
+      transitService,
+      driverSessionService,
+      driverTrackingService,
     );
   });
 
@@ -94,7 +108,7 @@ describe('Claim Automatic Resolving', () => {
   it('Second claim for the same transit will be escalated', async () => {
     lowCostThresholdIs(40);
 
-    const driver = await fixtures.createTestDriver();
+    const driver = await fixtures.createNearbyDriver('plate');
     const client = await fixtures.createTestClient(Type.VIP);
     const transit = await aTransit(client, driver, 20);
 
@@ -114,7 +128,7 @@ describe('Claim Automatic Resolving', () => {
     lowCostThresholdIs(40);
 
     const client = await fixtures.createClientWithClaims(Type.VIP, 3);
-    const driver = await fixtures.createTestDriver();
+    const driver = await fixtures.createNearbyDriver('plate');
     const transit = await aTransit(client, driver, 20);
 
     let claim = await fixtures.createClaim(client, transit);
@@ -136,7 +150,7 @@ describe('Claim Automatic Resolving', () => {
     lowCostThresholdIs(40);
 
     const client = await fixtures.createClientWithClaims(Type.VIP, 3);
-    const driver = await fixtures.createTestDriver();
+    const driver = await fixtures.createNearbyDriver('plate');
     const transit = await aTransit(client, driver, 50);
 
     let claim = await fixtures.createClaim(client, transit);
@@ -157,7 +171,7 @@ describe('Claim Automatic Resolving', () => {
     noOfTransitsForAutomaticRefundIs(10);
 
     const client = await fixtures.createTestClient(Type.NORMAL);
-    const driver = await fixtures.createTestDriver();
+    const driver = await fixtures.createNearbyDriver('plate');
 
     const [transit1, transit2, transit3, transit4] = await Promise.all([
       await aTransit(client, driver, 50),
@@ -221,11 +235,9 @@ describe('Claim Automatic Resolving', () => {
 
     await fixtures.clientHasDoneTransits(client, 12);
 
-    const transit = await aTransit(
-      client,
-      await fixtures.createTestDriver(),
-      39,
-    );
+    const driver = await fixtures.createNearbyDriver('plate');
+
+    const transit = await aTransit(client, driver, 39);
 
     let claim = await fixtures.createClaim(client, transit);
     claim = await claimService.tryToResolveAutomatically(claim.getId());
@@ -246,7 +258,7 @@ describe('Claim Automatic Resolving', () => {
 
     await fixtures.clientHasDoneTransits(client, 12);
 
-    const driver = await fixtures.createTestDriver();
+    const driver = await fixtures.createNearbyDriver('plate');
     const transit = await aTransit(client, driver, 50);
     let claim = await fixtures.createClaim(client, transit);
     claim = await claimService.tryToResolveAutomatically(claim.getId());
@@ -267,7 +279,7 @@ describe('Claim Automatic Resolving', () => {
 
     await fixtures.clientHasDoneTransits(client, 2);
 
-    const driver = await fixtures.createTestDriver();
+    const driver = await fixtures.createNearbyDriver('plate');
     const transit = await aTransit(client, driver, 50);
 
     let claim = await fixtures.createClaim(client, transit);

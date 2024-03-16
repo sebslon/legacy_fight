@@ -17,6 +17,7 @@ import { DriverSessionService } from '../../../src/service/driver-session.servic
 import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
 import { DriverService } from '../../../src/service/driver.service';
 import { TransitService } from '../../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Awarded Miles Management', () => {
@@ -28,6 +29,7 @@ describe('Awarded Miles Management', () => {
   let awardsAccountRepository: AwardsAccountRepository;
   let claimService: ClaimService;
   let fixtures: Fixtures;
+  let transitDetailsFacade: TransitDetailsFacade;
 
   const NOW = new Date('2020-01-01');
 
@@ -45,8 +47,11 @@ describe('Awarded Miles Management', () => {
     awardsAccountRepository = module.get<AwardsAccountRepository>(
       AwardsAccountRepository,
     );
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       {} as DriverFeeRepository,
       transitRepository,

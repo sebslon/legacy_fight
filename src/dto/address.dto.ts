@@ -19,6 +19,19 @@ export class AddressDTO {
 
   private hash: string;
 
+  /**
+   * For testing
+   */
+  public static empty() {
+    return new AddressDTO({
+      country: '',
+      city: '',
+      street: '',
+      buildingNumber: 0,
+      postalCode: '',
+    });
+  }
+
   public constructor(
     a:
       | Address

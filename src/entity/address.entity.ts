@@ -1,7 +1,8 @@
 import * as objectHash from 'object-hash';
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
+import { TransitDetails } from '../transit-details/transit-details.entity';
 
 @Entity()
 export class Address extends BaseEntity {
@@ -29,9 +30,14 @@ export class Address extends BaseEntity {
   @Column({ nullable: true, type: 'varchar' })
   private name: string | null;
 
-  @Index()
-  @PrimaryColumn({ unique: true, select: false })
+  @Column({ unique: true })
   private hash: string;
+
+  @OneToMany(() => TransitDetails, (transitDetails) => transitDetails.from)
+  public fromTransits: TransitDetails[];
+
+  @OneToMany(() => TransitDetails, (transitDetails) => transitDetails.to)
+  public toTransits: TransitDetails[];
 
   constructor(
     country: string,

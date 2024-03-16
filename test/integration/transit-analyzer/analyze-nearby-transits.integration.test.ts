@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Neo4jService } from '@nhogs/nestjs-neo4j';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
@@ -18,6 +19,7 @@ import { DriverService } from '../../../src/service/driver.service';
 import { GeocodingService } from '../../../src/service/geocoding.service';
 import { TransitService } from '../../../src/service/transit.service';
 import { TransitAnalyzerController } from '../../../src/transit-analyzer/transit-analyzer.controller';
+import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Analyze Nearby Transits', () => {
@@ -37,11 +39,15 @@ describe('Analyze Nearby Transits', () => {
   let driverTrackingService: DriverTrackingService;
   let transitService: TransitService;
   let transitAnalyzerController: TransitAnalyzerController;
+  let transitDetailsFacade: TransitDetailsFacade;
+  let neo4jService: Neo4jService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
+
+    await module.init();
 
     driverService = module.get<DriverService>(DriverService);
     driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
@@ -64,8 +70,12 @@ describe('Analyze Nearby Transits', () => {
     transitAnalyzerController = module.get<TransitAnalyzerController>(
       TransitAnalyzerController,
     );
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
+    neo4jService = module.get<Neo4jService>(Neo4jService);
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       driverFeeRepository,
       transitRepository,
@@ -92,6 +102,12 @@ describe('Analyze Nearby Transits', () => {
   beforeEach(async () => {
     await fixtures.createActiveCarCategory(CarClass.VAN);
     jest.spyOn(geocodingService, 'geocodeAddress').mockReturnValue([1, 1]);
+    await neo4jService.run(
+      {
+        cypher: 'MATCH (n) DETACH DELETE n',
+      },
+      { write: true },
+    );
   });
 
   afterEach(async () => {
@@ -650,4 +666,10 @@ describe('Analyze Nearby Transits', () => {
       [address1, address2, address3].map((a) => a.getHash()),
     );
   });
+
+  function cleanupDriverPositions() {
+    return getConnection().query(`
+      TRUNCATE TABLE driver_position CASCADE;
+    `);
+  }
 });

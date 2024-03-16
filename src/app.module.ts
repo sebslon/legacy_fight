@@ -15,13 +15,13 @@ import { DriverSessionController } from './controllers/driver-session.controller
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
 import { DriverController } from './controllers/driver.controller';
 import { TransitController } from './controllers/transit.controller';
+import { DriverReportController } from './driver-report/driver-report.controller';
+import { DriverReportTokens } from './driver-report/driver-report.tokens';
 import {
   DriverReportCreator,
   TestDummyReconciliation,
-} from './driver-report/driver-report-creator';
-import { DriverReportController } from './driver-report/driver-report.controller';
-import { DriverReportTokens } from './driver-report/driver-report.tokens';
-import { OldDriverReportCreator } from './driver-report/old-driver-report-creator';
+} from './driver-report/old/driver-report-creator';
+import { OldDriverReportCreator } from './driver-report/old/old-driver-report-creator';
 import { SQLBasedDriverReportCreator } from './driver-report/sql-based-driver-report-creator';
 import { TravelledDistance } from './driver-report/travelled-distance/travelled-distance.entity';
 import { TravelledDistanceRepository } from './driver-report/travelled-distance/travelled-distance.repository';
@@ -67,7 +67,8 @@ import { InvoiceGenerator } from './service/invoice-generator.service';
 import { TransitService } from './service/transit.service';
 import { GraphTransitAnalyzer } from './transit-analyzer/graph-transit-analyzer';
 import { TransitAnalyzerController } from './transit-analyzer/transit-analyzer.controller';
-import { TransitAnalyzerService } from './transit-analyzer/transit-analyzer.service';
+import { TransitCompletedListener } from './transit-analyzer/transit-completed.listener';
+import { TransitDetailsModule } from './transit-details/transit-details.module';
 
 @Module({
   imports: [
@@ -107,6 +108,7 @@ import { TransitAnalyzerService } from './transit-analyzer/transit-analyzer.serv
       TravelledDistance,
       TravelledDistanceRepository,
     ]),
+    TransitDetailsModule,
   ],
   controllers: [
     DriverController,
@@ -114,12 +116,12 @@ import { TransitAnalyzerService } from './transit-analyzer/transit-analyzer.serv
     ClientController,
     DriverSessionController,
     DriverTrackingController,
-    TransitAnalyzerController,
     TransitController,
     AwardsAccountController,
     ClaimController,
     ContractController,
     DriverReportController,
+    TransitAnalyzerController,
   ],
   providers: [
     AppProperties,
@@ -135,7 +137,6 @@ import { TransitAnalyzerService } from './transit-analyzer/transit-analyzer.serv
     DriverSessionService,
     DriverFeeService,
     DriverTrackingService,
-    TransitAnalyzerService,
     AwardsService,
     ClaimService,
     ContractService,
@@ -150,6 +151,7 @@ import { TransitAnalyzerService } from './transit-analyzer/transit-analyzer.serv
       useClass: TestDummyReconciliation,
     },
     TravelledDistanceService,
+    TransitCompletedListener,
   ],
 })
 export class AppModule {}

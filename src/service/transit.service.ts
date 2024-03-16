@@ -19,6 +19,7 @@ import { NoFurtherThan } from '../entity/transit/rules/no-further-than.rule';
 import { NotPublished } from '../entity/transit/rules/not-published.rule';
 import { OrRule } from '../entity/transit/rules/or-rule';
 import { Transit, TransitStatus } from '../entity/transit/transit.entity';
+import { Money } from '../money/money';
 import { AddressRepository } from '../repository/address.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
@@ -26,6 +27,7 @@ import { DriverSessionRepository } from '../repository/driver-session.repository
 import { DriverRepository } from '../repository/driver.repository';
 import { TransitRepository } from '../repository/transit.repository';
 import { TransitCompletedEvent } from '../transit-analyzer/events/transit-completed.event';
+import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
 import { AwardsService } from './awards.service';
 import { CarTypeService } from './car-type.service';
@@ -58,6 +60,7 @@ export class TransitService {
     private distanceCalculator: DistanceCalculator,
     private notificationService: DriverNotificationService,
     private eventEmitter: EventEmitter2,
+    private transitDetailsFacade: TransitDetailsFacade,
   ) {}
 
   public async createTransitFromDTO(transitDto: TransitDTO) {
@@ -84,15 +87,19 @@ export class TransitService {
     to: Address,
     carClass: CarClass,
   ) {
+    const now = Clock.currentDate();
     const client = await this.clientRepository.findOne(clientId);
+
+    const addressFrom = await this.addressRepository.getOrCreate(from);
+    const addressTo = await this.addressRepository.getOrCreate(to);
 
     if (!client) {
       throw new NotFoundException('Client does not exist, id = ' + clientId);
     }
 
     // FIXME later: add some exceptions handling
-    const geoFrom = this.geocodingService.geocodeAddress(from);
-    const geoTo = this.geocodingService.geocodeAddress(to);
+    const geoFrom = this.geocodingService.geocodeAddress(addressFrom);
+    const geoTo = this.geocodingService.geocodeAddress(addressTo);
 
     const km = Distance.fromKm(
       this.distanceCalculator.calculateByMap(
@@ -103,11 +110,24 @@ export class TransitService {
       ),
     );
 
-    const transit = Transit.create(from, to, client, carClass, Date.now(), km);
+    let transit = Transit.create(now, km);
+    const estimatedPrice = transit.estimateCost();
 
-    transit.estimateCost();
+    transit = await this.transitRepository.save(transit);
 
-    return this.transitRepository.save(transit);
+    await this.transitDetailsFacade.transitRequested(
+      now,
+      transit.getId(),
+      addressFrom,
+      addressTo,
+      km,
+      client,
+      carClass,
+      estimatedPrice,
+      transit.getTariff(),
+    );
+
+    return transit;
   }
 
   public changeTransitAddressFrom(transitId: string, newAddress: AddressDTO) {
@@ -120,6 +140,7 @@ export class TransitService {
   private async _changeTransitAddressFrom(transitId: string, address: Address) {
     const newAddress = await this.addressRepository.save(address);
     const transit = await this.transitRepository.findOne(transitId);
+    const transitDetails = await this.findTransitDetails(transitId);
 
     if (!transit) {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
@@ -131,11 +152,19 @@ export class TransitService {
 
     // FIXME later: add some exceptions handling
     const { newDistance, distanceInKMeters } =
-      this.calculateDistanceBetweenAddresses(newAddress, transit.getFrom());
+      this.calculateDistanceBetweenAddresses(
+        newAddress,
+        transitDetails.from.toAddressEntity(),
+      );
 
     transit.changePickupTo(newAddress, newDistance, distanceInKMeters);
 
     await this.transitRepository.save(transit);
+    await this.transitDetailsFacade.pickupChangedTo(
+      transit.getId(),
+      newAddress,
+      newDistance,
+    );
 
     for (const driver of transit.getProposedDrivers()) {
       await this.notificationService.notifyAboutChangedTransitAddress(
@@ -159,8 +188,12 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
+    const transitDetails = await this.findTransitDetails(transitId);
+
     // FIXME later: add some exceptions handling
-    const geoFrom = this.geocodingService.geocodeAddress(transit.getFrom());
+    const geoFrom = this.geocodingService.geocodeAddress(
+      transitDetails.from.toAddressEntity(),
+    );
     const geoTo = this.geocodingService.geocodeAddress(savedAddress);
     const newDistance = Distance.fromKm(
       this.distanceCalculator.calculateByMap(
@@ -184,6 +217,11 @@ export class TransitService {
     transit.changeDestinationTo(savedAddress, newDistance, rules);
 
     await this.transitRepository.save(transit);
+    await this.transitDetailsFacade.destinationChanged(
+      transit.getId(),
+      savedAddress,
+      newDistance,
+    );
 
     const driver = transit.getDriver();
 
@@ -214,18 +252,21 @@ export class TransitService {
     transit.cancel();
 
     await this.transitRepository.save(transit);
+    await this.transitDetailsFacade.transitCancelled(transitId);
   }
 
   public async publishTransit(transitId: string) {
+    const now = Clock.currentDate();
     const transit = await this.transitRepository.findOne(transitId);
 
     if (!transit) {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    transit.publishAt(new Date());
+    transit.publishAt(now);
 
     await this.transitRepository.save(transit);
+    await this.transitDetailsFacade.transitPublished(transitId, now);
 
     return this.findDriversForTransit(transitId);
   }
@@ -236,6 +277,8 @@ export class TransitService {
     if (!transit) {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
+
+    const transitDetails = await this.findTransitDetails(transitId);
 
     if (transit.getStatus() !== TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT) {
       throw new NotAcceptableException(
@@ -252,7 +295,10 @@ export class TransitService {
 
       distanceToCheck++;
 
-      if (transit.shouldNotWaitForDriverAnymore() || distanceToCheck >= 20) {
+      if (
+        transit.shouldNotWaitForDriverAnymore(Clock.currentDate()) ||
+        distanceToCheck >= 20
+      ) {
         transit.failDriverAssignment();
 
         await this.transitRepository.save(transit);
@@ -262,7 +308,9 @@ export class TransitService {
       let geocoded: number[] = new Array(2);
 
       try {
-        geocoded = this.geocodingService.geocodeAddress(transit.getFrom());
+        geocoded = this.geocodingService.geocodeAddress(
+          transitDetails.from.toAddressEntity(),
+        );
       } catch (e) {
         Logger.error('Geocoding failed while finding drivers for transit.');
         // Geocoding failed! Ask Jessica or Bryan for some help if needed.
@@ -308,9 +356,9 @@ export class TransitService {
           return transit;
         }
 
-        if (transit.getCarType()) {
-          if (activeCarClasses.includes(transit.getCarType())) {
-            carClasses.push(transit.getCarType());
+        if (transitDetails.carType) {
+          if (activeCarClasses.includes(transitDetails.carType)) {
+            carClasses.push(transitDetails.carType);
           } else {
             return transit;
           }
@@ -374,13 +422,17 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    transit.acceptBy(driver, new Date());
+    const now = Clock.currentDate();
 
-    await this.transitRepository.save(transit);
+    transit.acceptBy(driver);
+
     await this.driverRepository.save(driver);
+    await this.transitRepository.save(transit);
+    await this.transitDetailsFacade.transitAccepted(transitId, now, driver);
   }
 
   public async startTransit(driverId: string, transitId: string) {
+    const now = Clock.currentDate();
     const driver = await this.driverRepository.findOne(driverId);
 
     if (!driver) {
@@ -393,9 +445,10 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    transit.start(Clock.currentDate());
+    transit.start();
 
     await this.transitRepository.save(transit);
+    await this.transitDetailsFacade.transitStarted(transitId, now);
   }
 
   public async rejectTransit(driverId: string, transitId: string) {
@@ -433,6 +486,7 @@ export class TransitService {
     transitId: string,
     destinationAddress: Address,
   ) {
+    const now = Clock.currentDate();
     const destination = await this.addressRepository.save(destinationAddress);
 
     const driver = await this.driverRepository.findOne(driverId);
@@ -447,8 +501,17 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    const geoFrom = this.geocodingService.geocodeAddress(transit.getFrom());
-    const geoTo = this.geocodingService.geocodeAddress(transit.getTo());
+    const transitDetails = await this.findTransitDetails(transitId);
+
+    const fromAddress = await this.addressRepository.findByHashOrFail(
+      transitDetails.from.getHash(),
+    );
+    const toAddress = await this.addressRepository.findByHashOrFail(
+      transitDetails.to.getHash(),
+    );
+
+    const geoFrom = this.geocodingService.geocodeAddress(fromAddress);
+    const geoTo = this.geocodingService.geocodeAddress(toAddress);
     const distance = Distance.fromKm(
       this.distanceCalculator.calculateByMap(
         geoFrom[0],
@@ -458,7 +521,7 @@ export class TransitService {
       ),
     );
 
-    transit.completeTransitAt(Clock.currentDate(), destination, distance);
+    transit.completeTransitAt(now, destination, distance);
 
     const driverFee = await this.driverFeeService.calculateDriverFee(
       transit.getId(),
@@ -470,28 +533,36 @@ export class TransitService {
     await this.driverRepository.save(driver);
 
     await this.awardsService.registerMiles(
-      transit.getClient().getId(),
+      transitDetails.client.getId(),
       transitId,
     );
 
     await this.transitRepository.save(transit);
 
-    await this.invoiceGenerator.generate(
-      transit.getPrice()?.toInt() ?? 0,
-      transit.getClient().getName() + ' ' + transit.getClient().getLastName(),
+    await this.transitDetailsFacade.transitCompleted(
+      transitId,
+      now,
+      transit.getPrice() as Money,
+      driverFee,
     );
 
-    await this.eventEmitter.emit(
-      'transit.completed',
-      new TransitCompletedEvent(
-        transit.getClient().getId(),
-        transitId,
-        transit.getFrom().getHash(),
-        transit.getTo().getHash(),
-        new Date(transit.getStarted() ?? 0),
-        new Date(transit.getCompleteAt() ?? 0),
-      ),
+    await this.invoiceGenerator.generate(
+      transit.getPrice()?.toInt() ?? 0,
+      transitDetails.client.getName() +
+        ' ' +
+        transitDetails.client.getLastName(),
     );
+
+    const transitCompletedEvent = new TransitCompletedEvent(
+      transitDetails.client.getId(),
+      transitId,
+      transitDetails.from.getHash(),
+      transitDetails.to.getHash(),
+      transitDetails.started ? new Date(+transitDetails.started) : new Date(),
+      now,
+    );
+
+    this.eventEmitter.emit('transit.completed', transitCompletedEvent);
   }
 
   public async loadTransit(transitId: string) {
@@ -501,7 +572,9 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    return new TransitDTO(transit);
+    const transitDetails = await this.findTransitDetails(transitId);
+
+    return new TransitDTO(transit, transitDetails);
   }
 
   private async getCloseDriversAvgPositions(
@@ -584,5 +657,9 @@ export class TransitService {
   private async addressFromDto(addressDTO: AddressDTO) {
     const address = addressDTO.toAddressEntity();
     return this.addressRepository.save(address);
+  }
+
+  private findTransitDetails(transitId: string) {
+    return this.transitDetailsFacade.find(transitId);
   }
 }

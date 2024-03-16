@@ -15,6 +15,7 @@ import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';
 import { TransitService } from '../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Tariff recognizing', () => {
@@ -24,6 +25,8 @@ describe('Tariff recognizing', () => {
   let addressRepository: AddressRepository;
   let clientRepository: ClientRepository;
   let transitController: TransitController;
+  let transitDetailsFacade: TransitDetailsFacade;
+  let transitService: TransitService;
   let fixtures: Fixtures;
 
   beforeAll(async () => {
@@ -37,8 +40,12 @@ describe('Tariff recognizing', () => {
     driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
     addressRepository = module.get<AddressRepository>(AddressRepository);
     clientRepository = module.get<ClientRepository>(ClientRepository);
+    transitDetailsFacade =
+      module.get<TransitDetailsFacade>(TransitDetailsFacade);
+    transitService = module.get<TransitService>(TransitService);
 
     fixtures = new Fixtures(
+      transitDetailsFacade,
       driverService,
       driverFeeRepository,
       transitRepository,
@@ -48,7 +55,7 @@ describe('Tariff recognizing', () => {
       {} as ClaimService,
       {} as AwardsService,
       {} as DriverAttributeRepository,
-      {} as TransitService,
+      transitService,
       {} as DriverSessionService,
       {} as DriverTrackingService,
     );

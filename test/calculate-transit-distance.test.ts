@@ -1,10 +1,12 @@
+import { Clock } from '../src/common/clock';
 import { Distance } from '../src/distance/distance';
+import { AddressDTO } from '../src/dto/address.dto';
+import { ClientDto } from '../src/dto/client.dto';
 import { TransitDTO } from '../src/dto/transit.dto';
-import { Address } from '../src/entity/address.entity';
 import { CarClass } from '../src/entity/car-type.entity';
-import { Client, Type } from '../src/entity/client.entity';
-import { Transit } from '../src/entity/transit/transit.entity';
+import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';
 import { Money } from '../src/money/money';
+import { TransitDetailsDTO } from '../src/transit-details/transit-details.dto';
 
 describe('Calculate Transit Distance', () => {
   it('Should not work with invalid unit', () => {
@@ -32,17 +34,25 @@ describe('Calculate Transit Distance', () => {
   });
 
   function transitForDistance(km: number): TransitDTO {
-    const transit = Transit.create(
-      new Address('test', 'test', 'test', 'test', 1),
-      new Address('test', 'test', 'test', 'test', 1),
-      new Client(Type.NORMAL),
-      CarClass.REGULAR,
-      Date.now(),
-      Distance.fromKm(km),
-    );
-
+    const now = Clock.currentDate();
+    const distance = Distance.fromKm(km);
+    const transit = new Transit(TransitStatus.DRAFT, now, distance);
     transit.setPrice(new Money(10));
 
-    return new TransitDTO(transit);
+    const transitDetails = new TransitDetailsDTO(
+      transit.getId(),
+      now.getTime(),
+      now.getTime(),
+      new ClientDto(null),
+      CarClass.REGULAR,
+      AddressDTO.empty(),
+      AddressDTO.empty(),
+      now.getTime(),
+      now.getTime(),
+      distance,
+      transit.getTariff(),
+    );
+
+    return new TransitDTO(transit, transitDetails);
   }
 });

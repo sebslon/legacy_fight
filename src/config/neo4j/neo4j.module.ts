@@ -1,4 +1,4 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, OnModuleDestroy } from '@nestjs/common';
 import {
   createDriver,
   Neo4jConfig,
@@ -8,7 +8,9 @@ import {
 } from '@nhogs/nestjs-neo4j';
 
 @Module({})
-export class Neo4jModule {
+export class Neo4jModule implements OnModuleDestroy {
+  constructor(private readonly neo4jService: Neo4jService) {}
+
   public static forRoot(config: Neo4jConfig): DynamicModule {
     return {
       module: Neo4jModule,
@@ -27,5 +29,9 @@ export class Neo4jModule {
       ],
       exports: [Neo4jService],
     };
+  }
+
+  public async onModuleDestroy() {
+    await this.neo4jService.onApplicationShutdown();
   }
 }

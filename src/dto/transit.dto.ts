@@ -1,25 +1,22 @@
-import * as dayjs from 'dayjs';
-import * as dayOfYear from 'dayjs/plugin/dayOfYear';
-
+import { Clock } from '../common/clock';
 import { Distance } from '../distance/distance';
 import { CarClass } from '../entity/car-type.entity';
 import { TransitStatus, Transit } from '../entity/transit/transit.entity';
+import { TransitDetailsDTO } from '../transit-details/transit-details.dto';
 
 import { AddressDTO } from './address.dto';
 import { ClaimDTO } from './claim.dto';
 import { ClientDto } from './client.dto';
 import { DriverDTO } from './driver.dto';
 
-dayjs.extend(dayOfYear);
-
 export class TransitDTO {
   public id: string;
 
-  public tariff: string;
+  public tariff: string | null;
 
   public status: TransitStatus;
 
-  public driver: DriverDTO;
+  public driver: DriverDTO | null;
 
   public factor: number | null;
 
@@ -27,7 +24,7 @@ export class TransitDTO {
 
   public distanceUnit: string;
 
-  public kmRate: number;
+  public kmRate: number | null;
 
   public price: number;
 
@@ -35,13 +32,13 @@ export class TransitDTO {
 
   public estimatedPrice: number;
 
-  public baseFee: number;
+  public baseFee: number | null;
 
   public date: number;
 
   public dateTime: number;
 
-  public published: number;
+  public published: number | null;
 
   public acceptedAt: number | null;
 
@@ -84,7 +81,7 @@ export class TransitDTO {
     carClass: CarClass,
     clientDto: ClientDto | null,
   ) {
-    const transit = new TransitDTO();
+    const transit = TransitDTO.createEmpty();
     transit.id = id;
     transit.factor = 1;
     transit.tariff = tariffName;
@@ -109,44 +106,56 @@ export class TransitDTO {
     return transit;
   }
 
-  constructor(transit?: Transit) {
-    if (!transit) {
+  public static createEmpty() {
+    return new TransitDTO(null, null);
+  }
+
+  constructor(
+    transit: Transit | null,
+    transitDetails: TransitDetailsDTO | null,
+  ) {
+    if (!transit || !transitDetails) {
       return;
     }
 
-    this.id = transit.getId();
-    this.distance = transit.getKm();
+    const driver = transit.getDriver();
+
+    this.id = transitDetails.transitId;
+    this.distance = transitDetails.distance;
     this.factor = 1;
-    const price = transit.getPrice();
+    this.driver = driver ? new DriverDTO(driver) : null;
+
+    const price = transitDetails.price;
     if (price) {
       this.price = price.toInt();
     }
-    this.date = transit.getDateTime();
-    this.status = transit.getStatus();
-    this.tariff = transit.getTariff().getName();
-    this.kmRate = transit.getTariff().getKmRate();
-    this.baseFee = transit.getTariff().getBaseFee();
+
+    this.date = transitDetails.dateTime || Clock.currentDate().getTime();
+    this.status = transitDetails.status;
+    this.tariff = transitDetails.tariffName;
+    this.kmRate = transitDetails.kmRate;
+    this.baseFee = transitDetails.baseFee;
 
     for (const d of transit.getProposedDrivers()) {
       this.proposedDrivers.push(new DriverDTO(d));
     }
 
-    this.to = new AddressDTO(transit.getTo());
-    this.from = new AddressDTO(transit.getFrom());
-    this.carClass = transit.getCarType();
-    this.clientDto = new ClientDto(transit.getClient());
+    this.to = new AddressDTO(transitDetails.to);
+    this.from = new AddressDTO(transitDetails.from);
+    this.carClass = transitDetails.carType;
+    this.clientDto = transitDetails.client;
     if (transit.getDriversFee() != null) {
-      this.driverFee = transit.getDriversFee().toInt();
+      this.driverFee = transitDetails.driverFee.toInt();
     }
-    const estimatedPrice = transit.getEstimatedPrice();
+    const estimatedPrice = transitDetails.estimatedPrice;
     if (estimatedPrice) {
       this.estimatedPrice = estimatedPrice.toInt();
     }
-    this.dateTime = transit.getDateTime();
-    this.published = transit.getPublished();
-    this.acceptedAt = transit.getAcceptedAt();
-    this.started = transit.getStarted();
-    this.completeAt = transit.getCompleteAt();
+    this.dateTime = transitDetails.dateTime || Clock.currentDate().getTime();
+    this.published = transitDetails.publishedAt;
+    this.acceptedAt = transitDetails.acceptedAt;
+    this.started = transitDetails.started;
+    this.completeAt = transitDetails.completedAt || null;
   }
 
   public getKmRate() {

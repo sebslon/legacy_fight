@@ -37,9 +37,11 @@ import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';
 import { TransitService } from '../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 
 export class Fixtures {
   constructor(
+    private readonly transitDetailsFacade: TransitDetailsFacade,
     private readonly driverService: DriverService,
     private readonly driverFeeRepository: DriverFeeRepository,
     private readonly transitRepository: TransitRepository,
@@ -70,7 +72,11 @@ export class Fixtures {
     });
   }
 
-  public async createNearbyDriver(plateNumber: string) {
+  public async createNearbyDriver(
+    plateNumber: string,
+    carClass?: CarClass,
+    location: { lat: number; lng: number } = { lat: 1, lng: 1 },
+  ) {
     const driver = await this.createTestDriver();
 
     await this.driverHasFee(driver, FeeType.FLAT, 10, 0);
@@ -78,13 +84,13 @@ export class Fixtures {
     await this.driverSessionService.logIn(
       driver.getId(),
       plateNumber,
-      CarClass.VAN,
+      carClass ?? CarClass.REGULAR,
       'BRAND',
     );
     await this.driverTrackingService.registerPosition(
       driver.getId(),
-      1,
-      1,
+      location.lat,
+      location.lng,
       Clock.currentDate(),
     );
 
@@ -94,29 +100,37 @@ export class Fixtures {
   public async createTestTransit(
     driver: Driver,
     price: number,
-    date?: Date,
+    when: Date = Clock.currentDate(),
+    client?: Client | null,
     from?: Address,
     to?: Address,
-    client?: Client | null,
   ) {
     const fromAddress = await this.createOrGetAddress(from);
     const toAddress = await this.createOrGetAddress(to);
 
-    const transit = Transit.create(
-      fromAddress,
-      toAddress,
-      client ?? (await this.createTestClient()),
-      CarClass.REGULAR,
-      date?.getTime() ?? Date.now(),
-      Distance.ZERO,
-    );
+    let transit = Transit.create(when, Distance.ZERO);
 
     transit.setPrice(new Money(price));
-
     transit.proposeTo(driver);
-    transit.acceptBy(driver, new Date());
+    transit.acceptBy(driver);
 
-    return await this.transitRepository.save(transit);
+    transit = await this.transitRepository.save(transit);
+
+    await this.transitDetailsFacade.transitRequested(
+      when,
+      transit.getId(),
+      fromAddress ??
+        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 1),
+      toAddress ??
+        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 150),
+      Distance.ZERO,
+      client ?? (await this.createTestClient()),
+      CarClass.REGULAR,
+      new Money(price),
+      transit.getTariff(),
+    );
+
+    return transit;
   }
 
   private async createOrGetAddress(address: Address | undefined) {
@@ -164,25 +178,43 @@ export class Fixtures {
       new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 150),
     );
 
-    const transit = Transit.create(
-      fromAddress,
-      toAddress,
-      client ?? (await this.createTestClient()),
-      CarClass.REGULAR,
-      date.getTime(),
-      Distance.ZERO,
-    );
-
+    let transit = Transit.create(date, Distance.ZERO);
     const transitDriver = driver ?? (await this.createTestDriver());
 
     transit.publishAt(date);
     transit.proposeTo(transitDriver);
-    transit.acceptBy(transitDriver, date);
-    transit.start(date);
+    transit.acceptBy(transitDriver);
+    transit.start();
     transit.completeTransitAt(date, toAddress, Distance.ZERO);
     transit.setPrice(new Money(price));
 
-    return this.transitRepository.save(transit);
+    transit = await this.transitRepository.save(transit);
+
+    await this.transitDetailsFacade.transitRequested(
+      date,
+      transit.getId(),
+      fromAddress,
+      toAddress,
+      Distance.ZERO,
+      client ?? (await this.createTestClient()),
+      CarClass.REGULAR,
+      new Money(price),
+      transit.getTariff(),
+    );
+    await this.transitDetailsFacade.transitAccepted(
+      transit.getId(),
+      date,
+      transitDriver,
+    );
+    await this.transitDetailsFacade.transitStarted(transit.getId(), date);
+    await this.transitDetailsFacade.transitCompleted(
+      transit.getId(),
+      date,
+      new Money(price),
+      new Money(0),
+    );
+
+    return transit;
   }
 
   public async aRequestedAndCompletedTransit(
@@ -193,32 +225,66 @@ export class Fixtures {
     driver: Driver,
     from: Address,
     to: Address,
+    carClass: CarClass = CarClass.REGULAR,
   ) {
+    await this.createActiveCarCategory(carClass);
+
     from = await this.addressRepository.save(from);
     to = await this.addressRepository.save(to);
 
     jest.spyOn(Clock, 'currentDate').mockReturnValue(publishedAt);
+    jest.spyOn(Date, 'now').mockReturnValue(publishedAt.getTime());
 
     const transit = await this.transitService.createTransit(
       client.getId(),
       from,
       to,
-      CarClass.VAN,
+      carClass,
     );
     await this.transitService.publishTransit(transit.getId());
     await this.transitService.acceptTransit(driver.getId(), transit.getId());
     await this.transitService.startTransit(driver.getId(), transit.getId());
 
     jest.spyOn(Clock, 'currentDate').mockReturnValue(completedAt);
+    jest.spyOn(Date, 'now').mockReturnValue(completedAt.getTime());
 
     await this.transitService.completeTransit(
       driver.getId(),
       transit.getId(),
       to,
     );
+    transit.setPrice(new Money(price));
+
+    await this.transitDetailsFacade.transitRequested(
+      publishedAt,
+      transit.getId(),
+      from,
+      to,
+      Distance.ZERO,
+      client,
+      CarClass.VAN,
+      new Money(price),
+      transit.getTariff(),
+    );
+    await this.transitDetailsFacade.transitAccepted(
+      transit.getId(),
+      publishedAt,
+      driver,
+    );
+    await this.transitDetailsFacade.transitStarted(
+      transit.getId(),
+      publishedAt,
+    );
+    await this.transitDetailsFacade.transitCompleted(
+      transit.getId(),
+      completedAt,
+      new Money(price),
+      new Money(0),
+    );
 
     jest.clearAllMocks();
 
+    await this.transitRepository.save(transit);
     return await this.transitRepository.findOneOrFail(transit.getId());
   }
 
@@ -229,7 +295,7 @@ export class Fixtures {
     carClass?: CarClass,
   ): Promise<TransitDTO> {
     const transitClient = client ?? (await this.createTestClient());
-    const transitDto = new TransitDTO();
+    const transitDto = TransitDTO.createEmpty();
 
     transitDto.setClientDTO(new ClientDto(transitClient));
     transitDto.setFrom(from);
@@ -332,8 +398,6 @@ export class Fixtures {
         driver,
         20,
         new Date(),
-        undefined,
-        undefined,
         client,
       );
 

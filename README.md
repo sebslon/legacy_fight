@@ -80,6 +80,10 @@ Archetypes in software design provide common patterns and models for developers 
 
 - Some refactorings like `Extract Method`, `Introduce Parameter Object`, `Move Method`, `Move Field`, `Inline Method`, `Extract Class`, `Extract Interface`, `Replace Type Code with State/Strategy`, `Replace Conditional with Polymorphism`, etc. but still there is a lot of work to do. :)
 
+##### Bounded Contexts / Modularisation
+
+- Splitting Transit/TransitDetails
+
 ##### Other:
 
 - Problem: Mismatched database paradigm (Graph representation of Transits History)

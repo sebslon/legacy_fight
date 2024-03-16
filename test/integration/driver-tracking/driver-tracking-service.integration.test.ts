@@ -15,6 +15,7 @@ import { DriverSessionService } from '../../../src/service/driver-session.servic
 import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
 import { DriverService } from '../../../src/service/driver.service';
 import { TransitService } from '../../../src/service/transit.service';
+import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Driver Tracking Service', () => {
@@ -55,6 +56,7 @@ describe('Driver Tracking Service', () => {
     );
 
     fixtures = new Fixtures(
+      {} as TransitDetailsFacade,
       driverService,
       driverFeeRepository,
       transitRepository,

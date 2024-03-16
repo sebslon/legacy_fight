@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
+import { TransitDetails } from '../transit-details/transit-details.entity';
 
 import { Claim } from './claim.entity';
 
@@ -39,6 +40,9 @@ export class Client extends BaseEntity {
 
   @OneToMany(() => Claim, (claim) => claim.owner)
   public claims: Claim[];
+
+  @OneToMany(() => TransitDetails, (transitDetails) => transitDetails.client)
+  public transitDetails: TransitDetails[];
 
   constructor(type: Type) {
     super();
