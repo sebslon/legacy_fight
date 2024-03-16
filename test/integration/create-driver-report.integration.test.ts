@@ -13,20 +13,11 @@ import { Client } from '../../src/entity/client.entity';
 import { DriverAttributeName } from '../../src/entity/driver-attribute.entity';
 import { FeeType } from '../../src/entity/driver-fee.entity';
 import { Driver, DriverStatus } from '../../src/entity/driver.entity';
-import { AddressRepository } from '../../src/repository/address.repository';
-import { ClientRepository } from '../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../src/repository/transit.repository';
-import { AwardsService } from '../../src/service/awards.service';
 import { CarTypeService } from '../../src/service/car-type.service';
-import { ClaimService } from '../../src/service/claim.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
-import { DriverService } from '../../src/service/driver.service';
 import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Create Driver Report', () => {
@@ -40,15 +31,7 @@ describe('Create Driver Report', () => {
   let driverTrackingService: DriverTrackingService;
   let transitService: TransitService;
   let driverReportController: DriverReportController;
-  let driverAttributeRepository: DriverAttributeRepository;
-  let clientRepository: ClientRepository;
-  let driverService: DriverService;
-  let driverFeeRepository: DriverFeeRepository;
-  let transitRepository: TransitRepository;
-  let addressRepository: AddressRepository;
-  let claimService: ClaimService;
   let fixtures: Fixtures;
-  let transitDetailsFacade: TransitDetailsFacade;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -65,32 +48,9 @@ describe('Create Driver Report', () => {
     driverReportController = module.get<DriverReportController>(
       DriverReportController,
     );
-    driverAttributeRepository = module.get<DriverAttributeRepository>(
-      DriverAttributeRepository,
-    );
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    driverService = module.get<DriverService>(DriverService);
-    driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
-    claimService = module.get<ClaimService>(ClaimService);
     transitService = module.get<TransitService>(TransitService);
-    transitDetailsFacade =
-      module.get<TransitDetailsFacade>(TransitDetailsFacade);
 
-    fixtures = new Fixtures(
-      transitDetailsFacade,
-      driverService,
-      driverFeeRepository,
-      transitRepository,
-      addressRepository,
-      clientRepository,
-      carTypeService,
-      claimService,
-      {} as AwardsService,
-      driverAttributeRepository,
-      transitService,
-      driverSessionService,
-      driverTrackingService,
-    );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   beforeEach(async () => {

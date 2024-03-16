@@ -6,40 +6,16 @@ import { AppModule } from '../../../src/app.module';
 import { Address } from '../../../src/entity/address.entity';
 import { CarClass } from '../../../src/entity/car-type.entity';
 import { AddressRepository } from '../../../src/repository/address.repository';
-import { ClientRepository } from '../../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../../src/repository/transit.repository';
-import { AwardsService } from '../../../src/service/awards.service';
-import { CarTypeService } from '../../../src/service/car-type.service';
-import { ClaimService } from '../../../src/service/claim.service';
-import { DriverSessionService } from '../../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
-import { DriverService } from '../../../src/service/driver.service';
 import { GeocodingService } from '../../../src/service/geocoding.service';
-import { TransitService } from '../../../src/service/transit.service';
 import { TransitAnalyzerController } from '../../../src/transit-analyzer/transit-analyzer.controller';
-import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Analyze Nearby Transits', () => {
   let fixtures: Fixtures;
 
-  let driverService: DriverService;
-  let driverFeeRepository: DriverFeeRepository;
-  let transitRepository: TransitRepository;
   let addressRepository: AddressRepository;
-  let clientRepository: ClientRepository;
-  let carTypeService: CarTypeService;
-  let claimService: ClaimService;
-  let awardsService: AwardsService;
-  let driverAttributeRepository: DriverAttributeRepository;
   let geocodingService: GeocodingService;
-  let driverSessionService: DriverSessionService;
-  let driverTrackingService: DriverTrackingService;
-  let transitService: TransitService;
   let transitAnalyzerController: TransitAnalyzerController;
-  let transitDetailsFacade: TransitDetailsFacade;
   let neo4jService: Neo4jService;
 
   beforeAll(async () => {
@@ -49,50 +25,14 @@ describe('Analyze Nearby Transits', () => {
 
     await module.init();
 
-    driverService = module.get<DriverService>(DriverService);
-    driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
     addressRepository = module.get<AddressRepository>(AddressRepository);
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    carTypeService = module.get<CarTypeService>(CarTypeService);
-    claimService = module.get<ClaimService>(ClaimService);
-    awardsService = module.get<AwardsService>(AwardsService);
     geocodingService = module.get<GeocodingService>(GeocodingService);
-    driverAttributeRepository = module.get<DriverAttributeRepository>(
-      DriverAttributeRepository,
-    );
-    driverSessionService =
-      module.get<DriverSessionService>(DriverSessionService);
-    driverTrackingService = module.get<DriverTrackingService>(
-      DriverTrackingService,
-    );
-    transitService = module.get<TransitService>(TransitService);
     transitAnalyzerController = module.get<TransitAnalyzerController>(
       TransitAnalyzerController,
     );
-    transitDetailsFacade =
-      module.get<TransitDetailsFacade>(TransitDetailsFacade);
+
     neo4jService = module.get<Neo4jService>(Neo4jService);
-
-    fixtures = new Fixtures(
-      transitDetailsFacade,
-      driverService,
-      driverFeeRepository,
-      transitRepository,
-      addressRepository,
-      clientRepository,
-      carTypeService,
-      claimService,
-      awardsService,
-      driverAttributeRepository,
-      transitService,
-      driverSessionService,
-      driverTrackingService,
-    );
-
-    driverTrackingService = module.get<DriverTrackingService>(
-      DriverTrackingService,
-    );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   afterAll(async () => {
@@ -100,8 +40,9 @@ describe('Analyze Nearby Transits', () => {
   });
 
   beforeEach(async () => {
-    await fixtures.createActiveCarCategory(CarClass.VAN);
     jest.spyOn(geocodingService, 'geocodeAddress').mockReturnValue([1, 1]);
+    await fixtures.createActiveCarCategory(CarClass.VAN);
+    await cleanupDriverPositions();
     await neo4jService.run(
       {
         cypher: 'MATCH (n) DETACH DELETE n',

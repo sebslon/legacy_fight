@@ -8,20 +8,8 @@ import { Client, Type } from '../../../src/entity/client.entity';
 import { Transit } from '../../../src/entity/transit/transit.entity';
 import { AwardedMiles } from '../../../src/miles/awarded-miles.entity';
 import { Money } from '../../../src/money/money';
-import { AddressRepository } from '../../../src/repository/address.repository';
 import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
-import { ClientRepository } from '../../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
-import { CarTypeService } from '../../../src/service/car-type.service';
-import { ClaimService } from '../../../src/service/claim.service';
-import { DriverSessionService } from '../../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
-import { DriverService } from '../../../src/service/driver.service';
-import { TransitService } from '../../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Removing Awarded Miles', () => {
@@ -33,14 +21,7 @@ describe('Removing Awarded Miles', () => {
   let awardsService: AwardsService;
   let appProperties: AppProperties;
   let awardsAccountRepository: AwardsAccountRepository;
-  let clientRepository: ClientRepository;
-  let addressRepository: AddressRepository;
-  let driverService: DriverService;
-  let transitRepository: TransitRepository;
-  let claimService: ClaimService;
   let fixtures: Fixtures;
-  let transitDetailsFacade: TransitDetailsFacade;
-  let transitService: TransitService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -49,33 +30,11 @@ describe('Removing Awarded Miles', () => {
 
     awardsService = module.get<AwardsService>(AwardsService);
     appProperties = module.get<AppProperties>(AppProperties);
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    driverService = module.get<DriverService>(DriverService);
-    claimService = module.get<ClaimService>(ClaimService);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
-    addressRepository = module.get<AddressRepository>(AddressRepository);
     awardsAccountRepository = module.get<AwardsAccountRepository>(
       AwardsAccountRepository,
     );
-    transitDetailsFacade =
-      module.get<TransitDetailsFacade>(TransitDetailsFacade);
-    transitService = module.get<TransitService>(TransitService);
 
-    fixtures = new Fixtures(
-      transitDetailsFacade,
-      driverService,
-      {} as DriverFeeRepository,
-      transitRepository,
-      addressRepository,
-      clientRepository,
-      {} as CarTypeService,
-      claimService,
-      awardsService,
-      {} as DriverAttributeRepository,
-      transitService,
-      {} as DriverSessionService,
-      {} as DriverTrackingService,
-    );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   afterAll(async () => {

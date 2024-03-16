@@ -3,6 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
+import { Fixtures } from '../test/common/fixtures';
+
 import { AppProperties } from './config/app-properties.config';
 import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
@@ -152,6 +154,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     },
     TravelledDistanceService,
     TransitCompletedListener,
+    Fixtures, // TODO: For now for tests, refactor
   ],
 })
 export class AppModule {}

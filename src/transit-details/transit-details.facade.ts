@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Driver } from 'src/entity/driver.entity';
 
 import { Distance } from '../distance/distance';
 import { Address } from '../entity/address.entity';
 import { CarClass } from '../entity/car-type.entity';
 import { Client } from '../entity/client.entity';
+import { Driver } from '../entity/driver.entity';
 import { Tariff } from '../entity/tariff.entity';
 import { Money } from '../money/money';
 

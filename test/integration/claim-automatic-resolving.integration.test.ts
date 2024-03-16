@@ -9,40 +9,19 @@ import {
 } from '../../src/entity/claim.entity';
 import { Client, Type } from '../../src/entity/client.entity';
 import { Driver } from '../../src/entity/driver.entity';
-import { AddressRepository } from '../../src/repository/address.repository';
-import { ClientRepository } from '../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
-import { CarTypeService } from '../../src/service/car-type.service';
 import { ClaimService } from '../../src/service/claim.service';
 import { ClientNotificationService } from '../../src/service/client-notification.service';
 import { DriverNotificationService } from '../../src/service/driver-notification.service';
-import { DriverSessionService } from '../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../src/service/driver-tracking.service';
-import { DriverService } from '../../src/service/driver.service';
-import { TransitService } from '../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Claim Automatic Resolving', () => {
   let claimService: ClaimService;
   let appProperties: AppProperties;
   let fixtures: Fixtures;
-  let driverService: DriverService;
-  let driverFeeRepository: DriverFeeRepository;
-  let transitRepository: TransitRepository;
-  let addressRepository: AddressRepository;
-  let clientRepository: ClientRepository;
-  let carTypeService: CarTypeService;
   let awardsService: AwardsService;
   let clientNotificationService: ClientNotificationService;
   let driverNotificationService: DriverNotificationService;
-  let transitDetailsFacade: TransitDetailsFacade;
-  let transitService: TransitService;
-  let driverSessionService: DriverSessionService;
-  let driverTrackingService: DriverTrackingService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -51,12 +30,6 @@ describe('Claim Automatic Resolving', () => {
 
     claimService = module.get<ClaimService>(ClaimService);
     appProperties = module.get<AppProperties>(AppProperties);
-    driverService = module.get<DriverService>(DriverService);
-    driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
-    addressRepository = module.get<AddressRepository>(AddressRepository);
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    carTypeService = module.get<CarTypeService>(CarTypeService);
     awardsService = module.get<AwardsService>(AwardsService);
     clientNotificationService = module.get<ClientNotificationService>(
       ClientNotificationService,
@@ -64,30 +37,8 @@ describe('Claim Automatic Resolving', () => {
     driverNotificationService = module.get<DriverNotificationService>(
       DriverNotificationService,
     );
-    transitDetailsFacade =
-      module.get<TransitDetailsFacade>(TransitDetailsFacade);
-    transitService = module.get<TransitService>(TransitService);
-    driverSessionService =
-      module.get<DriverSessionService>(DriverSessionService);
-    driverTrackingService = module.get<DriverTrackingService>(
-      DriverTrackingService,
-    );
 
-    fixtures = new Fixtures(
-      transitDetailsFacade,
-      driverService,
-      driverFeeRepository,
-      transitRepository,
-      addressRepository,
-      clientRepository,
-      carTypeService,
-      claimService,
-      awardsService,
-      {} as DriverAttributeRepository,
-      transitService,
-      driverSessionService,
-      driverTrackingService,
-    );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   beforeAll(() => {

@@ -1,3 +1,5 @@
+import { Injectable } from '@nestjs/common';
+
 import { Clock } from '../../src/common/clock';
 import { Distance } from '../../src/distance/distance';
 import { AddressDTO } from '../../src/dto/address.dto';
@@ -39,6 +41,9 @@ import { DriverService } from '../../src/service/driver.service';
 import { TransitService } from '../../src/service/transit.service';
 import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 
+// TODO: refactor with module (to be composed with specific fixtures instead of single big class)
+
+@Injectable()
 export class Fixtures {
   constructor(
     private readonly transitDetailsFacade: TransitDetailsFacade,

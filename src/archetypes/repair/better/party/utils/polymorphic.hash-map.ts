@@ -16,9 +16,9 @@ export class PolymorphicHashMap<
     return entry ? entry[1] : undefined;
   }
 
-  private findEntry(key: any): [K, V] | undefined {
+  private findEntry(key: unknown): [K, V] | undefined {
     for (const entry of this.entries()) {
-      if (key.prototype instanceof entry[0]) {
+      if (key instanceof entry[0]) {
         return entry;
       }
     }

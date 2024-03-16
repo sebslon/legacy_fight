@@ -3,30 +3,10 @@ import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
 import { TransitController } from '../../src/controllers/transit.controller';
-import { AddressRepository } from '../../src/repository/address.repository';
-import { ClientRepository } from '../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../src/repository/transit.repository';
-import { AwardsService } from '../../src/service/awards.service';
-import { CarTypeService } from '../../src/service/car-type.service';
-import { ClaimService } from '../../src/service/claim.service';
-import { DriverSessionService } from '../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../src/service/driver-tracking.service';
-import { DriverService } from '../../src/service/driver.service';
-import { TransitService } from '../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Tariff recognizing', () => {
-  let driverService: DriverService;
-  let transitRepository: TransitRepository;
-  let driverFeeRepository: DriverFeeRepository;
-  let addressRepository: AddressRepository;
-  let clientRepository: ClientRepository;
   let transitController: TransitController;
-  let transitDetailsFacade: TransitDetailsFacade;
-  let transitService: TransitService;
   let fixtures: Fixtures;
 
   beforeAll(async () => {
@@ -35,30 +15,8 @@ describe('Tariff recognizing', () => {
     }).compile();
 
     transitController = module.get<TransitController>(TransitController);
-    driverService = module.get<DriverService>(DriverService);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
-    driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
-    addressRepository = module.get<AddressRepository>(AddressRepository);
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    transitDetailsFacade =
-      module.get<TransitDetailsFacade>(TransitDetailsFacade);
-    transitService = module.get<TransitService>(TransitService);
 
-    fixtures = new Fixtures(
-      transitDetailsFacade,
-      driverService,
-      driverFeeRepository,
-      transitRepository,
-      addressRepository,
-      clientRepository,
-      {} as CarTypeService,
-      {} as ClaimService,
-      {} as AwardsService,
-      {} as DriverAttributeRepository,
-      transitService,
-      {} as DriverSessionService,
-      {} as DriverTrackingService,
-    );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   afterAll(async () => {

@@ -4,19 +4,6 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { TravelledDistanceService } from '../../../src/driver-report/travelled-distance/travelled-distance.service';
-import { AddressRepository } from '../../../src/repository/address.repository';
-import { ClientRepository } from '../../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../../src/repository/transit.repository';
-import { AwardsService } from '../../../src/service/awards.service';
-import { CarTypeService } from '../../../src/service/car-type.service';
-import { ClaimService } from '../../../src/service/claim.service';
-import { DriverSessionService } from '../../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
-import { DriverService } from '../../../src/service/driver.service';
-import { TransitService } from '../../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Calculate Driver Travelled Distance', () => {
@@ -25,54 +12,17 @@ describe('Calculate Driver Travelled Distance', () => {
   const NOON_TEN = NOON + 10 * 60 * 1000;
 
   let fixtures: Fixtures;
-
   let travelledDistanceService: TravelledDistanceService;
-  let driverService: DriverService;
-  let driverFeeRepository: DriverFeeRepository;
-  let transitRepository: TransitRepository;
-  let addressRepository: AddressRepository;
-  let clientRepository: ClientRepository;
-  let carTypeService: CarTypeService;
-  let claimService: ClaimService;
-  let awardsService: AwardsService;
-  let driverAttributeRepository: DriverAttributeRepository;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    driverService = module.get<DriverService>(DriverService);
-    driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
-    addressRepository = module.get<AddressRepository>(AddressRepository);
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    carTypeService = module.get<CarTypeService>(CarTypeService);
-    claimService = module.get<ClaimService>(ClaimService);
-    awardsService = module.get<AwardsService>(AwardsService);
-    driverAttributeRepository = module.get<DriverAttributeRepository>(
-      DriverAttributeRepository,
-    );
-
-    fixtures = new Fixtures(
-      {} as TransitDetailsFacade,
-      driverService,
-      driverFeeRepository,
-      transitRepository,
-      addressRepository,
-      clientRepository,
-      carTypeService,
-      claimService,
-      awardsService,
-      driverAttributeRepository,
-      {} as TransitService,
-      {} as DriverSessionService,
-      {} as DriverTrackingService,
-    );
-
     travelledDistanceService = module.get<TravelledDistanceService>(
       TravelledDistanceService,
     );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   afterAll(async () => {

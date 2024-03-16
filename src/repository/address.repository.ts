@@ -40,7 +40,6 @@ export class AddressRepository extends Repository<Address> {
     return this.save(address);
   }
 
-
   public async findByHash(hash: string) {
     return this.findOne({
       where: { hash },

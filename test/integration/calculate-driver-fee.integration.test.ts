@@ -4,61 +4,21 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../src/app.module';
 import { FeeType } from '../../src/entity/driver-fee.entity';
 import { Money } from '../../src/money/money';
-import { AddressRepository } from '../../src/repository/address.repository';
-import { ClientRepository } from '../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../src/repository/transit.repository';
-import { AwardsService } from '../../src/service/awards.service';
-import { CarTypeService } from '../../src/service/car-type.service';
-import { ClaimService } from '../../src/service/claim.service';
 import { DriverFeeService } from '../../src/service/driver-fee.service';
-import { DriverSessionService } from '../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../src/service/driver-tracking.service';
-import { DriverService } from '../../src/service/driver.service';
-import { TransitService } from '../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../common/fixtures';
 
 describe('Calculate Driver Fee', () => {
-  let driverService: DriverService;
   let driverFeeService: DriverFeeService;
-  let transitRepository: TransitRepository;
-  let driverFeeRepository: DriverFeeRepository;
-  let clientRepository: ClientRepository;
-  let addressRepository: AddressRepository;
   let fixtures: Fixtures;
-  let transitDetailsFacade: TransitDetailsFacade;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    driverService = module.get<DriverService>(DriverService);
     driverFeeService = module.get<DriverFeeService>(DriverFeeService);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
-    driverFeeRepository = module.get<DriverFeeRepository>(DriverFeeRepository);
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    addressRepository = module.get<AddressRepository>(AddressRepository);
-    transitDetailsFacade =
-      module.get<TransitDetailsFacade>(TransitDetailsFacade);
 
-    fixtures = new Fixtures(
-      transitDetailsFacade,
-      driverService,
-      driverFeeRepository,
-      transitRepository,
-      addressRepository as AddressRepository,
-      clientRepository,
-      {} as CarTypeService,
-      {} as ClaimService,
-      {} as AwardsService,
-      {} as DriverAttributeRepository,
-      {} as TransitService,
-      {} as DriverSessionService,
-      {} as DriverTrackingService,
-    );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   afterAll(async () => {

@@ -8,19 +8,7 @@ import { AppProperties } from '../../../src/config/app-properties.config';
 import { Client } from '../../../src/entity/client.entity';
 import { Transit } from '../../../src/entity/transit/transit.entity';
 import { Money } from '../../../src/money/money';
-import { AddressRepository } from '../../../src/repository/address.repository';
-import { ClientRepository } from '../../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
-import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
-import { CarTypeService } from '../../../src/service/car-type.service';
-import { ClaimService } from '../../../src/service/claim.service';
-import { DriverSessionService } from '../../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
-import { DriverService } from '../../../src/service/driver.service';
-import { TransitService } from '../../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Expiring Awarded Miles (calculating balance)', () => {
@@ -29,14 +17,8 @@ describe('Expiring Awarded Miles (calculating balance)', () => {
   const _2000_01_03 = new Date('2000-01-03');
 
   let awardsService: AwardsService;
-  let clientRepository: ClientRepository;
-  let addressRepository: AddressRepository;
-  let driverService: DriverService;
-  let transitRepository: TransitRepository;
-  let claimService: ClaimService;
   let appProperties: AppProperties;
   let fixtures: Fixtures;
-  let transitDetailsFacade: TransitDetailsFacade;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,30 +26,9 @@ describe('Expiring Awarded Miles (calculating balance)', () => {
     }).compile();
 
     awardsService = module.get<AwardsService>(AwardsService);
-    clientRepository = module.get<ClientRepository>(ClientRepository);
-    driverService = module.get<DriverService>(DriverService);
-    claimService = module.get<ClaimService>(ClaimService);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
     appProperties = module.get<AppProperties>(AppProperties);
-    addressRepository = module.get<AddressRepository>(AddressRepository);
-    transitDetailsFacade =
-      module.get<TransitDetailsFacade>(TransitDetailsFacade);
 
-    fixtures = new Fixtures(
-      transitDetailsFacade,
-      driverService,
-      {} as DriverFeeRepository,
-      transitRepository,
-      addressRepository,
-      clientRepository,
-      {} as CarTypeService,
-      claimService,
-      awardsService,
-      {} as DriverAttributeRepository,
-      {} as TransitService,
-      {} as DriverSessionService,
-      {} as DriverTrackingService,
-    );
+    fixtures = module.get<Fixtures>(Fixtures);
   });
 
   afterAll(async () => {

@@ -1,7 +1,5 @@
-import { TransitDetails } from 'src/transit-details/transit-details.entity';
-import { Between, EntityRepository, MoreThan, Repository } from 'typeorm';
+import { Between, EntityRepository, Repository } from 'typeorm';
 
-import { Address } from '../entity/address.entity';
 import { Client } from '../entity/client.entity';
 import { Driver } from '../entity/driver.entity';
 import { TransitStatus, Transit } from '../entity/transit/transit.entity';
