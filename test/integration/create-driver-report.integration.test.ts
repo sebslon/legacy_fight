@@ -260,7 +260,7 @@ describe('Create Driver Report', () => {
     await transitService.publishTransit(transit.getId());
     await transitService.acceptTransit(driverId, transit.getId());
     await transitService.startTransit(driverId, transit.getId());
-    await transitService.completeTransit(driverId, transit.getId(), to);
+    await transitService.completeTransit(driverId, transit.getId());
 
     await driverSessionService.logOutCurrentSession(driverId);
 

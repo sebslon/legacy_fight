@@ -10,24 +10,18 @@ import { CreateDriverDto } from '../dto/create-driver.dto';
 import { DriverDTO } from '../dto/driver.dto';
 import { DriverLicense } from '../entity/driver-license';
 import { Driver, DriverStatus } from '../entity/driver.entity';
-import { DriverAttributeRepository } from '../repository/driver-attribute.repository';
 import { DriverRepository } from '../repository/driver.repository';
-import { TransitRepository } from '../repository/transit.repository';
+import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
 import { DriverFeeService } from './driver-fee.service';
 
 @Injectable()
 export class DriverService {
-  public static DRIVER_LICENSE_REGEX = '^[A-Z9]{5}\\d{6}[A-Z9]{2}\\d[A-Z]{2}$';
-
   constructor(
     @InjectRepository(DriverRepository)
     private driverRepository: DriverRepository,
-    @InjectRepository(DriverAttributeRepository)
-    private driverAttributeRepository: DriverAttributeRepository,
-    @InjectRepository(TransitRepository)
-    private transitRepository: TransitRepository,
     private driverFeeService: DriverFeeService,
+    private readonly transitDetailsFacade: TransitDetailsFacade,
   ) {}
 
   public async createDriver({
@@ -148,20 +142,19 @@ export class DriverService {
     }
 
     const yearMonth = dayjs(`${year}-${month}`, 'YYYY-M');
-    const from = yearMonth.startOf('month');
-    const to = yearMonth.endOf('month');
+    const from = yearMonth.startOf('month').toDate();
+    const to = yearMonth.endOf('month').toDate();
 
-    const transitsList =
-      await this.transitRepository.findAllByDriverAndDateTimeBetween(
-        driver,
-        from.valueOf(),
-        to.valueOf(),
-      );
+    const transitsList = await this.transitDetailsFacade.findByDriver(
+      driverId,
+      from,
+      to,
+    );
 
     const sum = (
       await Promise.all(
         transitsList.map((t) =>
-          this.driverFeeService.calculateDriverFee(t.getId()),
+          this.driverFeeService.calculateDriverFee(t.price, driverId),
         ),
       )
     ).reduce((prev, curr) => prev + curr.toInt(), 0);

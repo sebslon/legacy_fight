@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Between, EntityRepository, Repository } from 'typeorm';
 
 import { TransitDetails } from './transit-details.entity';
 
@@ -16,7 +16,7 @@ export class TransitDetailsRepository extends Repository<TransitDetails> {
     return this.find({
       where: {
         client: {
-          clientId,
+          id: clientId,
         },
       },
     });
@@ -30,10 +30,7 @@ export class TransitDetailsRepository extends Repository<TransitDetails> {
     return this.find({
       where: {
         driverId,
-        dateTime: {
-          $gte: from,
-          $lte: to,
-        },
+        dateTime: Between(from.getTime(), to.getTime()),
       },
     });
   }

@@ -4,7 +4,6 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../src/app.module';
 import { Clock } from '../../src/common/clock';
 import { AddressDTO } from '../../src/dto/address.dto';
-import { Address } from '../../src/entity/address.entity';
 import { CarClass } from '../../src/entity/car-type.entity';
 import { FeeType } from '../../src/entity/driver-fee.entity';
 import { TransitStatus } from '../../src/entity/transit/transit.entity';
@@ -153,17 +152,7 @@ describe('Transit Life Cycle', () => {
     await transitService.publishTransit(transit.getId());
     await transitService.acceptTransit(driver, transit.getId());
     await transitService.startTransit(driver, transit.getId());
-    await transitService.completeTransit(
-      driver,
-      transit.getId(),
-      new Address(
-        destination.country,
-        destination.city,
-        destination.postalCode,
-        destination.street,
-        destination.buildingNumber,
-      ),
-    );
+    await transitService.completeTransit(driver, transit.getId());
 
     await expect(
       transitService.changeTransitAddressTo(
@@ -246,17 +235,7 @@ describe('Transit Life Cycle', () => {
       transitService.changeTransitAddressFrom(transit.getId(), changedTo),
     ).rejects.toThrow();
 
-    await transitService.completeTransit(
-      driver,
-      transit.getId(),
-      new Address(
-        destination.country,
-        destination.city,
-        destination.postalCode,
-        destination.street,
-        destination.buildingNumber,
-      ),
-    );
+    await transitService.completeTransit(driver, transit.getId());
 
     await expect(
       transitService.changeTransitAddressFrom(transit.getId(), changedTo),
@@ -336,17 +315,7 @@ describe('Transit Life Cycle', () => {
       transitService.cancelTransit(transit.getId()),
     ).rejects.toThrow();
 
-    await transitService.completeTransit(
-      driver,
-      transit.getId(),
-      new Address(
-        destination.country,
-        destination.city,
-        destination.postalCode,
-        destination.street,
-        destination.buildingNumber,
-      ),
-    );
+    await transitService.completeTransit(driver, transit.getId());
 
     await expect(
       transitService.cancelTransit(transit.getId()),
@@ -490,17 +459,7 @@ describe('Transit Life Cycle', () => {
     await transitService.publishTransit(transit.getId());
     await transitService.acceptTransit(driver, transit.getId());
     await transitService.startTransit(driver, transit.getId());
-    await transitService.completeTransit(
-      driver,
-      transit.getId(),
-      new Address(
-        destination.country,
-        destination.city,
-        destination.postalCode,
-        destination.street,
-        destination.buildingNumber,
-      ),
-    );
+    await transitService.completeTransit(driver, transit.getId());
 
     const loadedTransit = await transitService.loadTransit(transit.getId());
 
@@ -531,17 +490,7 @@ describe('Transit Life Cycle', () => {
     await transitService.acceptTransit(driver, transit.getId());
 
     await expect(
-      transitService.completeTransit(
-        driver,
-        transit.getId(),
-        new Address(
-          destination.country,
-          destination.city,
-          destination.postalCode,
-          destination.street,
-          destination.buildingNumber,
-        ),
-      ),
+      transitService.completeTransit(driver, transit.getId()),
     ).rejects.toThrow();
   });
 

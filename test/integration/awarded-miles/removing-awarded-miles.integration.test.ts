@@ -1,18 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
+import { v4 as uuid } from 'uuid';
 
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
+import { Distance } from '../../../src/distance/distance';
 import { Client, Type } from '../../../src/entity/client.entity';
 import { Transit } from '../../../src/entity/transit/transit.entity';
 import { AwardedMiles } from '../../../src/miles/awarded-miles.entity';
-import { Money } from '../../../src/money/money';
 import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
+import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Removing Awarded Miles', () => {
+  const TRANSIT_ID = uuid();
+
   const DAY_BEFORE_YESTERDAY = Date.now() - 2 * 24 * 60 * 60 * 1000;
   const YESTERDAY = Date.now() - 24 * 60 * 60 * 1000;
   const TODAY = Date.now();
@@ -22,6 +26,7 @@ describe('Removing Awarded Miles', () => {
   let appProperties: AppProperties;
   let awardsAccountRepository: AwardsAccountRepository;
   let fixtures: Fixtures;
+  let transitRepository: TransitRepository;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,8 +38,12 @@ describe('Removing Awarded Miles', () => {
     awardsAccountRepository = module.get<AwardsAccountRepository>(
       AwardsAccountRepository,
     );
+    transitRepository = module.get<TransitRepository>(TransitRepository);
 
     fixtures = module.get<Fixtures>(Fixtures);
+
+    const transit = Transit.create(new Date(), Distance.ZERO);
+    jest.spyOn(transitRepository, 'findOne').mockResolvedValue(transit);
   });
 
   afterAll(async () => {
@@ -47,25 +56,18 @@ describe('Removing Awarded Miles', () => {
 
   it('By default removes oldest miles even when they are special', async () => {
     const client = await clientWithAnActiveMilesProgram(Type.NORMAL);
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
 
     const newestMiles = await grantedMilesThatWillExpireInDays(
       10,
       365,
       new Date(TODAY),
       client,
-      transit,
     );
     const middleMiles = await grantedMilesThatWillExpireInDays(
       10,
       365,
       new Date(YESTERDAY),
       client,
-      transit,
     );
     const oldestSpecialMiles = await grantedSpecialMiles(
       5,
@@ -88,32 +90,23 @@ describe('Removing Awarded Miles', () => {
     const client = await clientWithAnActiveMilesProgram(Type.NORMAL);
     await fixtures.clientHasDoneTransits(client, 15);
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
     const oldest = await grantedMilesThatWillExpireInDays(
       10,
       60,
       new Date(DAY_BEFORE_YESTERDAY),
       client,
-      transit,
     );
     const middle = await grantedMilesThatWillExpireInDays(
       10,
       365,
       new Date(YESTERDAY),
       client,
-      transit,
     );
     const newest = await grantedMilesThatWillExpireInDays(
       10,
       30,
       new Date(TODAY),
       client,
-      transit,
     );
 
     isNotSunday();
@@ -133,18 +126,11 @@ describe('Removing Awarded Miles', () => {
 
     await fixtures.clientHasDoneTransits(client, 15);
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
     const regularMiles = await grantedMilesThatWillExpireInDays(
       10,
       365,
       new Date(TODAY),
       client,
-      transit,
     );
     const olderSpecialMiles = await grantedSpecialMiles(
       5,
@@ -164,32 +150,24 @@ describe('Removing Awarded Miles', () => {
 
   it('Should remove soon to expire miles first when client is VIP', async () => {
     const client = await clientWithAnActiveMilesProgram(Type.VIP);
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
 
     const firstToExpire = await grantedMilesThatWillExpireInDays(
       15,
       30,
       new Date(TODAY),
       client,
-      transit,
     );
     const secondToExpire = await grantedMilesThatWillExpireInDays(
       10,
       60,
       new Date(YESTERDAY),
       client,
-      transit,
     );
     const thirdToExpire = await grantedMilesThatWillExpireInDays(
       5,
       365,
       new Date(DAY_BEFORE_YESTERDAY),
       client,
-      transit,
     );
     const specialMiles = await grantedSpecialMiles(
       1,
@@ -215,32 +193,23 @@ describe('Removing Awarded Miles', () => {
 
     await fixtures.clientHasDoneTransits(client, 15);
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
     const firstToExpire = await grantedMilesThatWillExpireInDays(
       15,
       10,
       new Date(TODAY),
       client,
-      transit,
     );
     const secondToExpire = await grantedMilesThatWillExpireInDays(
       10,
       60,
       new Date(YESTERDAY),
       client,
-      transit,
     );
     const thirdToExpire = await grantedMilesThatWillExpireInDays(
       5,
       365,
       new Date(DAY_BEFORE_YESTERDAY),
       client,
-      transit,
     );
     const specialMiles = await grantedSpecialMiles(
       100,
@@ -264,31 +233,24 @@ describe('Removing Awarded Miles', () => {
   it('Should remove (also special) soon to expire miles first when client has many claims', async () => {
     const client = await clientWithAnActiveMilesProgram(Type.NORMAL);
     await fixtures.clientHasDoneClaims(client, 3);
-    const transit = await fixtures.createTestTransit(
-      await fixtures.createTestDriver(),
-      new Money(80).toInt(),
-    );
 
     const firstToExpire = await grantedMilesThatWillExpireInDays(
       5,
       10,
       new Date(YESTERDAY),
       client,
-      transit,
     );
     const secondToExpire = await grantedMilesThatWillExpireInDays(
       4,
       60,
       new Date(YESTERDAY),
       client,
-      transit,
     );
     const thirdToExpire = await grantedMilesThatWillExpireInDays(
       10,
       365,
       new Date(DAY_BEFORE_YESTERDAY),
       client,
-      transit,
     );
     const specialMiles = await grantedSpecialMiles(
       10,
@@ -342,21 +304,16 @@ describe('Removing Awarded Miles', () => {
     expirationInDays: number,
     whenRegistered: Date,
     client: Client,
-    transit: Transit,
   ) {
     milesWillExpireInDays(expirationInDays);
     defaultMilesBonusIs(miles);
-    return milesRegisteredAt(whenRegistered, client, transit);
+    return milesRegisteredAt(whenRegistered, client);
   }
 
-  async function milesRegisteredAt(
-    when: Date,
-    client: Client,
-    transit: Transit,
-  ) {
+  async function milesRegisteredAt(when: Date, client: Client) {
     jest.spyOn(Clock, 'currentDate').mockReturnValue(when);
 
-    return await awardsService.registerMiles(client.getId(), transit.getId());
+    return await awardsService.registerMiles(client.getId(), TRANSIT_ID);
   }
 
   async function grantedSpecialMiles(

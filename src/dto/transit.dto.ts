@@ -144,7 +144,7 @@ export class TransitDTO {
     this.from = new AddressDTO(transitDetails.from);
     this.carClass = transitDetails.carType;
     this.clientDto = transitDetails.client;
-    if (transit.getDriversFee() != null) {
+    if (transitDetails.driverFee != null) {
       this.driverFee = transitDetails.driverFee.toInt();
     }
     const estimatedPrice = transitDetails.estimatedPrice;

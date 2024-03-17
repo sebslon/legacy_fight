@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Money } from '../money/money';
@@ -31,6 +31,7 @@ export class DriverFee extends BaseEntity {
   @OneToOne(() => Driver, (driver) => driver.fee, {
     onDelete: 'SET NULL',
   })
+  @JoinColumn({ name: 'driverId' })
   public driver: Driver;
 
   constructor(feeType: FeeType, driver: Driver, amount: number, min: number) {

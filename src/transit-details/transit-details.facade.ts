@@ -111,6 +111,26 @@ export class TransitDetailsFacade {
     return await this.transitDetailsRepository.save(details);
   }
 
+  public async findByClient(clientId: string): Promise<TransitDetailsDTO[]> {
+    return (
+      await this.transitDetailsRepository.findManyByClientId(clientId)
+    ).map((details) => TransitDetailsDTO.fromTransitDetails(details));
+  }
+
+  public async findByDriver(
+    driverId: string,
+    from: Date,
+    to: Date,
+  ): Promise<TransitDetailsDTO[]> {
+    return (
+      await this.transitDetailsRepository.findAllByDriverAndDateTimeBetween(
+        driverId,
+        from,
+        to,
+      )
+    ).map((details) => TransitDetailsDTO.fromTransitDetails(details));
+  }
+
   private async load(transitId: string): Promise<TransitDetails> {
     const details = await this.transitDetailsRepository.findByTransitId(
       transitId,

@@ -5,7 +5,6 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryColumn,
-  RelationId,
 } from 'typeorm';
 
 import { Distance } from '../distance/distance';
@@ -80,8 +79,8 @@ export class TransitDetails {
   @JoinColumn({ name: 'driverId', referencedColumnName: 'id' })
   public driver: Driver;
 
-  @RelationId((transitDetails: TransitDetails) => transitDetails.driver)
-  private driverId: string;
+  @Column({ nullable: true })
+  public driverId: string;
 
   @Column()
   private status: TransitStatus = TransitStatus.DRAFT;

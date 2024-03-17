@@ -469,25 +469,12 @@ export class TransitService {
     await this.transitRepository.save(transit);
   }
 
-  public completeTransitFromDto(
-    driverId: string,
-    transitId: string,
-    destinationAddress: AddressDTO,
-  ) {
-    return this.completeTransit(
-      driverId,
-      transitId,
-      destinationAddress.toAddressEntity(),
-    );
+  public completeTransitFromDto(driverId: string, transitId: string) {
+    return this.completeTransit(driverId, transitId);
   }
 
-  public async completeTransit(
-    driverId: string,
-    transitId: string,
-    destinationAddress: Address,
-  ) {
+  public async completeTransit(driverId: string, transitId: string) {
     const now = Clock.currentDate();
-    const destination = await this.addressRepository.save(destinationAddress);
 
     const driver = await this.driverRepository.findOne(driverId);
 
@@ -521,13 +508,13 @@ export class TransitService {
       ),
     );
 
-    transit.completeTransitAt(now, destination, distance);
+    transit.completeTransitAt(distance);
 
     const driverFee = await this.driverFeeService.calculateDriverFee(
-      transit.getId(),
+      transit.getPrice() as Money,
+      driverId,
     );
 
-    transit.setDriversFee(driverFee);
     driver.setOccupied(false);
 
     await this.driverRepository.save(driver);

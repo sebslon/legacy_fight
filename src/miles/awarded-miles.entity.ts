@@ -3,7 +3,6 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
 import { Client } from '../entity/client.entity';
-import { Transit } from '../entity/transit/transit.entity';
 
 import { AwardsAccount } from './awards-account.entity';
 import { MilesInterface } from './interfaces/miles.interface';
@@ -36,15 +35,15 @@ export class AwardedMiles extends BaseEntity {
   @Column({ default: Date.now(), type: 'bigint', nullable: false })
   private date: number;
 
-  @ManyToOne(() => Transit)
-  public transit: Transit | null;
+  @Column({ nullable: true, type: 'varchar' })
+  private transitId: string | null;
 
   @ManyToOne(() => AwardsAccount)
   public account: AwardsAccount;
 
   public constructor(
     awardsAccount: AwardsAccount,
-    transit: Transit | null,
+    transitId: string | null,
     client: Client,
     when: Date,
     miles: MilesInterface,
@@ -52,7 +51,7 @@ export class AwardedMiles extends BaseEntity {
     super();
 
     this.account = awardsAccount;
-    this.transit = transit;
+    this.transitId = transitId;
     this.client = client;
     this.date = when?.getTime();
 
@@ -61,7 +60,7 @@ export class AwardedMiles extends BaseEntity {
 
   public transferTo(account: AwardsAccount, amount: number) {
     const expiration = this.getExpirationDate();
-    const transit = this.transit;
+    const transit = this.transitId;
 
     expiration && transit
       ? account.addExpiringMiles(

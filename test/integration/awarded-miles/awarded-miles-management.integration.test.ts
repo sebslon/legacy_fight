@@ -1,19 +1,24 @@
 import { NotAcceptableException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
+import { v4 as uuid } from 'uuid';
 
 import { AppModule } from '../../../src/app.module';
-import { Money } from '../../../src/money/money';
+import { Distance } from '../../../src/distance/distance';
+import { Transit } from '../../../src/entity/transit/transit.entity';
 import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
+import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Awarded Miles Management', () => {
   let awardsService: AwardsService;
   let awardsAccountRepository: AwardsAccountRepository;
+  let transitRepository: TransitRepository;
   let fixtures: Fixtures;
 
   const NOW = new Date('2020-01-01');
+  const TRANSIT_ID = uuid();
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,8 +29,12 @@ describe('Awarded Miles Management', () => {
     awardsAccountRepository = module.get<AwardsAccountRepository>(
       AwardsAccountRepository,
     );
+    transitRepository = module.get<TransitRepository>(TransitRepository);
 
     fixtures = module.get<Fixtures>(Fixtures);
+
+    const fakeTransit = Transit.create(new Date(), Distance.ZERO);
+    jest.spyOn(transitRepository, 'findOne').mockResolvedValue(fakeTransit);
   });
 
   afterAll(async () => {
@@ -77,13 +86,7 @@ describe('Awarded Miles Management', () => {
 
     await fixtures.createActiveAwardsAccount(client);
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
-    await awardsService.registerMiles(client.getId(), transit.getId());
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
 
     const account = await awardsService.findBy(client.getId());
     const awardedMiles = await awardsAccountRepository.findAllMilesByClient(
@@ -116,15 +119,10 @@ describe('Awarded Miles Management', () => {
   it('Can calculate miles balance', async () => {
     const client = await fixtures.createTestClient();
     await fixtures.createActiveAwardsAccount(client);
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
 
     await awardsService.registerNonExpiringMiles(client.getId(), 20);
-    await awardsService.registerMiles(client.getId(), transit.getId());
-    await awardsService.registerMiles(client.getId(), transit.getId());
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
 
     const account = await awardsService.findBy(client.getId());
     const miles = await awardsService.calculateBalance(client.getId());
@@ -162,14 +160,8 @@ describe('Awarded Miles Management', () => {
     await fixtures.createActiveAwardsAccount(client);
     await fixtures.createActiveAwardsAccount(secondClient);
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
-    await awardsService.registerMiles(client.getId(), transit.getId());
-    await awardsService.registerMiles(client.getId(), transit.getId());
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
 
     await awardsService.transferMiles(client.getId(), secondClient.getId(), 7);
 
@@ -234,15 +226,9 @@ describe('Awarded Miles Management', () => {
 
     await fixtures.createActiveAwardsAccount(client);
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
-    await awardsService.registerMiles(client.getId(), transit.getId());
-    await awardsService.registerMiles(client.getId(), transit.getId());
-    await awardsService.registerMiles(client.getId(), transit.getId());
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
 
     await awardsService.removeMiles(client.getId(), 20);
 
@@ -256,15 +242,9 @@ describe('Awarded Miles Management', () => {
 
     await fixtures.createActiveAwardsAccount(client);
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
-    await awardsService.registerMiles(client.getId(), transit.getId());
-    await awardsService.registerMiles(client.getId(), transit.getId());
-    await awardsService.registerMiles(client.getId(), transit.getId());
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
 
     await expect(
       awardsService.removeMiles(client.getId(), 40),
@@ -276,15 +256,9 @@ describe('Awarded Miles Management', () => {
 
     await awardsService.registerToProgram(client.getId());
 
-    const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(
-      driver,
-      new Money(80).toInt(),
-    );
-
     const currentMiles = await awardsService.calculateBalance(client.getId());
 
-    await awardsService.registerMiles(client.getId(), transit.getId());
+    await awardsService.registerMiles(client.getId(), TRANSIT_ID);
 
     expect(await awardsService.calculateBalance(client.getId())).toEqual(
       currentMiles,

@@ -9,7 +9,7 @@ import { Client, Type } from '../entity/client.entity';
 import { ClaimRepository } from '../repository/claim.repository';
 import { ClaimsResolverRepository } from '../repository/claims-resolver.repository';
 import { ClientRepository } from '../repository/client.repository';
-import { TransitRepository } from '../repository/transit.repository';
+import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
 import { AwardsService } from './awards.service';
 import { ClaimNumberGenerator } from './claim-number-generator.service';
@@ -21,8 +21,6 @@ export class ClaimService {
   constructor(
     @InjectRepository(ClientRepository)
     private clientRepository: ClientRepository,
-    @InjectRepository(TransitRepository)
-    private transitRepository: TransitRepository,
     @InjectRepository(ClaimRepository)
     private claimRepository: ClaimRepository,
     @InjectRepository(ClaimsResolverRepository)
@@ -32,6 +30,7 @@ export class ClaimService {
     private clientNotificationService: ClientNotificationService,
     private driverNotificationService: DriverNotificationService,
     private appProperties: AppProperties,
+    private transitDetailsFacade: TransitDetailsFacade,
   ) {}
 
   public async create(claimDTO: ClaimDTO): Promise<Claim> {
@@ -52,9 +51,10 @@ export class ClaimService {
 
   public async update(claimDTO: ClaimDTO, claim: Claim) {
     const client = await this.clientRepository.findOne(claimDTO.getClientId());
-    const transit = await this.transitRepository.findOne(
+    const transit = await this.transitDetailsFacade.find(
       claimDTO.getTransitId(),
     );
+
     if (client == null) {
       throw new NotFoundException('Client does not exists');
     }
@@ -67,7 +67,8 @@ export class ClaimService {
       claim.setStatus(ClaimStatus.NEW);
     }
     claim.setOwner(client);
-    claim.setTransit(transit);
+    claim.setTransit(transit.transitId);
+    claim.setTransitPrice(transit.price);
     claim.setCreationDate(Date.now());
     claim.setReason(claimDTO.getReason());
     claim.setIncidentDescription(claimDTO.getIncidentDescription());
@@ -85,8 +86,8 @@ export class ClaimService {
     const claim = await this.find(id);
 
     const claimsResolver = await this.findOrCreateResolver(claim.getOwner());
-    const transitsDoneByClient = await this.transitRepository.findByClient(
-      claim.getOwner(),
+    const transitsDoneByClient = await this.transitDetailsFacade.findByClient(
+      claim.getOwner().getId(),
     );
 
     const automaticRefundForVipThreshold =
@@ -122,14 +123,14 @@ export class ClaimService {
     }
 
     if (result.whoToAsk === WhoToAsk.ASK_DRIVER) {
-      const driver = claim.getTransit().getDriver();
+      const transitDetailsDto = await this.transitDetailsFacade.find(
+        claim.getTransitId(),
+      );
 
-      if (driver) {
-        await this.driverNotificationService.askDriverForDetailsAboutClaim(
-          claim.getClaimNo(),
-          driver.getId(),
-        );
-      }
+      await this.driverNotificationService.askDriverForDetailsAboutClaim(
+        claim.getClaimNo(),
+        transitDetailsDto.driverId,
+      );
     }
 
     if (result.whoToAsk === WhoToAsk.ASK_CLIENT) {

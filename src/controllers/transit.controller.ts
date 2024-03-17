@@ -103,13 +103,8 @@ export class TransitController {
   public async complete(
     @Param('transitId') transitId: string,
     @Param('driverId') driverId: string,
-    @Body() createAddressDto: CreateAddressDto,
   ): Promise<TransitDTO> {
-    await this.transitService.completeTransitFromDto(
-      driverId,
-      transitId,
-      new AddressDTO(createAddressDto),
-    );
+    await this.transitService.completeTransitFromDto(driverId, transitId);
     return this.transitService.loadTransit(transitId);
   }
 }

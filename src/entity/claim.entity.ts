@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
+import { Money } from '../money/money';
 
 import { Client } from './client.entity';
-import { Transit } from './transit/transit.entity';
 
 export enum ClaimStatus {
   DRAFT = 'draft',
@@ -24,8 +24,18 @@ export class Claim extends BaseEntity {
   @ManyToOne(() => Client, (client) => client.claims, { eager: true })
   public owner: Client;
 
-  @ManyToOne(() => Transit, (transit) => transit.claims, { eager: true })
-  public transit: Transit;
+  @Column({ type: 'uuid', nullable: true })
+  private transitId: string;
+
+  @Column({
+    nullable: true,
+    transformer: {
+      to: (value: Money) => value?.toInt(),
+      from: (value: number) => new Money(value),
+    },
+    type: 'int',
+  })
+  private transitPrice: Money | null;
 
   @Column({ type: 'bigint' })
   private creationDate: number;
@@ -86,12 +96,20 @@ export class Claim extends BaseEntity {
     this.owner = owner;
   }
 
-  public getTransit() {
-    return this.transit;
+  public getTransitId() {
+    return this.transitId;
   }
 
-  public setTransit(transit: Transit) {
-    this.transit = transit;
+  public setTransit(transitId: string) {
+    this.transitId = transitId;
+  }
+
+  public getTransitPrice() {
+    return this.transitPrice;
+  }
+
+  public setTransitPrice(transitPrice: Money) {
+    this.transitPrice = transitPrice;
   }
 
   public getCreationDate() {

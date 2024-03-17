@@ -1,13 +1,12 @@
 ### Fork of legacyfighter/cabs-java to Nest.js (TypeScript / Node)
 
-_____________
-
+---
 
 ## General Informations
 
 This is part of 'Legacy Fighter' course.
 
-This is just a pet project to learn and practice refactoring techniques and patterns. 
+This is just a pet project to learn and practice refactoring techniques and patterns.
 It's a fork of the original project written in Java. I've decided to finish it in TypeScript/Node.js using Nest.js framework.
 
 - Commits are done to the main branch directly because it's just a 'pet/learning project'.
@@ -23,7 +22,8 @@ Repository isn't perfect and fully refactored, there is still big room for impro
 
 ## Introduced Refactorings
 
-### General Approach**:
+### General Approach\*\*:
+
 - Build safety net with tests (unit or e2e) - cover at least all of the observable behaviors
 - Introduce new concept
 - Replace old concept with new concept
@@ -44,6 +44,7 @@ Repository isn't perfect and fully refactored, there is still big room for impro
   - Solution: `Tariff` Value Object
 
 ##### Aggregates / Entities:
+
 - Problem: Data inconsistency - lots of setters to bring the object to expected state, repeated
   - Solution: `Transit` Aggregate - interface with business methods, encapsulation of the state, validation, and business rules
 - Problem: Too big object / too big database transactions
@@ -56,6 +57,7 @@ Repository isn't perfect and fully refactored, there is still big room for impro
   - Solution: `Contract` - encapsulate the state, validation, and business rules, split the object into smaller parts
 
 ##### CQRS:
+
 - Problem: Data model that doesn't fit reads too well / too slow driver km report generation
   - Solution: Separate read and write models.
     - `DriverPosition` - keeps info about last driver positions (very frequent writes)
@@ -73,7 +75,7 @@ Archetypes in software design provide common patterns and models for developers 
 
 ⚙️ TODO: Finish the implementation of `Party, PartyRole, PartyRelationship` archetypes. (tag#archetypes-repair-better)
 
-- Introduction to `Party, PartyRole, PartyRelationship` patterns/archetypes - responsible for organizing informations about people in different organizations 
+- Introduction to `Party, PartyRole, PartyRelationship` patterns/archetypes - responsible for organizing informations about people in different organizations
 - State (`Contracts` (tag#archetypes-contracts-better)) - complex state transitions, state management
 
 ##### Local Code Structure
@@ -83,6 +85,9 @@ Archetypes in software design provide common patterns and models for developers 
 ##### Bounded Contexts / Modularisation
 
 - Splitting Transit/TransitDetails
+- Removed direct coupling between `Claim` and `Transit` leaving only `transitId` and `transitPrice` - other informations are not needed in this context
+- Removed `driversFee` info from `Transit` (`TransitDetails`)
+- Removed direct coupling between `AwardedMiles` and `Transit` leaving only `transitId`
 
 ##### Other:
 

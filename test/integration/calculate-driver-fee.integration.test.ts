@@ -27,22 +27,26 @@ describe('Calculate Driver Fee', () => {
 
   it('Should calculate drivers flat fee', async () => {
     const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(driver, 60);
 
     await fixtures.driverHasFee(driver, FeeType.FLAT, 10, 0);
 
-    const fee = await driverFeeService.calculateDriverFee(transit.getId());
+    const fee = await driverFeeService.calculateDriverFee(
+      new Money(60),
+      driver.getId(),
+    );
 
     expect(fee).toEqual(new Money(50));
   });
 
   it('Should calculate drivers percentage fee', async () => {
     const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(driver, 80);
 
     await fixtures.driverHasFee(driver, FeeType.PERCENTAGE, 50, 0);
 
-    const fee = await driverFeeService.calculateDriverFee(transit.getId());
+    const fee = await driverFeeService.calculateDriverFee(
+      new Money(80),
+      driver.getId(),
+    );
 
     expect(fee).toEqual(new Money(40));
   });
@@ -51,11 +55,13 @@ describe('Calculate Driver Fee', () => {
     const minimumFee = 25;
 
     const driver = await fixtures.createTestDriver();
-    const transit = await fixtures.createTestTransit(driver, 10);
 
     await fixtures.driverHasFee(driver, FeeType.PERCENTAGE, 7, minimumFee);
 
-    const fee = await driverFeeService.calculateDriverFee(transit.getId());
+    const fee = await driverFeeService.calculateDriverFee(
+      new Money(10),
+      driver.getId(),
+    );
 
     expect(fee).toEqual(new Money(minimumFee));
   });

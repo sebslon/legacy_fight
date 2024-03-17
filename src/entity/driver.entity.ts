@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 
@@ -47,7 +47,6 @@ export class Driver extends BaseEntity {
   private isOccupied: boolean;
 
   @OneToOne(() => DriverFee, (fee) => fee.driver)
-  @JoinColumn()
   public fee: DriverFee;
 
   public getAttributes() {

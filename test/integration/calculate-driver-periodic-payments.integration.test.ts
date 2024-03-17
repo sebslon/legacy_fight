@@ -28,12 +28,12 @@ describe('Calculate Driver Periodic Payments', () => {
   it('Calculates monthly payment', async () => {
     const driver = await fixtures.createTestDriver();
 
-    await fixtures.createTestTransit(driver, 100, new Date('2023-10-01'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-10-15'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-10-23'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-11-01'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-11-15'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-12-23'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-10-01'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-10-15'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-10-23'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-11-01'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-11-15'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-12-23'));
 
     await fixtures.driverHasFee(driver, FeeType.FLAT, 10, 0);
 
@@ -65,14 +65,14 @@ describe('Calculate Driver Periodic Payments', () => {
   it('Calculates yearly payment', async () => {
     const driver = await fixtures.createTestDriver();
 
-    await fixtures.createTestTransit(driver, 100, new Date('2023-10-01'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-10-15'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-10-01'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-10-15'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-11-01'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-11-15'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-11-01'));
-    await fixtures.createTestTransit(driver, 100, new Date('2023-12-15'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-10-01'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-10-15'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-10-01'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-10-15'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-11-01'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-11-15'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-11-01'));
+    await fixtures.createTransitDetails(driver, 100, new Date('2023-12-15'));
 
     await fixtures.driverHasFee(driver, FeeType.FLAT, 10, 0);
 

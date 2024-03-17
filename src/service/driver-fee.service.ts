@@ -14,31 +14,15 @@ export class DriverFeeService {
     private transitRepository: TransitRepository,
   ) {}
 
-  public async calculateDriverFee(transitId: string): Promise<Money> {
-    const transit = await this.transitRepository.findOne(transitId);
-
-    if (!transit) {
-      throw new NotFoundException('transit does not exist, id = ' + transitId);
-    }
-
-    if (transit.getDriversFee().toInt() != null) {
-      return transit.getDriversFee();
-    }
-
-    const transitPrice = transit.getPrice() ?? new Money(0);
-    const driver = transit.getDriver();
-
-    if (!driver) {
-      throw new NotFoundException(
-        'driver not exist for transit = ' + transitId,
-      );
-    }
-
-    const driverFee = await this.driverFeeRepository.findByDriver(driver);
+  public async calculateDriverFee(
+    transitPrice: Money,
+    driverId: string,
+  ): Promise<Money> {
+    const driverFee = await this.driverFeeRepository.findByDriverId(driverId);
 
     if (!driverFee) {
       throw new NotFoundException(
-        'driver Fees not defined for driver, driver id = ' + driver.getId(),
+        'driver Fees not defined for driver, driver id = ' + driverId,
       );
     }
 

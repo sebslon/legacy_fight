@@ -25,6 +25,7 @@ import {
   DriverStatus,
   DriverType,
 } from '../../src/entity/driver.entity';
+import { Tariff } from '../../src/entity/tariff.entity';
 import { Transit } from '../../src/entity/transit/transit.entity';
 import { Money } from '../../src/money/money';
 import { AddressRepository } from '../../src/repository/address.repository';
@@ -102,37 +103,51 @@ export class Fixtures {
     return driver;
   }
 
-  public async createTestTransit(
+  public async createTransitDetails(
     driver: Driver,
     price: number,
     when: Date = Clock.currentDate(),
-    client?: Client | null,
-    from?: Address,
-    to?: Address,
+    client: Client = new Client(Type.NORMAL),
+    from: Address = new Address(
+      'Polska',
+      'Warszawa',
+      '00-001',
+      'ul. Testowa',
+      1,
+    ),
+    to: Address = new Address(
+      'Polska',
+      'Warszawa',
+      '00-001',
+      'ul. Testowa',
+      150,
+    ),
   ) {
-    const fromAddress = await this.createOrGetAddress(from);
-    const toAddress = await this.createOrGetAddress(to);
-
-    let transit = Transit.create(when, Distance.ZERO);
-
-    transit.setPrice(new Money(price));
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
-
-    transit = await this.transitRepository.save(transit);
+    const transit = await this.transitRepository.save(
+      Transit.create(when, Distance.ZERO),
+    );
+    await this.stubTransitPrice(price, transit);
+    const transitId = transit.getId();
 
     await this.transitDetailsFacade.transitRequested(
       when,
-      transit.getId(),
-      fromAddress ??
-        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 1),
-      toAddress ??
-        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 150),
+      transitId,
+      from,
+      to,
       Distance.ZERO,
-      client ?? (await this.createTestClient()),
+      client,
       CarClass.REGULAR,
       new Money(price),
-      transit.getTariff(),
+      Tariff.ofTime(when),
+    );
+
+    await this.transitDetailsFacade.transitAccepted(transitId, when, driver);
+    await this.transitDetailsFacade.transitStarted(transitId, when);
+    await this.transitDetailsFacade.transitCompleted(
+      transitId,
+      when,
+      new Money(price),
+      new Money(0),
     );
 
     return transit;
@@ -190,7 +205,7 @@ export class Fixtures {
     transit.proposeTo(transitDriver);
     transit.acceptBy(transitDriver);
     transit.start();
-    transit.completeTransitAt(date, toAddress, Distance.ZERO);
+    transit.completeTransitAt(Distance.ZERO);
     transit.setPrice(new Money(price));
 
     transit = await this.transitRepository.save(transit);
@@ -253,11 +268,7 @@ export class Fixtures {
     jest.spyOn(Clock, 'currentDate').mockReturnValue(completedAt);
     jest.spyOn(Date, 'now').mockReturnValue(completedAt.getTime());
 
-    await this.transitService.completeTransit(
-      driver.getId(),
-      transit.getId(),
-      to,
-    );
+    await this.transitService.completeTransit(driver.getId(), transit.getId());
     transit.setPrice(new Money(price));
 
     await this.transitDetailsFacade.transitRequested(
@@ -316,7 +327,13 @@ export class Fixtures {
     amount: number,
     min: number,
   ) {
-    const driverFee = new DriverFee(feeType, driver, amount, min);
+    let driverFee = await this.driverFeeRepository.findByDriverId(
+      driver.getId(),
+    );
+
+    if (!driverFee) {
+      driverFee = new DriverFee(feeType, driver, amount, min);
+    }
 
     await this.driverFeeRepository.save(driverFee);
 
@@ -399,11 +416,13 @@ export class Fixtures {
     for await (const _ of Array(claimsAmount)) {
       const driver = await this.createTestDriver();
 
-      const transit = await this.createTestTransit(
+      const transit = await this.createTransitDetails(
         driver,
         20,
         new Date(),
         client,
+        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 1),
+        new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 150),
       );
 
       await this.createAndResolveClaim(client, transit);
@@ -442,5 +461,11 @@ export class Fixtures {
     await this.driverAttributeRepository.save(
       new DriverAttribute(driver, attributeName, value),
     );
+  }
+
+  private async stubTransitPrice(price: number, transit: Transit) {
+    const fakePrice = new Money(price);
+    transit.setPrice(fakePrice);
+    await this.transitRepository.save(transit);
   }
 }

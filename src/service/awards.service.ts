@@ -111,11 +111,11 @@ export class AwardsService implements IAwardsService {
 
   public async registerMiles(clientId: string, transitId: string) {
     const client = await this.clientRepository.findOne(clientId);
-    const transit = await this.transitRepository.findOne(transitId);
     const account = await this.accountRepository.findByClient(client);
 
+    const transit = await this.transitRepository.findOne(transitId);
     if (!transit) {
-      throw new NotFoundException('transit does not exists, id = ' + transitId);
+      throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
     const now = Clock.currentDate();
@@ -131,7 +131,7 @@ export class AwardsService implements IAwardsService {
       const miles = account.addExpiringMiles(
         defaultMilesBonus,
         expireAt,
-        transit,
+        transitId,
         now,
       );
 

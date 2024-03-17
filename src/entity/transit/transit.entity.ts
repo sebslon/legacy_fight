@@ -7,7 +7,6 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   OneToOne,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -17,7 +16,6 @@ import { Distance } from '../../distance/distance';
 import { Money } from '../../money/money';
 import { TransitDetails } from '../../transit-details/transit-details.entity';
 import { Address } from '../address.entity';
-import { Claim } from '../claim.entity';
 import { PaymentType } from '../client.entity';
 import { Driver } from '../driver.entity';
 import { Tariff } from '../tariff.entity';
@@ -74,14 +72,11 @@ export enum DayOfWeek {
 
 @Entity()
 export class Transit extends BaseEntity {
-  @ManyToOne(() => Driver, (driver) => driver.transits, {
+  @ManyToOne(() => Driver, {
     eager: true,
   })
   @JoinColumn()
   public driver: Driver | null;
-
-  @OneToMany(() => Claim, (claim) => claim.transit)
-  public claims: Claim[];
 
   @OneToOne(() => Tariff, { eager: true, cascade: true })
   @JoinColumn()
@@ -142,16 +137,6 @@ export class Transit extends BaseEntity {
   })
   private estimatedPrice: Money | null;
 
-  @Column({
-    nullable: true,
-    type: 'integer',
-    transformer: {
-      to: (value: Money) => value?.toInt(),
-      from: (value: number) => new Money(value),
-    },
-  })
-  private driversFee: Money;
-
   @Column({ type: 'bigint', nullable: true })
   private published: number;
 
@@ -183,11 +168,7 @@ export class Transit extends BaseEntity {
     return transit;
   }
 
-  public completeTransitAt(
-    when: Date,
-    destinationAddress: Address,
-    distance: Distance,
-  ) {
+  public completeTransitAt(distance: Distance) {
     if (this.status === TransitStatus.IN_TRANSIT) {
       this.km = distance.toKmInFloat();
       this.estimateCost();
@@ -416,14 +397,6 @@ export class Transit extends BaseEntity {
 
   public getPickupAddressChangeCounter() {
     return this.pickupAddressChangeCounter;
-  }
-
-  public getDriversFee() {
-    return this.driversFee;
-  }
-
-  public setDriversFee(driversFee: Money) {
-    this.driversFee = driversFee;
   }
 
   public getEstimatedPrice() {

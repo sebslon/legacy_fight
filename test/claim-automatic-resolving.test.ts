@@ -150,7 +150,8 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
   function createClaim(transit: Transit, client?: Client) {
     const claim = new Claim();
 
-    claim.setTransit(transit);
+    claim.setTransit(transit.getId());
+    claim.setTransitPrice(transit.getPrice() as Money);
 
     if (client) {
       claim.setOwner(client);

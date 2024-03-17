@@ -6,7 +6,6 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
 import { Client } from '../entity/client.entity';
-import { Transit } from '../entity/transit/transit.entity';
 import { MilesSortingStrategy } from '../service/awards.service';
 
 import { AwardedMiles } from './awarded-miles.entity';
@@ -48,12 +47,12 @@ export class AwardsAccount extends BaseEntity {
   public addExpiringMiles(
     amount: number,
     expiresAt: Date,
-    transit: Transit,
+    transitId: string,
     when: Date,
   ) {
     const expiringMiles = new AwardedMiles(
       this,
-      transit,
+      transitId,
       this.client,
       when,
       MilesConstantUntil.constantUntil(amount, expiresAt),

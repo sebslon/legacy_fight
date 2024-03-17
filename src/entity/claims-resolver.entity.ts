@@ -4,7 +4,6 @@ import { BaseEntity } from '../common/base.entity';
 
 import { Claim, ClaimStatus } from './claim.entity';
 import { Client, Type } from './client.entity';
-import { Transit } from './transit/transit.entity';
 
 export enum WhoToAsk {
   ASK_DRIVER = 'ASK_DRIVER',
@@ -49,13 +48,17 @@ export class ClaimsResolver extends BaseEntity {
     numberOfTransits: number,
     noOfTransitsForClaimAutomaticRefund: number,
   ): ClaimResult {
-    const transitId = claim.getTransit().getId();
+    const transitId = claim.getTransitId();
+
+    if (!transitId) {
+      throw new Error(`Missing transitId in claim ${claim.getId()}`);
+    }
 
     if (this.getClaimedTransitIds().includes(transitId)) {
       return new ClaimResult(WhoToAsk.ASK_NOONE, ClaimStatus.ESCALATED);
     }
 
-    this.addNewClaimFor(claim.getTransit());
+    this.addNewClaimFor(transitId);
 
     if (this.numberOfClaims() <= 3) {
       return new ClaimResult(WhoToAsk.ASK_NOONE, ClaimStatus.REFUNDED);
@@ -63,7 +66,7 @@ export class ClaimsResolver extends BaseEntity {
 
     if (claim.getOwner().getType() === Type.VIP) {
       if (
-        (claim.getTransit().getPrice()?.toInt() ?? 0) <
+        (claim.getTransitPrice()?.toInt() ?? 0) <
         automaticRefundForVipPriceThreshold
       ) {
         return new ClaimResult(WhoToAsk.ASK_NOONE, ClaimStatus.REFUNDED);
@@ -73,7 +76,7 @@ export class ClaimsResolver extends BaseEntity {
     } else {
       if (numberOfTransits >= noOfTransitsForClaimAutomaticRefund) {
         if (
-          (claim.getTransit().getPrice()?.toInt() ?? 0) <
+          (claim.getTransitPrice()?.toInt() ?? 0) <
           automaticRefundForVipPriceThreshold
         ) {
           return new ClaimResult(WhoToAsk.ASK_NOONE, ClaimStatus.REFUNDED);
@@ -94,8 +97,8 @@ export class ClaimsResolver extends BaseEntity {
     return this.getClaimedTransitIds().length;
   }
 
-  private async addNewClaimFor(transit: Transit): Promise<void> {
+  private async addNewClaimFor(transitId: string): Promise<void> {
     const transitIds = this.getClaimedTransitIds();
-    transitIds.push(transit.getId());
+    transitIds.push(transitId);
   }
 }

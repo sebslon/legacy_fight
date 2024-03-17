@@ -78,7 +78,7 @@ export class ClaimDTO {
       this.setClaimID(claim.getId());
       this.setReason(claim.getReason());
       this.setIncidentDescription(claim.getIncidentDescription());
-      this.setTransitId(claim.getTransit().getId());
+      this.setTransitId(claim.getTransitId());
       this.setClientId(claim.getOwner().getId());
       this.setCompletionDate(claim.getCompletionDate());
       this.setChangeDate(claim.getChangeDate());

@@ -31,7 +31,6 @@ describe('Transit - Life Cycle', () => {
   });
 
   it("Can't change destination when transit is completed", () => {
-    const destination = new Address('Poland', 'Warsaw', '00-000', 'Żytnia', 25);
     const driver = new Driver();
 
     const transit = requestTransitFromTo();
@@ -40,7 +39,7 @@ describe('Transit - Life Cycle', () => {
     transit.proposeTo(driver);
     transit.acceptBy(driver);
     transit.start();
-    transit.completeTransitAt(new Date(), destination, Distance.fromKm(20));
+    transit.completeTransitAt(Distance.fromKm(20));
 
     expect(() => {
       transit.changeDestinationTo(
@@ -64,7 +63,6 @@ describe('Transit - Life Cycle', () => {
   });
 
   it("Can't change pickup place after transit is accepted, started or completed", () => {
-    const destination = new Address('Poland', 'Warsaw', '00-000', 'Żytnia', 25);
     const driver = new Driver();
 
     const transit = requestTransitFromTo();
@@ -90,7 +88,7 @@ describe('Transit - Life Cycle', () => {
       transit.changePickupTo(newAddress, Distance.fromKm(20), 0.2);
     }).toThrow();
 
-    transit.completeTransitAt(new Date(), destination, Distance.fromKm(20));
+    transit.completeTransitAt(Distance.fromKm(20));
 
     expect(() => {
       transit.changePickupTo(newAddress, Distance.fromKm(20), 0.2);
@@ -150,7 +148,6 @@ describe('Transit - Life Cycle', () => {
   });
 
   it("Can't cancel transit after it was started or completed", () => {
-    const destination = new Address('Poland', 'Warsaw', '00-000', 'Żytnia', 25);
     const driver = new Driver();
     const transit = requestTransitFromTo();
 
@@ -163,7 +160,7 @@ describe('Transit - Life Cycle', () => {
       transit.cancel();
     }).toThrow();
 
-    transit.completeTransitAt(new Date(), destination, Distance.fromKm(20));
+    transit.completeTransitAt(Distance.fromKm(20));
 
     expect(() => {
       transit.cancel();
@@ -251,7 +248,6 @@ describe('Transit - Life Cycle', () => {
   });
 
   it('Can complete transit', () => {
-    const destination = new Address('Poland', 'Warsaw', '00-000', 'Żytnia', 2);
     const transit = requestTransitFromTo();
     const driver = new Driver();
 
@@ -260,7 +256,7 @@ describe('Transit - Life Cycle', () => {
     transit.acceptBy(driver);
     transit.start();
 
-    transit.completeTransitAt(new Date(), destination, Distance.fromKm(20));
+    transit.completeTransitAt(Distance.fromKm(20));
 
     expect(transit.getStatus()).toBe(TransitStatus.COMPLETED);
     expect(transit.getPrice()).not.toBeNull();
@@ -268,7 +264,6 @@ describe('Transit - Life Cycle', () => {
   });
 
   it("Can't complete not started transit", () => {
-    const addressTo = new Address('Poland', 'Warsaw', '00-000', 'Żytnia', 2);
     const transit = requestTransitFromTo();
     const driver = new Driver();
 
@@ -277,7 +272,7 @@ describe('Transit - Life Cycle', () => {
     transit.acceptBy(driver);
 
     expect(() => {
-      transit.completeTransitAt(new Date(), addressTo, Distance.fromKm(20));
+      transit.completeTransitAt(Distance.fromKm(20));
     }).toThrow();
   });
 
