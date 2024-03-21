@@ -1,9 +1,7 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
-import { BaseEntity } from '../common/base.entity';
-import { Money } from '../money/money';
-
-import { Client } from './client.entity';
+import { BaseEntity } from '../../common/base.entity';
+import { Money } from '../../money/money';
 
 export enum ClaimStatus {
   DRAFT = 'draft',
@@ -21,8 +19,8 @@ export enum ClaimCompletionMode {
 
 @Entity()
 export class Claim extends BaseEntity {
-  @ManyToOne(() => Client, (client) => client.claims, { eager: true })
-  public owner: Client;
+  @Column({ type: 'uuid' })
+  private ownerId: string;
 
   @Column({ type: 'uuid', nullable: true })
   private transitId: string;
@@ -88,12 +86,12 @@ export class Claim extends BaseEntity {
     this.claimNo = claimNo;
   }
 
-  public getOwner() {
-    return this.owner;
+  public getOwnerId() {
+    return this.ownerId;
   }
 
-  public setOwner(owner: Client) {
-    this.owner = owner;
+  public setOwnerId(ownerId: string) {
+    this.ownerId = ownerId;
   }
 
   public getTransitId() {

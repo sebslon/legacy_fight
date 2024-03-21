@@ -3,8 +3,6 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 import { TransitDetails } from '../transit-details/transit-details.entity';
 
-import { Claim } from './claim.entity';
-
 export enum ClientType {
   INDIVIDUAL = 'individual',
   COMPANY = 'company',
@@ -38,23 +36,12 @@ export class Client extends BaseEntity {
   @Column({ type: 'enum', enum: ClientType, default: ClientType.INDIVIDUAL })
   private clientType: ClientType;
 
-  @OneToMany(() => Claim, (claim) => claim.owner)
-  public claims: Claim[];
-
   @OneToMany(() => TransitDetails, (transitDetails) => transitDetails.client)
   public transitDetails: TransitDetails[];
 
   constructor(type: Type) {
     super();
     this.type = type;
-  }
-
-  public getClaims() {
-    return this.claims;
-  }
-
-  public setClaims(claims: Claim[]) {
-    this.claims = claims;
   }
 
   public getName() {

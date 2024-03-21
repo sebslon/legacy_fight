@@ -1,6 +1,5 @@
 import { Between, EntityRepository, Repository } from 'typeorm';
 
-import { Client } from '../entity/client.entity';
 import { Driver } from '../entity/driver.entity';
 import { TransitStatus, Transit } from '../entity/transit/transit.entity';
 
@@ -30,11 +29,13 @@ export class TransitRepository extends Repository<Transit> {
     });
   }
 
-  public async findByClient(client: Client): Promise<Transit[]> {
+  public async findByClientId(clientId: string): Promise<Transit[]> {
     return this.find({
       where: {
         transitDetails: {
-          client,
+          client: {
+            id: clientId,
+          },
         },
       },
       relations: ['transitDetails'],

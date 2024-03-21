@@ -1,20 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { AppProperties } from '../config/app-properties.config';
-import { ClaimDTO } from '../dto/claim.dto';
-import { Claim, ClaimStatus } from '../entity/claim.entity';
-import { ClaimsResolver, WhoToAsk } from '../entity/claims-resolver.entity';
-import { Client, Type } from '../entity/client.entity';
-import { ClaimRepository } from '../repository/claim.repository';
-import { ClaimsResolverRepository } from '../repository/claims-resolver.repository';
-import { ClientRepository } from '../repository/client.repository';
-import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
+import { AppProperties } from '../../config/app-properties.config';
+import { Type } from '../../entity/client.entity';
+import { ClientRepository } from '../../repository/client.repository';
+import { AwardsService } from '../../service/awards.service';
+import { ClientNotificationService } from '../../service/client-notification.service';
+import { DriverNotificationService } from '../../service/driver-notification.service';
+import { TransitDetailsFacade } from '../../transit-details/transit-details.facade';
 
-import { AwardsService } from './awards.service';
 import { ClaimNumberGenerator } from './claim-number-generator.service';
-import { ClientNotificationService } from './client-notification.service';
-import { DriverNotificationService } from './driver-notification.service';
+import { ClaimDTO } from './claim.dto';
+import { Claim, ClaimStatus } from './claim.entity';
+import { ClaimRepository } from './claim.repository';
+import { ClaimsResolver, WhoToAsk } from './claims-resolver.entity';
+import { ClaimsResolverRepository } from './claims-resolver.repository';
 
 @Injectable()
 export class ClaimService {
@@ -26,6 +31,7 @@ export class ClaimService {
     @InjectRepository(ClaimsResolverRepository)
     private claimsResolverRepository: ClaimsResolverRepository,
     private claimNumberGenerator: ClaimNumberGenerator,
+    @Inject(forwardRef(() => AwardsService))
     private awardsService: AwardsService,
     private clientNotificationService: ClientNotificationService,
     private driverNotificationService: DriverNotificationService,
@@ -66,7 +72,7 @@ export class ClaimService {
     } else {
       claim.setStatus(ClaimStatus.NEW);
     }
-    claim.setOwner(client);
+    claim.setOwnerId(client.getId());
     claim.setTransit(transit.transitId);
     claim.setTransitPrice(transit.price);
     claim.setCreationDate(Date.now());
@@ -85,10 +91,17 @@ export class ClaimService {
   public async tryToResolveAutomatically(id: string): Promise<Claim> {
     const claim = await this.find(id);
 
-    const claimsResolver = await this.findOrCreateResolver(claim.getOwner());
+    const claimsResolver = await this.findOrCreateResolver(claim.getOwnerId());
     const transitsDoneByClient = await this.transitDetailsFacade.findByClient(
-      claim.getOwner().getId(),
+      claim.getOwnerId(),
     );
+    const client = await this.clientRepository.findOne(claim.getOwnerId());
+
+    if (!client) {
+      throw new NotFoundException('Client does not exists');
+    }
+
+    const clientType = client.getType();
 
     const automaticRefundForVipThreshold =
       this.appProperties.getAutomaticRefundForVipThreshold();
@@ -97,6 +110,7 @@ export class ClaimService {
 
     const result = claimsResolver.resolve(
       claim,
+      clientType,
       automaticRefundForVipThreshold,
       transitsDoneByClient.length,
       noOfTransitsForClaimAutomaticRefund,
@@ -107,12 +121,12 @@ export class ClaimService {
 
       this.clientNotificationService.notifyClientAboutRefund(
         claim.getClaimNo(),
-        claim.getOwner().getId(),
+        claim.getOwnerId(),
       );
 
-      if (claim.getOwner().getType() === Type.VIP) {
+      if (clientType === Type.VIP) {
         await this.awardsService.registerNonExpiringMiles(
-          claim.getOwner().getId(),
+          claim.getOwnerId(),
           10,
         );
       }
@@ -136,7 +150,7 @@ export class ClaimService {
     if (result.whoToAsk === WhoToAsk.ASK_CLIENT) {
       await this.clientNotificationService.askForMoreInformation(
         claim.getClaimNo(),
-        claim.getOwner().getId(),
+        claim.getOwnerId(),
       );
     }
 
@@ -146,8 +160,13 @@ export class ClaimService {
     return claim;
   }
 
-  private async findOrCreateResolver(client: Client): Promise<ClaimsResolver> {
-    const clientId = client.getId();
+  public async getNumberOfClaims(clientId: string) {
+    return (await this.claimRepository.findAllByOwnerId(clientId)).length;
+  }
+
+  private async findOrCreateResolver(
+    clientId: string,
+  ): Promise<ClaimsResolver> {
     const resolver = await this.claimsResolverRepository.findByClientId(
       clientId,
     );

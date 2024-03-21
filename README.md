@@ -22,7 +22,7 @@ Repository isn't perfect and fully refactored, there is still big room for impro
 
 ## Introduced Refactorings
 
-### General Approach\*\*:
+### General Approach:
 
 - Build safety net with tests (unit or e2e) - cover at least all of the observable behaviors
 - Introduce new concept
@@ -67,7 +67,14 @@ Repository isn't perfect and fully refactored, there is still big room for impro
     - Basic example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
     - Usage of `Reconciliation` to compare old and new report (#todo - remove - 686a8fe/cabs-java)
 
-##### Archetypes - with use of parallel models approach
+###### Other:
+
+- Problem: Mismatched database paradigm (Graph representation of Transits History)
+  - Solution: `GraphTransitAnalyzer` - Use graph database to analyze transit history
+  - Usage of `Transactional Outbox` pattern to ensure consistency between graph and SQL database (TODO)
+  - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - TransitAnalyzer is covered with tests, plug-in graph db implementation / prepare migration
+
+##### Archetypes (parallel models)
 
 Archetypes in software design provide common patterns and models for developers to follow, aiding in creating more maintainable and scalable codebases. They help streamline development by offering proven solutions to recurring problems, fostering consistency and efficiency in the software development process.
 
@@ -80,21 +87,20 @@ Archetypes in software design provide common patterns and models for developers 
 
 ##### Local Code Structure
 
-- Some refactorings like `Extract Method`, `Introduce Parameter Object`, `Move Method`, `Move Field`, `Inline Method`, `Extract Class`, `Extract Interface`, `Replace Type Code with State/Strategy`, `Replace Conditional with Polymorphism`, etc. but still there is a lot of work to do. :)
+- Some refactorings like `Extract Method`, `Introduce Parameter Object`, `Move Method`, `Move Field`, `Inline Method`, `Extract Class`, `Extract Interface`, `Replace Type Code with State/Strategy`, `Replace Conditional with Polymorphism`, etc. but still there is a lot of work to do.
 
 ##### Bounded Contexts / Modularisation
 
 - Splitting Transit/TransitDetails
-- Removed direct coupling between `Claim` and `Transit` leaving only `transitId` and `transitPrice` - other informations are not needed in this context
-- Removed `driversFee` info from `Transit` (`TransitDetails`)
-- Removed direct coupling between `AwardedMiles` and `Transit` leaving only `transitId`
+- Loosening dependencies
+  - Removed direct coupling between `Claim` and `Transit` leaving only `transitId` and `transitPrice` - other informations are not needed in this context
+  - Removed `driversFee` info from `Transit` (`TransitDetails`)
+  - Removed direct coupling between `AwardedMiles` and `Transit` leaving only `transitId`
+- Extracted `ClaimModule` - loose Claim/Client, Client/AwardedMiles/AwardsAccount dependencies - leaving id references, simplified `AwardsService`
 
-##### Other:
+## Summary
 
-- Problem: Mismatched database paradigm (Graph representation of Transits History)
-  - Solution: `GraphTransitAnalyzer` - Use graph database to analyze transit history
-  - Usage of `Transactional Outbox` pattern to ensure consistency between graph and SQL database (TODO)
-  - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - TransitAnalyzer is covered with tests, plug-in graph db implementation / prepare migration
+Goal of this project was to practice refactoring techniques and patterns. It's not a perfect project and there is still a lot of work to do but it's a playground for learning and practicing some of refactoring techniques.
 
 ## Installation
 

@@ -1,6 +1,6 @@
 import { Client, ClientType, PaymentType, Type } from '../entity/client.entity';
 
-export class ClientDto {
+export class ClientDTO {
   private id: string;
 
   private type: Type;
@@ -12,6 +12,8 @@ export class ClientDto {
   private defaultPaymentType: PaymentType;
 
   private clientType: ClientType;
+
+  private numberOfClaims: number;
 
   constructor(client: Client | null) {
     if (!client) {

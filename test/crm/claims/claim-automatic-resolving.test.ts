@@ -1,8 +1,11 @@
-import { Claim, ClaimStatus } from '../src/entity/claim.entity';
-import { ClaimsResolver, WhoToAsk } from '../src/entity/claims-resolver.entity';
-import { Client, Type } from '../src/entity/client.entity';
-import { Transit } from '../src/entity/transit/transit.entity';
-import { Money } from '../src/money/money';
+import { Claim, ClaimStatus } from '../../../src/crm/claims/claim.entity';
+import {
+  ClaimsResolver,
+  WhoToAsk,
+} from '../../../src/crm/claims/claims-resolver.entity';
+import { Client, Type } from '../../../src/entity/client.entity';
+import { Transit } from '../../../src/entity/transit/transit.entity';
+import { Money } from '../../../src/money/money';
 
 describe('Claim Automatic Resolving (ClaimsResolver)', () => {
   it('Second claim for the same transit will be escalated', () => {
@@ -11,10 +14,10 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
     const transit = aTransit('id', 39);
 
     const claim = createClaim(transit);
-    resolver.resolve(claim, 40, 15, 10);
+    resolver.resolve(claim, Type.NORMAL, 40, 15, 10);
 
     const claim2 = createClaim(transit);
-    const result = resolver.resolve(claim2, 40, 15, 10);
+    const result = resolver.resolve(claim2, Type.NORMAL, 40, 15, 10);
 
     expect(result.decision).toBe(ClaimStatus.ESCALATED);
     expect(result.whoToAsk).toBe(WhoToAsk.ASK_NOONE);
@@ -27,7 +30,7 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
 
     const claim = createClaim(transit, client);
 
-    const result = resolver.resolve(claim, 40, 15, 10);
+    const result = resolver.resolve(claim, Type.VIP, 40, 15, 10);
 
     expect(result.decision).toBe(ClaimStatus.REFUNDED);
     expect(result.whoToAsk).toBe(WhoToAsk.ASK_NOONE);
@@ -39,16 +42,16 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
     const client = new Client(Type.VIP);
 
     const claim = createClaim(aTransit('id-1', 41), client);
-    resolver.resolve(claim, 40, 15, 10);
+    resolver.resolve(claim, Type.VIP, 40, 15, 10);
 
     const claim2 = createClaim(aTransit('id-2', 41), client);
-    resolver.resolve(claim2, 40, 15, 10);
+    resolver.resolve(claim2, Type.VIP, 40, 15, 10);
 
     const claim3 = createClaim(aTransit('id-3', 41), client);
-    resolver.resolve(claim3, 40, 15, 10);
+    resolver.resolve(claim3, Type.VIP, 40, 15, 10);
 
     const claim4 = createClaim(aTransit('id-4', 41), client);
-    const result = resolver.resolve(claim4, 40, 15, 10);
+    const result = resolver.resolve(claim4, Type.VIP, 40, 15, 10);
 
     expect(result.decision).toBe(ClaimStatus.ESCALATED);
     expect(result.whoToAsk).toBe(WhoToAsk.ASK_DRIVER);
@@ -58,17 +61,17 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
     const resolver = new ClaimsResolver();
 
     const claim1 = createClaim(aTransit('id-1', 41));
-    const result1 = resolver.resolve(claim1, 40, 15, 10);
+    const result1 = resolver.resolve(claim1, Type.NORMAL, 40, 15, 10);
 
     const claim2 = createClaim(aTransit('id-2', 41));
-    const result2 = resolver.resolve(claim2, 40, 15, 10);
+    const result2 = resolver.resolve(claim2, Type.NORMAL, 40, 15, 10);
 
     const claim3 = createClaim(aTransit('id-3', 41));
-    const result3 = resolver.resolve(claim3, 40, 15, 10);
+    const result3 = resolver.resolve(claim3, Type.NORMAL, 40, 15, 10);
 
     const client = new Client(Type.NORMAL);
     const claim4 = createClaim(aTransit('id-4', 41), client);
-    const result4 = resolver.resolve(claim4, 40, 4, 10);
+    const result4 = resolver.resolve(claim4, Type.NORMAL, 40, 4, 10);
 
     expect(result1.decision).toBe(ClaimStatus.REFUNDED);
     expect(result1.whoToAsk).toBe(WhoToAsk.ASK_NOONE);
@@ -85,17 +88,17 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
     const resolver = new ClaimsResolver();
 
     const claim = createClaim(aTransit('id-1', 39));
-    resolver.resolve(claim, 40, 15, 10);
+    resolver.resolve(claim, Type.NORMAL, 40, 15, 10);
 
     const claim2 = createClaim(aTransit('id-2', 39));
-    resolver.resolve(claim2, 40, 15, 10);
+    resolver.resolve(claim2, Type.NORMAL, 40, 15, 10);
 
     const claim3 = createClaim(aTransit('id-3', 39));
-    resolver.resolve(claim3, 40, 15, 10);
+    resolver.resolve(claim3, Type.NORMAL, 40, 15, 10);
 
     const client = new Client(Type.NORMAL);
     const claim4 = createClaim(aTransit('id-4', 39), client);
-    const result = resolver.resolve(claim4, 40, 10, 9);
+    const result = resolver.resolve(claim4, Type.NORMAL, 40, 10, 9);
 
     expect(result.decision).toBe(ClaimStatus.REFUNDED);
     expect(result.whoToAsk).toBe(WhoToAsk.ASK_NOONE);
@@ -105,17 +108,17 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
     const resolver = new ClaimsResolver();
 
     const claim = createClaim(aTransit('id-1', 39));
-    resolver.resolve(claim, 40, 15, 10);
+    resolver.resolve(claim, Type.NORMAL, 40, 15, 10);
 
     const claim2 = createClaim(aTransit('id-2', 39));
-    resolver.resolve(claim2, 40, 15, 10);
+    resolver.resolve(claim2, Type.NORMAL, 40, 15, 10);
 
     const claim3 = createClaim(aTransit('id-3', 39));
-    resolver.resolve(claim3, 40, 15, 10);
+    resolver.resolve(claim3, Type.NORMAL, 40, 15, 10);
 
     const client = new Client(Type.NORMAL);
     const claim4 = createClaim(aTransit('id-4', 50), client);
-    const result = resolver.resolve(claim4, 40, 12, 10);
+    const result = resolver.resolve(claim4, Type.NORMAL, 40, 12, 10);
 
     expect(result.decision).toBe(ClaimStatus.ESCALATED);
     expect(result.whoToAsk).toBe(WhoToAsk.ASK_CLIENT);
@@ -125,17 +128,17 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
     const resolver = new ClaimsResolver();
 
     const claim = createClaim(aTransit('id-1', 39));
-    resolver.resolve(claim, 40, 15, 10);
+    resolver.resolve(claim, Type.NORMAL, 40, 15, 10);
 
     const claim2 = createClaim(aTransit('id-2', 39));
-    resolver.resolve(claim2, 40, 15, 10);
+    resolver.resolve(claim2, Type.NORMAL, 40, 15, 10);
 
     const claim3 = createClaim(aTransit('id-3', 39));
-    resolver.resolve(claim3, 40, 15, 10);
+    resolver.resolve(claim3, Type.NORMAL, 40, 15, 10);
 
     const client = new Client(Type.NORMAL);
     const claim4 = createClaim(aTransit('id-4', 50), client);
-    const result = resolver.resolve(claim4, 40, 2, 10);
+    const result = resolver.resolve(claim4, Type.NORMAL, 40, 2, 10);
 
     expect(result.decision).toBe(ClaimStatus.ESCALATED);
     expect(result.whoToAsk).toBe(WhoToAsk.ASK_DRIVER);
@@ -154,7 +157,7 @@ describe('Claim Automatic Resolving (ClaimsResolver)', () => {
     claim.setTransitPrice(transit.getPrice() as Money);
 
     if (client) {
-      claim.setOwner(client);
+      claim.setOwnerId(client.getId());
     }
 
     return claim;

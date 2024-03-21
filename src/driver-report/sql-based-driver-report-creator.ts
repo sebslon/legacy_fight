@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
 import { Clock } from '../common/clock';
+import { ClaimDTO } from '../crm/claims/claim.dto';
+import { ClaimCompletionMode, ClaimStatus } from '../crm/claims/claim.entity';
 import { Distance } from '../distance/distance';
 import { AddressDTO } from '../dto/address.dto';
-import { ClaimDTO } from '../dto/claim.dto';
 import { DriverReport } from '../dto/driver-report.dto';
 import { DriverSessionDTO } from '../dto/driver-session.dto';
 import { DriverDTO } from '../dto/driver.dto';
 import { TransitDTO } from '../dto/transit.dto';
 import { CarClass } from '../entity/car-type.entity';
-import { ClaimCompletionMode, ClaimStatus } from '../entity/claim.entity';
 import { DriverAttributeName } from '../entity/driver-attribute.entity';
 import { DriverStatus, DriverType } from '../entity/driver.entity';
 import { TransitStatus } from '../entity/transit/transit.entity';

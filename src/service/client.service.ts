@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { ClientDto } from '../dto/client.dto';
+import { ClientDTO } from '../dto/client.dto';
 import { Client, PaymentType, Type } from '../entity/client.entity';
 import { ClientRepository } from '../repository/client.repository';
 
@@ -61,6 +61,6 @@ export class ClientService {
     if (!client) {
       throw new NotFoundException('Client does not exists, id = ' + id);
     }
-    return new ClientDto(client);
+    return new ClientDTO(client);
   }
 }

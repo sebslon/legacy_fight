@@ -4,17 +4,13 @@ import { getConnection } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 import { AppModule } from '../../../src/app.module';
-import { Distance } from '../../../src/distance/distance';
-import { Transit } from '../../../src/entity/transit/transit.entity';
 import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
-import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Awarded Miles Management', () => {
   let awardsService: AwardsService;
   let awardsAccountRepository: AwardsAccountRepository;
-  let transitRepository: TransitRepository;
   let fixtures: Fixtures;
 
   const NOW = new Date('2020-01-01');
@@ -29,12 +25,8 @@ describe('Awarded Miles Management', () => {
     awardsAccountRepository = module.get<AwardsAccountRepository>(
       AwardsAccountRepository,
     );
-    transitRepository = module.get<TransitRepository>(TransitRepository);
 
     fixtures = module.get<Fixtures>(Fixtures);
-
-    const fakeTransit = Transit.create(new Date(), Distance.ZERO);
-    jest.spyOn(transitRepository, 'findOne').mockResolvedValue(fakeTransit);
   });
 
   afterAll(async () => {

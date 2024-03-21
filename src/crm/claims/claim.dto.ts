@@ -1,10 +1,6 @@
-import {
-  Claim,
-  ClaimStatus,
-  ClaimCompletionMode,
-} from '../entity/claim.entity';
+import { CreateClaimDto } from '../../dto/create-claim.dto';
 
-import { CreateClaimDto } from './create-claim.dto';
+import { Claim, ClaimStatus, ClaimCompletionMode } from './claim.entity';
 
 export class ClaimDTO {
   private claimID: string;
@@ -51,6 +47,7 @@ export class ClaimDTO {
     claim.setReason(reason);
     claim.setIncidentDescription(incidentDescription);
     claim.setCreationDate(creationDate);
+    claim._isDraft = status === ClaimStatus.DRAFT;
     claim.setCompletionDate(completionDate);
     claim.setChangeDate(changeDate);
     claim.setCompletionMode(completionMode);
@@ -70,16 +67,12 @@ export class ClaimDTO {
       this.setDraft(true);
       this.setIncidentDescription(claim.incidentDescription);
     } else {
-      if (claim.getStatus() === ClaimStatus.DRAFT) {
-        this.setDraft(true);
-      } else {
-        this.setDraft(false);
-      }
+      this.setDraft(claim.getStatus() === ClaimStatus.DRAFT);
       this.setClaimID(claim.getId());
       this.setReason(claim.getReason());
       this.setIncidentDescription(claim.getIncidentDescription());
       this.setTransitId(claim.getTransitId());
-      this.setClientId(claim.getOwner().getId());
+      this.setClientId(claim.getOwnerId());
       this.setCompletionDate(claim.getCompletionDate());
       this.setChangeDate(claim.getChangeDate());
       this.setClaimNo(claim.getClaimNo());

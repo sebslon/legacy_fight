@@ -4,14 +4,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { Clock } from '../../common/clock';
-import { ClaimDTO } from '../../dto/claim.dto';
+import { ClaimDTO } from '../../crm/claims/claim.dto';
+import { ClaimRepository } from '../../crm/claims/claim.repository';
 import { DriverAttributeDTO } from '../../dto/driver-attribute.dto';
 import { DriverReport } from '../../dto/driver-report.dto';
 import { DriverSessionDTO } from '../../dto/driver-session.dto';
 import { TransitDTO } from '../../dto/transit.dto';
 import { DriverAttributeName } from '../../entity/driver-attribute.entity';
 import { Transit, TransitStatus } from '../../entity/transit/transit.entity';
-import { ClaimRepository } from '../../repository/claim.repository';
 import { DriverSessionRepository } from '../../repository/driver-session.repository';
 import { DriverRepository } from '../../repository/driver.repository';
 import { DriverService } from '../../service/driver.service';

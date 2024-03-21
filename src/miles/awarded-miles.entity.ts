@@ -1,8 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
-import { Client } from '../entity/client.entity';
 
 import { AwardsAccount } from './awards-account.entity';
 import { MilesInterface } from './interfaces/miles.interface';
@@ -15,9 +14,8 @@ export interface MilesJSONInterface {
 
 @Entity()
 export class AwardedMiles extends BaseEntity {
-  @ManyToOne(() => Client)
-  @JoinColumn()
-  public client: Client;
+  @Column({ type: 'uuid' })
+  private clientId: string;
 
   @Column({
     type: 'jsonb',
@@ -44,7 +42,7 @@ export class AwardedMiles extends BaseEntity {
   public constructor(
     awardsAccount: AwardsAccount,
     transitId: string | null,
-    client: Client,
+    clientId: string,
     when: Date,
     miles: MilesInterface,
   ) {
@@ -52,7 +50,7 @@ export class AwardedMiles extends BaseEntity {
 
     this.account = awardsAccount;
     this.transitId = transitId;
-    this.client = client;
+    this.clientId = clientId;
     this.date = when?.getTime();
 
     this.setMiles(miles);
@@ -82,8 +80,8 @@ export class AwardedMiles extends BaseEntity {
     this.setMiles(this.getMiles().subtract(miles, forWhen));
   }
 
-  public getClient() {
-    return this.client;
+  public getClientId() {
+    return this.clientId;
   }
 
   public getMiles(): MilesInterface {

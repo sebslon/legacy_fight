@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
 import { Clock } from '../../src/common/clock';
+import { ClaimDTO } from '../../src/crm/claims/claim.dto';
+import { ClaimService } from '../../src/crm/claims/claim.service';
 import { Distance } from '../../src/distance/distance';
 import { AddressDTO } from '../../src/dto/address.dto';
 import { CarTypeDTO } from '../../src/dto/car-type.dto';
-import { ClaimDTO } from '../../src/dto/claim.dto';
-import { ClientDto } from '../../src/dto/client.dto';
+import { ClientDTO } from '../../src/dto/client.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';
 import { Address } from '../../src/entity/address.entity';
 import { CarClass, CarType } from '../../src/entity/car-type.entity';
@@ -35,7 +36,6 @@ import { DriverFeeRepository } from '../../src/repository/driver-fee.repository'
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
 import { CarTypeService } from '../../src/service/car-type.service';
-import { ClaimService } from '../../src/service/claim.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';
@@ -313,7 +313,7 @@ export class Fixtures {
     const transitClient = client ?? (await this.createTestClient());
     const transitDto = TransitDTO.createEmpty();
 
-    transitDto.setClientDTO(new ClientDto(transitClient));
+    transitDto.setClientDTO(new ClientDTO(transitClient));
     transitDto.setFrom(from);
     transitDto.setTo(to);
     transitDto.setCarClass(carClass ?? CarClass.VAN);

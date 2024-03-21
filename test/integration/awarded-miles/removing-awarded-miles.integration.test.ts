@@ -5,12 +5,9 @@ import { v4 as uuid } from 'uuid';
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
-import { Distance } from '../../../src/distance/distance';
 import { Client, Type } from '../../../src/entity/client.entity';
-import { Transit } from '../../../src/entity/transit/transit.entity';
 import { AwardedMiles } from '../../../src/miles/awarded-miles.entity';
 import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
-import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
@@ -26,7 +23,6 @@ describe('Removing Awarded Miles', () => {
   let appProperties: AppProperties;
   let awardsAccountRepository: AwardsAccountRepository;
   let fixtures: Fixtures;
-  let transitRepository: TransitRepository;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,12 +34,8 @@ describe('Removing Awarded Miles', () => {
     awardsAccountRepository = module.get<AwardsAccountRepository>(
       AwardsAccountRepository,
     );
-    transitRepository = module.get<TransitRepository>(TransitRepository);
 
     fixtures = module.get<Fixtures>(Fixtures);
-
-    const transit = Transit.create(new Date(), Distance.ZERO);
-    jest.spyOn(transitRepository, 'findOne').mockResolvedValue(transit);
   });
 
   afterAll(async () => {

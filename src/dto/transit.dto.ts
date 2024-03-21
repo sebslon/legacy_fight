@@ -1,12 +1,12 @@
 import { Clock } from '../common/clock';
+import { ClaimDTO } from '../crm/claims/claim.dto';
 import { Distance } from '../distance/distance';
 import { CarClass } from '../entity/car-type.entity';
 import { TransitStatus, Transit } from '../entity/transit/transit.entity';
 import { TransitDetailsDTO } from '../transit-details/transit-details.dto';
 
 import { AddressDTO } from './address.dto';
-import { ClaimDTO } from './claim.dto';
-import { ClientDto } from './client.dto';
+import { ClientDTO } from './client.dto';
 import { DriverDTO } from './driver.dto';
 
 export class TransitDTO {
@@ -56,7 +56,7 @@ export class TransitDTO {
 
   public carClass: CarClass;
 
-  public clientDto: ClientDto;
+  public clientDto: ClientDTO;
 
   public static createFromRawData(
     id: string,
@@ -79,7 +79,7 @@ export class TransitDTO {
     from: AddressDTO,
     to: AddressDTO,
     carClass: CarClass,
-    clientDto: ClientDto | null,
+    clientDto: ClientDTO | null,
   ) {
     const transit = TransitDTO.createEmpty();
     transit.id = id;
@@ -102,7 +102,7 @@ export class TransitDTO {
     transit.to = to;
     transit.from = from;
     transit.carClass = carClass;
-    transit.clientDto = clientDto || new ClientDto(null);
+    transit.clientDto = clientDto || new ClientDTO(null);
     return transit;
   }
 
@@ -216,7 +216,7 @@ export class TransitDTO {
     return this.clientDto;
   }
 
-  public setClientDTO(clientDto: ClientDto) {
+  public setClientDTO(clientDto: ClientDTO) {
     this.clientDto = clientDto;
   }
 

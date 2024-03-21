@@ -1,9 +1,9 @@
 import { AwardsAccount } from '../miles/awards-account.entity';
 
-import { ClientDto } from './client.dto';
+import { ClientDTO } from './client.dto';
 
-export class AwardsAccountDto {
-  private client: ClientDto;
+export class AwardsAccountDTO {
+  private client: ClientDTO;
 
   private date: number;
 
@@ -11,14 +11,14 @@ export class AwardsAccountDto {
 
   private transactions: number;
 
-  constructor(account: AwardsAccount) {
+  constructor(account: AwardsAccount, clientDTO: ClientDTO) {
     this.isActive = account.isAwardActive();
-    this.client = new ClientDto(account.getClient());
+    this.client = clientDTO;
     this.transactions = account.getTransactions();
     this.date = account.getDate();
   }
 
-  public setClient(client: ClientDto) {
+  public setClient(client: ClientDTO) {
     this.client = client;
   }
 

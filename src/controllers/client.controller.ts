@@ -8,7 +8,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { ClientDto } from '../dto/client.dto';
+import { ClientDTO } from '../dto/client.dto';
 import { CreateClientDto } from '../dto/create-client.dto';
 import { ClientService } from '../service/client.service';
 
@@ -20,7 +20,7 @@ export class ClientController {
   @UsePipes(ValidationPipe)
   public async register(
     @Body() createClientDto: CreateClientDto,
-  ): Promise<ClientDto> {
+  ): Promise<ClientDTO> {
     const client = await this.clientService.registerClient(
       createClientDto.name,
       createClientDto.lastName,
@@ -32,18 +32,18 @@ export class ClientController {
   }
 
   @Get(':id')
-  public async find(@Param('id') id: string): Promise<ClientDto> {
+  public async find(@Param('id') id: string): Promise<ClientDTO> {
     return this.clientService.load(id);
   }
 
   @Post(':id/upgrade')
-  public async upgradeToVIP(@Param('id') id: string): Promise<ClientDto> {
+  public async upgradeToVIP(@Param('id') id: string): Promise<ClientDTO> {
     await this.clientService.upgradeToVIP(id);
     return this.clientService.load(id);
   }
 
   @Post(':id/downgrade')
-  public async downgrade(@Param('id') id: string): Promise<ClientDto> {
+  public async downgrade(@Param('id') id: string): Promise<ClientDTO> {
     await this.clientService.downgradeToRegular(id);
     return this.clientService.load(id);
   }
@@ -52,7 +52,7 @@ export class ClientController {
   public async changeDefaultPaymentType(
     @Param('id') id: string,
     @Body() createClientDto: Pick<CreateClientDto, 'defaultPaymentType'>,
-  ): Promise<ClientDto> {
+  ): Promise<ClientDTO> {
     await this.clientService.changeDefaultPaymentType(
       id,
       createClientDto.defaultPaymentType,

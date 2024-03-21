@@ -6,10 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
-import { Distance } from '../../../src/distance/distance';
 import { Client } from '../../../src/entity/client.entity';
-import { Transit } from '../../../src/entity/transit/transit.entity';
-import { TransitRepository } from '../../../src/repository/transit.repository';
 import { AwardsService } from '../../../src/service/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
@@ -22,7 +19,6 @@ describe('Expiring Awarded Miles (calculating balance)', () => {
 
   let awardsService: AwardsService;
   let appProperties: AppProperties;
-  let transitRepository: TransitRepository;
   let fixtures: Fixtures;
 
   beforeAll(async () => {
@@ -32,12 +28,8 @@ describe('Expiring Awarded Miles (calculating balance)', () => {
 
     awardsService = module.get<AwardsService>(AwardsService);
     appProperties = module.get<AppProperties>(AppProperties);
-    transitRepository = module.get<TransitRepository>(TransitRepository);
 
     fixtures = module.get<Fixtures>(Fixtures);
-
-    const fakeTransit = Transit.create(new Date(), Distance.ZERO);
-    jest.spyOn(transitRepository, 'findOne').mockResolvedValue(fakeTransit);
   });
 
   afterAll(async () => {

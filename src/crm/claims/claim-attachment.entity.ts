@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 
-import { BaseEntity } from '../common/base.entity';
+import { BaseEntity } from '../../common/base.entity';
 
 import { Claim } from './claim.entity';
 
@@ -18,8 +18,8 @@ export class ClaimAttachment extends BaseEntity {
   @Column({ type: 'bytea' })
   private data: Buffer;
 
-  public getClient() {
-    return this.claim.getOwner();
+  public getClientId() {
+    return this.claim.getOwnerId();
   }
 
   public getClaim() {

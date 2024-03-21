@@ -1,9 +1,9 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
-import { BaseEntity } from '../common/base.entity';
+import { BaseEntity } from '../../common/base.entity';
+import { Type } from '../../entity/client.entity';
 
 import { Claim, ClaimStatus } from './claim.entity';
-import { Client, Type } from './client.entity';
 
 export enum WhoToAsk {
   ASK_DRIVER = 'ASK_DRIVER',
@@ -29,12 +29,8 @@ export class ClaimsResolver extends BaseEntity {
   @Column('varchar', { array: true, default: [] })
   private claimedTransitIds: string[] = [];
 
-  @Column()
+  @Column({ nullable: true, type: 'uuid' })
   private clientId: string | null;
-
-  @OneToOne(() => Client, { eager: true })
-  @JoinColumn({ name: 'clientId' })
-  private client: string;
 
   constructor(clientId?: string) {
     super();
@@ -44,6 +40,7 @@ export class ClaimsResolver extends BaseEntity {
 
   public resolve(
     claim: Claim,
+    clientType: Type,
     automaticRefundForVipPriceThreshold: number,
     numberOfTransits: number,
     noOfTransitsForClaimAutomaticRefund: number,
@@ -64,7 +61,7 @@ export class ClaimsResolver extends BaseEntity {
       return new ClaimResult(WhoToAsk.ASK_NOONE, ClaimStatus.REFUNDED);
     }
 
-    if (claim.getOwner().getType() === Type.VIP) {
+    if (clientType === Type.VIP) {
       if (
         (claim.getTransitPrice()?.toInt() ?? 0) <
         automaticRefundForVipPriceThreshold

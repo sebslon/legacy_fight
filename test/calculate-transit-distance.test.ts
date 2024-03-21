@@ -1,7 +1,7 @@
 import { Clock } from '../src/common/clock';
 import { Distance } from '../src/distance/distance';
 import { AddressDTO } from '../src/dto/address.dto';
-import { ClientDto } from '../src/dto/client.dto';
+import { ClientDTO } from '../src/dto/client.dto';
 import { TransitDTO } from '../src/dto/transit.dto';
 import { CarClass } from '../src/entity/car-type.entity';
 import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';
@@ -43,7 +43,7 @@ describe('Calculate Transit Distance', () => {
       transit.getId(),
       now.getTime(),
       now.getTime(),
-      new ClientDto(null),
+      new ClientDTO(null),
       CarClass.REGULAR,
       AddressDTO.empty(),
       AddressDTO.empty(),

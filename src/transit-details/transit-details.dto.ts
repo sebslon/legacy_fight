@@ -1,6 +1,6 @@
 import { Distance } from '../distance/distance';
 import { AddressDTO } from '../dto/address.dto';
-import { ClientDto } from '../dto/client.dto';
+import { ClientDTO } from '../dto/client.dto';
 import { CarClass } from '../entity/car-type.entity';
 import { Tariff } from '../entity/tariff.entity';
 import { TransitStatus } from '../entity/transit/transit.entity';
@@ -12,7 +12,7 @@ export class TransitDetailsDTO {
   public transitId: string;
   public dateTime: number | null;
   public completedAt: number | null;
-  public client: ClientDto;
+  public client: ClientDTO;
   public carType: CarClass;
   public from: AddressDTO;
   public to: AddressDTO;
@@ -34,7 +34,7 @@ export class TransitDetailsDTO {
       td.getTransitId(),
       td.getDateTime(),
       td.getCompleteAt(),
-      new ClientDto(td.getClient()),
+      new ClientDTO(td.getClient()),
       td.getCarType(),
       new AddressDTO(td.getFrom()),
       new AddressDTO(td.getTo()),
@@ -60,7 +60,7 @@ export class TransitDetailsDTO {
     transitId: string,
     dateTime: number | null,
     completedAt: number | null,
-    client: ClientDto,
+    client: ClientDTO,
     carType: CarClass,
     from: AddressDTO,
     to: AddressDTO,

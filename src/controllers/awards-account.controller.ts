@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post } from '@nestjs/common';
 
-import { AwardsAccountDto } from '../dto/awards-account.dto';
+import { AwardsAccountDTO } from '../dto/awards-account.dto';
 import { AwardsService } from '../service/awards.service';
 
 @Controller('clients')
@@ -10,7 +10,7 @@ export class AwardsAccountController {
   @Post(':clientId/awards')
   public async register(
     @Param('clientId') clientId: string,
-  ): Promise<AwardsAccountDto> {
+  ): Promise<AwardsAccountDTO> {
     await this.awardsService.registerToProgram(clientId);
     return this.awardsService.findBy(clientId);
   }
@@ -18,7 +18,7 @@ export class AwardsAccountController {
   @Post(':clientId/awards/activate')
   public async activate(
     @Param('clientId') clientId: string,
-  ): Promise<AwardsAccountDto> {
+  ): Promise<AwardsAccountDTO> {
     await this.awardsService.activateAccount(clientId);
     return this.awardsService.findBy(clientId);
   }
@@ -26,7 +26,7 @@ export class AwardsAccountController {
   @Post(':clientId/awards/deactivate')
   public async deactivate(
     @Param('clientId') clientId: string,
-  ): Promise<AwardsAccountDto> {
+  ): Promise<AwardsAccountDTO> {
     await this.awardsService.deactivateAccount(clientId);
     return this.awardsService.findBy(clientId);
   }
@@ -43,7 +43,7 @@ export class AwardsAccountController {
     @Param('clientId') clientId: string,
     @Param('toClientId') toClientId: string,
     @Param('howMuch') howMuch: string,
-  ): Promise<AwardsAccountDto> {
+  ): Promise<AwardsAccountDTO> {
     await this.awardsService.transferMiles(
       clientId,
       toClientId,
@@ -55,7 +55,7 @@ export class AwardsAccountController {
   @Get(':clientId/awards')
   public async findBy(
     @Param('clientId') clientId: string,
-  ): Promise<AwardsAccountDto> {
+  ): Promise<AwardsAccountDTO> {
     return this.awardsService.findBy(clientId);
   }
 }

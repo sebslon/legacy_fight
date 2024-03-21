@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
-import { ClaimDTO } from '../dto/claim.dto';
-import { CreateClaimDto } from '../dto/create-claim.dto';
-import { Claim, ClaimStatus } from '../entity/claim.entity';
-import { ClaimService } from '../service/claim.service';
+import { CreateClaimDto } from '../../dto/create-claim.dto';
+
+import { ClaimDTO } from './claim.dto';
+import { Claim, ClaimStatus } from './claim.entity';
+import { ClaimService } from './claim.service';
 
 @Controller('claims')
 export class ClaimController {

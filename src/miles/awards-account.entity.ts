@@ -1,11 +1,10 @@
 import { NotAcceptableException } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import { orderBy } from 'lodash';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
-import { Client } from '../entity/client.entity';
 import { MilesSortingStrategy } from '../service/awards.service';
 
 import { AwardedMiles } from './awarded-miles.entity';
@@ -22,9 +21,8 @@ export class AwardsAccount extends BaseEntity {
   @Column({ default: 0, type: 'integer' })
   private transactions: number;
 
-  @OneToOne(() => Client, { eager: true })
-  @JoinColumn()
-  private client: Client;
+  @Column({ type: 'uuid' })
+  private clientId: string;
 
   @OneToMany(() => AwardedMiles, (awardedMiles) => awardedMiles.account, {
     eager: true,
@@ -32,16 +30,16 @@ export class AwardsAccount extends BaseEntity {
   })
   private miles: AwardedMiles[];
 
-  public constructor(client: Client, isActive: boolean, date: Date) {
+  public constructor(clientId: string, isActive: boolean, date: Date) {
     super();
 
-    this.client = client;
+    this.clientId = clientId;
     this.isActive = isActive;
     this.date = date?.getTime();
   }
 
-  public static notActiveAccount(client: Client, date: Date) {
-    return new AwardsAccount(client, false, date);
+  public static notActiveAccount(clientId: string, date: Date) {
+    return new AwardsAccount(clientId, false, date);
   }
 
   public addExpiringMiles(
@@ -53,7 +51,7 @@ export class AwardsAccount extends BaseEntity {
     const expiringMiles = new AwardedMiles(
       this,
       transitId,
-      this.client,
+      this.clientId,
       when,
       MilesConstantUntil.constantUntil(amount, expiresAt),
     );
@@ -68,7 +66,7 @@ export class AwardsAccount extends BaseEntity {
     const nonExpiringMiles = new AwardedMiles(
       this,
       null,
-      this.client,
+      this.clientId,
       when,
       MilesConstantUntil.constantForever(amount),
     );
@@ -131,7 +129,7 @@ export class AwardsAccount extends BaseEntity {
     } else {
       throw new NotAcceptableException(
         'Insufficient miles, id = ' +
-          this.client.getId() +
+          this.clientId +
           ', miles requested = ' +
           miles,
       );
@@ -192,8 +190,8 @@ export class AwardsAccount extends BaseEntity {
     return Object.freeze(this.miles);
   }
 
-  public getClient() {
-    return this.client;
+  public getClientId() {
+    return this.clientId;
   }
 
   public isAwardActive() {

@@ -6,11 +6,11 @@ import { AppProperties } from '../../src/config/app-properties.config';
 import {
   ClaimCompletionMode,
   ClaimStatus,
-} from '../../src/entity/claim.entity';
+} from '../../src/crm/claims/claim.entity';
+import { ClaimService } from '../../src/crm/claims/claim.service';
 import { Client, Type } from '../../src/entity/client.entity';
 import { Driver } from '../../src/entity/driver.entity';
 import { AwardsService } from '../../src/service/awards.service';
-import { ClaimService } from '../../src/service/claim.service';
 import { ClientNotificationService } from '../../src/service/client-notification.service';
 import { DriverNotificationService } from '../../src/service/driver-notification.service';
 import { Fixtures } from '../common/fixtures';
@@ -89,12 +89,12 @@ describe('Claim Automatic Resolving', () => {
     expect(claim.getStatus()).toEqual(ClaimStatus.REFUNDED);
     expect(claim.getCompletionMode()).toEqual(ClaimCompletionMode.AUTOMATIC);
     expect(awardsService.registerNonExpiringMiles).toHaveBeenCalledWith(
-      claim.getOwner().getId(),
+      claim.getOwnerId(),
       10,
     );
     expect(
       clientNotificationService.notifyClientAboutRefund,
-    ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwner().getId());
+    ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwnerId());
   });
 
   it('High cost transits are escalated even when client is VIP', async () => {
@@ -155,25 +155,13 @@ describe('Claim Automatic Resolving', () => {
 
     expect(
       clientNotificationService.notifyClientAboutRefund,
-    ).toHaveBeenNthCalledWith(
-      1,
-      claim1.getClaimNo(),
-      claim1.getOwner().getId(),
-    );
+    ).toHaveBeenNthCalledWith(1, claim1.getClaimNo(), claim1.getOwnerId());
     expect(
       clientNotificationService.notifyClientAboutRefund,
-    ).toHaveBeenNthCalledWith(
-      2,
-      claim2.getClaimNo(),
-      claim2.getOwner().getId(),
-    );
+    ).toHaveBeenNthCalledWith(2, claim2.getClaimNo(), claim2.getOwnerId());
     expect(
       clientNotificationService.notifyClientAboutRefund,
-    ).toHaveBeenNthCalledWith(
-      3,
-      claim3.getClaimNo(),
-      claim3.getOwner().getId(),
-    );
+    ).toHaveBeenNthCalledWith(3, claim3.getClaimNo(), claim3.getOwnerId());
 
     expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
   });
@@ -198,7 +186,7 @@ describe('Claim Automatic Resolving', () => {
     expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
     expect(
       clientNotificationService.notifyClientAboutRefund,
-    ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwner().getId());
+    ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwnerId());
   });
 
   it('High cost transits are escalated even when there are many transits done by client', async () => {
@@ -218,7 +206,7 @@ describe('Claim Automatic Resolving', () => {
     expect(claim.getCompletionMode()).toEqual(ClaimCompletionMode.MANUAL);
     expect(
       clientNotificationService.askForMoreInformation,
-    ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwner().getId());
+    ).toHaveBeenCalledWith(claim.getClaimNo(), claim.getOwnerId());
     expect(awardsService.registerNonExpiringMiles).not.toHaveBeenCalled();
   });
 

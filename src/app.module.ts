@@ -10,13 +10,14 @@ import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
 import { AwardsAccountController } from './controllers/awards-account.controller';
 import { CarTypeController } from './controllers/car-type.controller';
-import { ClaimController } from './controllers/claim.controller';
 import { ClientController } from './controllers/client.controller';
 import { ContractController } from './controllers/contract.controller';
 import { DriverSessionController } from './controllers/driver-session.controller';
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
 import { DriverController } from './controllers/driver.controller';
 import { TransitController } from './controllers/transit.controller';
+import { ClaimModule } from './crm/claims/claim.module';
+import { ClaimRepository } from './crm/claims/claim.repository';
 import { DriverReportController } from './driver-report/driver-report.controller';
 import { DriverReportTokens } from './driver-report/driver-report.tokens';
 import {
@@ -37,9 +38,6 @@ import {
   CarTypeEntityRepository,
   CarTypeRepository,
 } from './repository/car-type.repository';
-import { ClaimAttachmentRepository } from './repository/claim-attachment.repository';
-import { ClaimRepository } from './repository/claim.repository';
-import { ClaimsResolverRepository } from './repository/claims-resolver.repository';
 import { ClientRepository } from './repository/client.repository';
 import { ContractAttachmentDataRepository } from './repository/contract-attachment-data.repository';
 import { ContractRepository } from './repository/contract.repository';
@@ -53,8 +51,6 @@ import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
 import { AwardsService } from './service/awards.service';
 import { CarTypeService } from './service/car-type.service';
-import { ClaimNumberGenerator } from './service/claim-number-generator.service';
-import { ClaimService } from './service/claim.service';
 import { ClientNotificationService } from './service/client-notification.service';
 import { ClientService } from './service/client.service';
 import { ContractService } from './service/contract.service';
@@ -74,6 +70,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
 
 @Module({
   imports: [
+    ClaimModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -89,13 +86,11 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     TypeOrmModule.forFeature([
       DriverRepository,
       InvoiceRepository,
-      ClaimRepository,
       ClientRepository,
       DriverSessionRepository,
       DriverFeeRepository,
       TransitRepository,
       DriverPositionRepository,
-      ClaimAttachmentRepository,
       AddressRepository,
       DriverAttributeRepository,
       AwardsAccountRepository,
@@ -104,11 +99,11 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
       TariffRepository,
       CarTypeEntityRepository,
       CarTypeActiveCounterRepository,
-      ClaimsResolverRepository,
       AwardedMiles,
       ContractAttachment,
       TravelledDistance,
       TravelledDistanceRepository,
+      ClaimRepository,
     ]),
     TransitDetailsModule,
   ],
@@ -120,7 +115,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     DriverTrackingController,
     TransitController,
     AwardsAccountController,
-    ClaimController,
     ContractController,
     DriverReportController,
     TransitAnalyzerController,
@@ -133,14 +127,12 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     InvoiceGenerator,
     DriverNotificationService,
     GeocodingService,
-    ClaimNumberGenerator,
     ClientNotificationService,
     ClientService,
     DriverSessionService,
     DriverFeeService,
     DriverTrackingService,
     AwardsService,
-    ClaimService,
     ContractService,
     TransitService,
     CarTypeRepository,

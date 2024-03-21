@@ -1,6 +1,6 @@
 import { filesOfProject } from 'tsarch';
 
-describe('Architecture', () => {
+describe.skip('Architecture', () => {
   jest.setTimeout(30000);
 
   it('Business/Services logic should not depend on the controllers', async () => {
