@@ -1,8 +1,8 @@
-import { ContractAttachmentData } from '../entity/contract-attachment-data.entity';
+import { ContractAttachmentData } from './contract-attachment-data.entity';
 import {
   ContractAttachment,
   ContractAttachmentStatus,
-} from '../entity/contract-attachment.entity';
+} from './contract-attachment.entity';
 
 export class ContractAttachmentDto {
   private id: string;

@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 
-import { ContractDTO } from '../dto/contract.dto';
 import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
 import { CreateContractDTO } from '../dto/create-contract.dto';
-import { ContractService } from '../service/contract.service';
+
+import { ContractService } from './contract.service';
 
 @Controller('contracts')
 export class ContractController {
@@ -14,7 +14,7 @@ export class ContractController {
     const created = await this.contractService.createContract(
       createContractDto,
     );
-    return new ContractDTO(created, []);
+    return created;
   }
 
   @Get(':contractId')

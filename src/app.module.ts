@@ -5,13 +5,13 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { Fixtures } from '../test/common/fixtures';
 
+import { ContractsModule } from './agreements/contracts.module';
 import { AppProperties } from './config/app-properties.config';
 import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
 import { AwardsAccountController } from './controllers/awards-account.controller';
 import { CarTypeController } from './controllers/car-type.controller';
 import { ClientController } from './controllers/client.controller';
-import { ContractController } from './controllers/contract.controller';
 import { DriverSessionController } from './controllers/driver-session.controller';
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
 import { DriverController } from './controllers/driver.controller';
@@ -29,7 +29,6 @@ import { SQLBasedDriverReportCreator } from './driver-report/sql-based-driver-re
 import { TravelledDistance } from './driver-report/travelled-distance/travelled-distance.entity';
 import { TravelledDistanceRepository } from './driver-report/travelled-distance/travelled-distance.repository';
 import { TravelledDistanceService } from './driver-report/travelled-distance/travelled-distance.service';
-import { ContractAttachment } from './entity/contract-attachment.entity';
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
@@ -39,8 +38,6 @@ import {
   CarTypeRepository,
 } from './repository/car-type.repository';
 import { ClientRepository } from './repository/client.repository';
-import { ContractAttachmentDataRepository } from './repository/contract-attachment-data.repository';
-import { ContractRepository } from './repository/contract.repository';
 import { DriverAttributeRepository } from './repository/driver-attribute.repository';
 import { DriverFeeRepository } from './repository/driver-fee.repository';
 import { DriverPositionRepository } from './repository/driver-position.repository';
@@ -53,7 +50,6 @@ import { AwardsService } from './service/awards.service';
 import { CarTypeService } from './service/car-type.service';
 import { ClientNotificationService } from './service/client-notification.service';
 import { ClientService } from './service/client.service';
-import { ContractService } from './service/contract.service';
 import { DistanceCalculator } from './service/distance-calculator.service';
 import { DriverFeeService } from './service/driver-fee.service';
 import { DriverNotificationService } from './service/driver-notification.service';
@@ -71,6 +67,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
 @Module({
   imports: [
     ClaimModule,
+    ContractsModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -94,13 +91,10 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
       AddressRepository,
       DriverAttributeRepository,
       AwardsAccountRepository,
-      ContractAttachmentDataRepository,
-      ContractRepository,
       TariffRepository,
       CarTypeEntityRepository,
       CarTypeActiveCounterRepository,
       AwardedMiles,
-      ContractAttachment,
       TravelledDistance,
       TravelledDistanceRepository,
       ClaimRepository,
@@ -115,7 +109,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     DriverTrackingController,
     TransitController,
     AwardsAccountController,
-    ContractController,
     DriverReportController,
     TransitAnalyzerController,
   ],
@@ -133,7 +126,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     DriverFeeService,
     DriverTrackingService,
     AwardsService,
-    ContractService,
     TransitService,
     CarTypeRepository,
     SQLBasedDriverReportCreator,

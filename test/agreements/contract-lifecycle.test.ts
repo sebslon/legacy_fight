@@ -1,5 +1,5 @@
-import { ContractAttachmentStatus } from '../src/entity/contract-attachment.entity';
-import { Contract, ContractStatus } from '../src/entity/contract.entity';
+import { ContractAttachmentStatus } from '../../src/agreements/contract-attachment.entity';
+import { Contract, ContractStatus } from '../../src/agreements/contract.entity';
 
 describe('Contract Lifecycle', () => {
   const uniquePartnerName = 'partnerWithUniqueName';

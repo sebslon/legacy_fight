@@ -3,14 +3,14 @@ import { randomUUID } from 'crypto';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
+import { ContractAttachmentDto } from '../../src/agreements/contract-attachment.dto';
+import { ContractAttachmentStatus } from '../../src/agreements/contract-attachment.entity';
+import { ContractDTO } from '../../src/agreements/contract.dto';
+import { ContractStatus } from '../../src/agreements/contract.entity';
+import { ContractService } from '../../src/agreements/contract.service';
 import { AppModule } from '../../src/app.module';
-import { ContractAttachmentDto } from '../../src/dto/contract-attachment.dto';
-import { ContractDTO } from '../../src/dto/contract.dto';
 import { CreateContractAttachmentDTO } from '../../src/dto/create-contract-attachment.dto';
 import { CreateContractDTO } from '../../src/dto/create-contract.dto';
-import { ContractAttachmentStatus } from '../../src/entity/contract-attachment.entity';
-import { ContractStatus } from '../../src/entity/contract.entity';
-import { ContractService } from '../../src/service/contract.service';
 
 describe('Contracts lifecycle', () => {
   let contractService: ContractService;

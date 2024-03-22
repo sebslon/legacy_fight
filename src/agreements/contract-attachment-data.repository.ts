@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 
-import { ContractAttachmentData } from '../entity/contract-attachment-data.entity';
+import { ContractAttachmentData } from './contract-attachment-data.entity';
 
 @EntityRepository(ContractAttachmentData)
 export class ContractAttachmentDataRepository extends Repository<ContractAttachmentData> {

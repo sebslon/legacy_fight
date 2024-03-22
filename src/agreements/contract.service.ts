@@ -1,14 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { ContractAttachmentDto } from '../dto/contract-attachment.dto';
-import { ContractDTO } from '../dto/contract.dto';
 import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
 import { CreateContractDTO } from '../dto/create-contract.dto';
-import { ContractAttachmentData } from '../entity/contract-attachment-data.entity';
-import { Contract } from '../entity/contract.entity';
-import { ContractAttachmentDataRepository } from '../repository/contract-attachment-data.repository';
-import { ContractRepository } from '../repository/contract.repository';
+
+import { ContractAttachmentData } from './contract-attachment-data.entity';
+import { ContractAttachmentDataRepository } from './contract-attachment-data.repository';
+import { ContractAttachmentDto } from './contract-attachment.dto';
+import { ContractDTO } from './contract.dto';
+import { Contract } from './contract.entity';
+import { ContractRepository } from './contract.repository';
 
 @Injectable()
 export class ContractService {
@@ -19,7 +20,9 @@ export class ContractService {
     private contractAttachmentDataRepository: ContractAttachmentDataRepository,
   ) {}
 
-  public async createContract(createContractDTO: CreateContractDTO) {
+  public async createContract(
+    createContractDTO: CreateContractDTO,
+  ): Promise<ContractDTO> {
     const partnerContractsCount =
       (
         await this.contractRepository.findByPartnerName(
@@ -33,7 +36,9 @@ export class ContractService {
       'C/' + partnerContractsCount + '/' + createContractDTO.partnerName,
     );
 
-    return this.contractRepository.save(contract);
+    return this.findDto(
+      await (await this.contractRepository.save(contract)).getId(),
+    );
   }
 
   public async acceptContract(id: string) {
