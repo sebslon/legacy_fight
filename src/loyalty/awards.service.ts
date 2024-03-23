@@ -5,13 +5,13 @@ import { Clock } from '../common/clock';
 import { AppProperties } from '../config/app-properties.config';
 import { ClaimService } from '../crm/claims/claim.service';
 import { Type } from '../entity/client.entity';
-import { AwardedMiles } from '../miles/awarded-miles.entity';
-import { AwardsAccountDTO } from '../miles/awards-account.dto';
-import { AwardsAccount } from '../miles/awards-account.entity';
-import { AwardsAccountRepository } from '../repository/awards-account.repository';
 import { TransitRepository } from '../repository/transit.repository';
+import { ClientService } from '../service/client.service';
 
-import { ClientService } from './client.service';
+import { AwardedMiles } from './awarded-miles.entity';
+import { AwardsAccountDTO } from './awards-account.dto';
+import { AwardsAccount } from './awards-account.entity';
+import { AwardsAccountRepository } from './awards-account.repository';
 
 export interface MilesSortingStrategy {
   comparators: ((m: AwardedMiles) => number | boolean | null | undefined)[];

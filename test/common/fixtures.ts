@@ -31,11 +31,11 @@ import {
 } from '../../src/entity/client.entity';
 import { Tariff } from '../../src/entity/tariff.entity';
 import { Transit } from '../../src/entity/transit/transit.entity';
+import { AwardsService } from '../../src/loyalty/awards.service';
 import { Money } from '../../src/money/money';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
-import { AwardsService } from '../../src/service/awards.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { TransitService } from '../../src/service/transit.service';

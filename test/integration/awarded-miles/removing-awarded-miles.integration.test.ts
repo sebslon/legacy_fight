@@ -6,9 +6,9 @@ import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
 import { Client, Type } from '../../../src/entity/client.entity';
-import { AwardedMiles } from '../../../src/miles/awarded-miles.entity';
-import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
-import { AwardsService } from '../../../src/service/awards.service';
+import { AwardedMiles } from '../../../src/loyalty/awarded-miles.entity';
+import { AwardsAccountRepository } from '../../../src/loyalty/awards-account.repository';
+import { AwardsService } from '../../../src/loyalty/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
 jest.setTimeout(3000000);

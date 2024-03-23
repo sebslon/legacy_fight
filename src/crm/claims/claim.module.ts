@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppProperties } from '../../config/app-properties.config';
+import { AwardsAccountRepository } from '../../loyalty/awards-account.repository';
+import { AwardsService } from '../../loyalty/awards.service';
 import { NotificationModule } from '../../notification/notification.module';
-import { AwardsAccountRepository } from '../../repository/awards-account.repository';
 import { ClientRepository } from '../../repository/client.repository';
 import { TransitRepository } from '../../repository/transit.repository';
-import { AwardsService } from '../../service/awards.service';
 import { ClientService } from '../../service/client.service';
 import { TransitDetailsModule } from '../../transit-details/transit-details.module';
 

@@ -4,8 +4,8 @@ import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
 
 import { AwardsAccount } from './awards-account.entity';
-import { MilesInterface } from './interfaces/miles.interface';
-import { MilesConstantUntil } from './miles-constant-until';
+import { MilesInterface } from './miles/interfaces/miles.interface';
+import { MilesConstantUntil } from './miles/miles-constant-until';
 
 export interface MilesJSONInterface {
   miles: number;

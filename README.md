@@ -100,6 +100,7 @@ Archetypes in software design provide common patterns and models for developers 
 - Extracted `ContractsModule` / `CarFleetModule` / `InvoiceModule` / `NotificationModule`
 - Extracted `DriverFleetModule` - loose coupling between `DriverSession` and `Driver`
 - Extracted `TransitAnalyzerModule` - loose coupling to `TransitRepository`
+- Created `Loyalty` with `AwardsModule`
 
 ## Summary
 

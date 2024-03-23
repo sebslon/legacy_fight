@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post } from '@nestjs/common';
 
-import { AwardsAccountDTO } from '../miles/awards-account.dto';
-import { AwardsService } from '../service/awards.service';
+import { AwardsAccountDTO } from './awards-account.dto';
+import { AwardsService } from './awards.service';
 
 @Controller('clients')
 export class AwardsAccountController {
@@ -22,7 +22,6 @@ export class AwardsAccountController {
     await this.awardsService.activateAccount(clientId);
     return this.awardsService.findBy(clientId);
   }
-
   @Post(':clientId/awards/deactivate')
   public async deactivate(
     @Param('clientId') clientId: string,

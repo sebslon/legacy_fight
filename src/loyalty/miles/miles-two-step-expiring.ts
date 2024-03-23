@@ -1,6 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 
-import { Clock } from '../common/clock';
+import { Clock } from '../../common/clock';
 
 import { MilesInterface } from './interfaces/miles.interface';
 

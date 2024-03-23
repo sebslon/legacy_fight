@@ -1,5 +1,5 @@
 import { Client } from '../../../src/entity/client.entity';
-import { AwardsService } from '../../../src/service/awards.service';
+import { AwardsService } from '../../../src/loyalty/awards.service';
 
 export class AwardsAccountFixture {
   constructor(private awardsService: AwardsService) {

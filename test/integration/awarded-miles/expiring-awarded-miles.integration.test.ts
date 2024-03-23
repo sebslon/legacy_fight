@@ -7,7 +7,7 @@ import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
 import { Client } from '../../../src/entity/client.entity';
-import { AwardsService } from '../../../src/service/awards.service';
+import { AwardsService } from '../../../src/loyalty/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Expiring Awarded Miles (calculating balance)', () => {

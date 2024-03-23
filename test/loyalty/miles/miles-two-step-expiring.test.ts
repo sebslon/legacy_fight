@@ -1,5 +1,5 @@
-import { Clock } from '../../src/common/clock';
-import { MilesTwoStepExpiring } from '../../src/miles/miles-two-step-expiring';
+import { Clock } from '../../../src/common/clock';
+import { MilesTwoStepExpiring } from '../../../src/loyalty/miles/miles-two-step-expiring';
 
 describe('Miles Two Step Expiring', () => {
   const YESTERDAY = new Date('2020-01-01');

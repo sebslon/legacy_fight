@@ -1,4 +1,4 @@
-import { MilesConstantUntil } from '../../src/miles/miles-constant-until';
+import { MilesConstantUntil } from '../../../src/loyalty/miles/miles-constant-until';
 
 describe('Miles Constant Until', () => {
   const YESTERDAY = new Date('2020-01-01');

@@ -24,6 +24,7 @@ import { NotPublished } from '../entity/transit/rules/not-published.rule';
 import { OrRule } from '../entity/transit/rules/or-rule';
 import { Transit, TransitStatus } from '../entity/transit/transit.entity';
 import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
+import { AwardsService } from '../loyalty/awards.service';
 import { Money } from '../money/money';
 import { DriverNotificationService } from '../notification/driver-notification.service';
 import { AddressRepository } from '../repository/address.repository';
@@ -33,7 +34,6 @@ import { DriverSessionRepository } from '../repository/driver-session.repository
 import { TransitRepository } from '../repository/transit.repository';
 import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
-import { AwardsService } from './awards.service';
 import { DistanceCalculator } from './distance-calculator.service';
 import { GeocodingService } from './geocoding.service';
 

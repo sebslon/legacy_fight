@@ -5,10 +5,10 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 import { Clock } from '../common/clock';
-import { MilesSortingStrategy } from '../service/awards.service';
 
 import { AwardedMiles } from './awarded-miles.entity';
-import { MilesConstantUntil } from './miles-constant-until';
+import { MilesSortingStrategy } from './awards.service';
+import { MilesConstantUntil } from './miles/miles-constant-until';
 
 @Entity()
 export class AwardsAccount extends BaseEntity {

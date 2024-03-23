@@ -1,4 +1,5 @@
-import { MilesJSONInterface } from './awarded-miles.entity';
+import { MilesJSONInterface } from '../awarded-miles.entity';
+
 import { MilesInterface } from './interfaces/miles.interface';
 
 export class MilesConstantUntil implements MilesInterface {

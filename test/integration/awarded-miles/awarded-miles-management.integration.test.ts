@@ -4,8 +4,8 @@ import { getConnection } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 import { AppModule } from '../../../src/app.module';
-import { AwardsAccountRepository } from '../../../src/repository/awards-account.repository';
-import { AwardsService } from '../../../src/service/awards.service';
+import { AwardsAccountRepository } from '../../../src/loyalty/awards-account.repository';
+import { AwardsService } from '../../../src/loyalty/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Awarded Miles Management', () => {
