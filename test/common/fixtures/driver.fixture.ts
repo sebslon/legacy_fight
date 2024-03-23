@@ -1,5 +1,5 @@
 import { Clock } from '../../../src/common/clock';
-import { CarClass } from '../../../src/entity/car-type.entity';
+import { CarClass } from '../../../src/car-fleet/car-class.enum';
 import {
   DriverAttribute,
   DriverAttributeName,

@@ -1,4 +1,5 @@
-import { CarClass, CarStatus, CarType } from '../entity/car-type.entity';
+import { CarClass } from './car-class.enum';
+import { CarStatus, CarType } from './car-type.entity';
 
 export class CarTypeDTO {
   private id: string;
@@ -55,5 +56,9 @@ export class CarTypeDTO {
 
   public getActiveCarsCounter() {
     return this.activeCarsCounter;
+  }
+
+  public getMinNoOfCarsToActivateClass() {
+    return this.minNoOfCarsToActivateClass;
   }
 }

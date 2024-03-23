@@ -3,14 +3,8 @@ import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
 
+import { CarClass } from './car-class.enum';
 import { CarTypeActiveCounter } from './car-type-active-counter.entity';
-
-export enum CarClass {
-  ECO = 'eco',
-  REGULAR = 'regular',
-  VAN = 'van',
-  PREMIUM = 'premium',
-}
 
 export enum CarStatus {
   INACTIVE = 'inactive',

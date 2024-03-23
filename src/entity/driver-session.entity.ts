@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 
+import { CarClass } from '../car-fleet/car-class.enum';
 import { BaseEntity } from '../common/base.entity';
 
-import { CarClass } from './car-type.entity';
 import { Driver } from './driver.entity';
 
 @Entity()

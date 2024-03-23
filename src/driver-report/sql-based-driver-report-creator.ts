@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
+import { CarClass } from '../car-fleet/car-class.enum';
 import { Clock } from '../common/clock';
 import { ClaimDTO } from '../crm/claims/claim.dto';
 import { ClaimCompletionMode, ClaimStatus } from '../crm/claims/claim.entity';
@@ -10,7 +11,6 @@ import { DriverReport } from '../dto/driver-report.dto';
 import { DriverSessionDTO } from '../dto/driver-session.dto';
 import { DriverDTO } from '../dto/driver.dto';
 import { TransitDTO } from '../dto/transit.dto';
-import { CarClass } from '../entity/car-type.entity';
 import { DriverAttributeName } from '../entity/driver-attribute.entity';
 import { DriverStatus, DriverType } from '../entity/driver.entity';
 import { TransitStatus } from '../entity/transit/transit.entity';

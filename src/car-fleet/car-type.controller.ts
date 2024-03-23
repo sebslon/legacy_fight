@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
-import { CarTypeDTO } from '../dto/car-type.dto';
-import { CarClass } from '../entity/car-type.entity';
-import { CarTypeService } from '../service/car-type.service';
+import { CarClass } from './car-class.enum';
+import { CarTypeDTO } from './car-type.dto';
+import { CarTypeService } from './car-type.service';
 
 @Controller('cartypes')
 export class CarTypeController {

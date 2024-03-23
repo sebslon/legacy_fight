@@ -7,9 +7,9 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 
+import { CarClass } from '../car-fleet/car-class.enum';
 import { Distance } from '../distance/distance';
 import { Address } from '../entity/address.entity';
-import { CarClass } from '../entity/car-type.entity';
 import { Client } from '../entity/client.entity';
 import { Driver } from '../entity/driver.entity';
 import { Tariff } from '../entity/tariff.entity';

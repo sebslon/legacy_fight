@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 
+import { CarTypeDTO } from '../../src/car-fleet/car-type.dto';
+import { CarType } from '../../src/car-fleet/car-type.entity';
+import { CarTypeService } from '../../src/car-fleet/car-type.service';
+import { CarClass } from '../../src/car-fleet/car-class.enum';
 import { Clock } from '../../src/common/clock';
 import { ClaimDTO } from '../../src/crm/claims/claim.dto';
 import { ClaimService } from '../../src/crm/claims/claim.service';
 import { Distance } from '../../src/distance/distance';
 import { AddressDTO } from '../../src/dto/address.dto';
-import { CarTypeDTO } from '../../src/dto/car-type.dto';
 import { ClientDTO } from '../../src/dto/client.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';
 import { Address } from '../../src/entity/address.entity';
-import { CarClass, CarType } from '../../src/entity/car-type.entity';
 import {
   Client,
   ClientType,
@@ -35,7 +37,6 @@ import { DriverAttributeRepository } from '../../src/repository/driver-attribute
 import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
-import { CarTypeService } from '../../src/service/car-type.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { DriverService } from '../../src/service/driver.service';

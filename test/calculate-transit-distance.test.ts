@@ -1,9 +1,9 @@
+import { CarClass } from '../src/car-fleet/car-class.enum';
 import { Clock } from '../src/common/clock';
 import { Distance } from '../src/distance/distance';
 import { AddressDTO } from '../src/dto/address.dto';
 import { ClientDTO } from '../src/dto/client.dto';
 import { TransitDTO } from '../src/dto/transit.dto';
-import { CarClass } from '../src/entity/car-type.entity';
 import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';
 import { Money } from '../src/money/money';
 import { TransitDetailsDTO } from '../src/transit-details/transit-details.dto';

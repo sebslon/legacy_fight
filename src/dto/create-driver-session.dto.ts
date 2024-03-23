@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
-import { CarClass } from '../entity/car-type.entity';
+import { CarClass } from '../car-fleet/car-class.enum';
 
 export class CreateDriverSessionDto {
   @IsNotEmpty()

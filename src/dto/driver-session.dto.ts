@@ -1,4 +1,4 @@
-import { CarClass } from '../entity/car-type.entity';
+import { CarClass } from '../car-fleet/car-class.enum';
 import { DriverSession } from '../entity/driver-session.entity';
 
 export class DriverSessionDTO {

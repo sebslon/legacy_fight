@@ -1,6 +1,7 @@
 import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm';
 
-import { CarClass, CarType } from './car-type.entity';
+import { CarClass } from './car-class.enum';
+import { CarType } from './car-type.entity';
 
 /**
  * @private true

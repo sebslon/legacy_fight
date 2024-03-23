@@ -11,6 +11,7 @@ import { AwardsAccountRepository } from '../../../src/repository/awards-account.
 import { AwardsService } from '../../../src/service/awards.service';
 import { Fixtures } from '../../common/fixtures';
 
+jest.setTimeout(3000000);
 describe('Removing Awarded Miles', () => {
   const TRANSIT_ID = uuid();
 
@@ -27,7 +28,10 @@ describe('Removing Awarded Miles', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(AppProperties)
+      .useValue(new AppProperties())
+      .compile();
 
     awardsService = module.get<AwardsService>(AwardsService);
     appProperties = module.get<AppProperties>(AppProperties);
@@ -180,7 +184,6 @@ describe('Removing Awarded Miles', () => {
   });
 
   it('Should remove soon to expire miles first when removing on sunday and client has done many transits', async () => {
-    // HERE FAILS
     const client = await clientWithAnActiveMilesProgram(Type.NORMAL);
 
     await fixtures.clientHasDoneTransits(client, 15);

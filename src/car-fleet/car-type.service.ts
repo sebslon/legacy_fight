@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { AppProperties } from '../config/app-properties.config';
-import { CarTypeDTO } from '../dto/car-type.dto';
-import { CarClass, CarStatus, CarType } from '../entity/car-type.entity';
-import { CarTypeRepository } from '../repository/car-type.repository';
+
+import { CarClass } from './car-class.enum';
+import { CarTypeDTO } from './car-type.dto';
+import { CarStatus, CarType } from './car-type.entity';
+import { CarTypeRepository } from './car-type.repository';
 
 @Injectable()
 export class CarTypeService {
@@ -29,7 +31,7 @@ export class CarTypeService {
     return new CarTypeDTO(carType, activeCarsCounter.getActiveCarsCounter());
   }
 
-  public async create(carTypeDTO: CarTypeDTO): Promise<CarType> {
+  public async create(carTypeDTO: CarTypeDTO): Promise<CarTypeDTO> {
     const byCarClass = await this.carTypeRepository.findByCarClass(
       carTypeDTO.getCarClass(),
     );
@@ -40,13 +42,23 @@ export class CarTypeService {
         carTypeDTO.getDescription(),
         this.getMinNumberOfCars(carTypeDTO.getCarClass()),
       );
-      return this.carTypeRepository.create(type);
+      return this.loadDto(
+        await (await this.carTypeRepository.create(type)).getId(),
+      );
     } else {
       byCarClass.setDescription(carTypeDTO.getDescription());
 
       await this.carTypeRepository.updateCarType(byCarClass);
 
-      return byCarClass;
+      const carType = await this.carTypeRepository.findByCarClass(
+        carTypeDTO.getCarClass(),
+      );
+
+      if (!carType) {
+        throw new NotFoundException('Cannot find car type');
+      }
+
+      return this.loadDto(carType.getId());
     }
   }
 

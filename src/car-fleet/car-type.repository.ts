@@ -2,8 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityRepository, Repository } from 'typeorm';
 
 import { doInTransaction } from '../common/do-in-transaction';
-import { CarTypeActiveCounter } from '../entity/car-type-active-counter.entity';
-import { CarClass, CarStatus, CarType } from '../entity/car-type.entity';
+
+import { CarClass } from './car-class.enum';
+import { CarTypeActiveCounter } from './car-type-active-counter.entity';
+import { CarStatus, CarType } from './car-type.entity';
 
 @EntityRepository(CarType)
 export class CarTypeEntityRepository extends Repository<CarType> {

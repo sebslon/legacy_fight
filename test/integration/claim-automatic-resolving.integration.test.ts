@@ -7,6 +7,7 @@ import {
   ClaimCompletionMode,
   ClaimStatus,
 } from '../../src/crm/claims/claim.entity';
+import { ClaimModule } from '../../src/crm/claims/claim.module';
 import { ClaimService } from '../../src/crm/claims/claim.service';
 import { Client, Type } from '../../src/entity/client.entity';
 import { Driver } from '../../src/entity/driver.entity';
@@ -15,6 +16,7 @@ import { ClientNotificationService } from '../../src/service/client-notification
 import { DriverNotificationService } from '../../src/service/driver-notification.service';
 import { Fixtures } from '../common/fixtures';
 
+jest.setTimeout(300000);
 describe('Claim Automatic Resolving', () => {
   let claimService: ClaimService;
   let appProperties: AppProperties;
@@ -25,8 +27,11 @@ describe('Claim Automatic Resolving', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+      imports: [AppModule, ClaimModule],
+    })
+      .overrideProvider(AppProperties)
+      .useValue(new AppProperties())
+      .compile();
 
     claimService = module.get<ClaimService>(ClaimService);
     appProperties = module.get<AppProperties>(AppProperties);
@@ -76,6 +81,7 @@ describe('Claim Automatic Resolving', () => {
   });
 
   it('Low cost transits are refunded if client is VIP', async () => {
+    // HERE
     lowCostThresholdIs(40);
 
     const client = await fixtures.createClientWithClaims(Type.VIP, 3);

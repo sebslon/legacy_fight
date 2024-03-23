@@ -98,6 +98,7 @@ Archetypes in software design provide common patterns and models for developers 
   - Removed direct coupling between `AwardedMiles` and `Transit` leaving only `transitId`
 - Extracted `ClaimModule` - loose Claim/Client, Client/AwardedMiles/AwardsAccount dependencies - leaving id references, simplified `AwardsService`
 - Extracted `ContractsModule`
+- Extracted `CarFleetModule`)
 
 ## Summary
 

@@ -6,11 +6,11 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Fixtures } from '../test/common/fixtures';
 
 import { ContractsModule } from './agreements/contracts.module';
+import { CarFleetModule } from './car-fleet/car-fleet.module';
 import { AppProperties } from './config/app-properties.config';
 import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
 import { AwardsAccountController } from './controllers/awards-account.controller';
-import { CarTypeController } from './controllers/car-type.controller';
 import { ClientController } from './controllers/client.controller';
 import { DriverSessionController } from './controllers/driver-session.controller';
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
@@ -32,11 +32,6 @@ import { TravelledDistanceService } from './driver-report/travelled-distance/tra
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
-import {
-  CarTypeActiveCounterRepository,
-  CarTypeEntityRepository,
-  CarTypeRepository,
-} from './repository/car-type.repository';
 import { ClientRepository } from './repository/client.repository';
 import { DriverAttributeRepository } from './repository/driver-attribute.repository';
 import { DriverFeeRepository } from './repository/driver-fee.repository';
@@ -47,7 +42,6 @@ import { InvoiceRepository } from './repository/invoice.repository';
 import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
 import { AwardsService } from './service/awards.service';
-import { CarTypeService } from './service/car-type.service';
 import { ClientNotificationService } from './service/client-notification.service';
 import { ClientService } from './service/client.service';
 import { DistanceCalculator } from './service/distance-calculator.service';
@@ -68,6 +62,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
   imports: [
     ClaimModule,
     ContractsModule,
+    CarFleetModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -92,8 +87,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
       DriverAttributeRepository,
       AwardsAccountRepository,
       TariffRepository,
-      CarTypeEntityRepository,
-      CarTypeActiveCounterRepository,
       AwardedMiles,
       TravelledDistance,
       TravelledDistanceRepository,
@@ -103,7 +96,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
   ],
   controllers: [
     DriverController,
-    CarTypeController,
     ClientController,
     DriverSessionController,
     DriverTrackingController,
@@ -115,7 +107,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
   providers: [
     AppProperties,
     DriverService,
-    CarTypeService,
     DistanceCalculator,
     InvoiceGenerator,
     DriverNotificationService,
@@ -127,7 +118,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     DriverTrackingService,
     AwardsService,
     TransitService,
-    CarTypeRepository,
     SQLBasedDriverReportCreator,
     OldDriverReportCreator,
     DriverReportCreator,

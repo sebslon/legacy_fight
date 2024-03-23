@@ -1,7 +1,7 @@
+import { CarClass } from '../car-fleet/car-class.enum';
 import { Distance } from '../distance/distance';
 import { AddressDTO } from '../dto/address.dto';
 import { ClientDTO } from '../dto/client.dto';
-import { CarClass } from '../entity/car-type.entity';
 import { Tariff } from '../entity/tariff.entity';
 import { TransitStatus } from '../entity/transit/transit.entity';
 import { Money } from '../money/money';

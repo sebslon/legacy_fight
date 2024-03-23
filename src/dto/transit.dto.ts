@@ -1,7 +1,7 @@
+import { CarClass } from '../car-fleet/car-class.enum';
 import { Clock } from '../common/clock';
 import { ClaimDTO } from '../crm/claims/claim.dto';
 import { Distance } from '../distance/distance';
-import { CarClass } from '../entity/car-type.entity';
 import { TransitStatus, Transit } from '../entity/transit/transit.entity';
 import { TransitDetailsDTO } from '../transit-details/transit-details.dto';
 

@@ -7,13 +7,14 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { CarTypeService } from '../car-fleet/car-type.service';
+import { CarClass } from '../car-fleet/car-class.enum';
 import { Clock } from '../common/clock';
 import { Distance } from '../distance/distance';
 import { AddressDTO } from '../dto/address.dto';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
 import { TransitDTO } from '../dto/transit.dto';
 import { Address } from '../entity/address.entity';
-import { CarClass } from '../entity/car-type.entity';
 import { DriverStatus } from '../entity/driver.entity';
 import { NoFurtherThan } from '../entity/transit/rules/no-further-than.rule';
 import { NotPublished } from '../entity/transit/rules/not-published.rule';
@@ -30,7 +31,6 @@ import { TransitCompletedEvent } from '../transit-analyzer/events/transit-comple
 import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
 import { AwardsService } from './awards.service';
-import { CarTypeService } from './car-type.service';
 import { DistanceCalculator } from './distance-calculator.service';
 import { DriverFeeService } from './driver-fee.service';
 import { DriverNotificationService } from './driver-notification.service';
