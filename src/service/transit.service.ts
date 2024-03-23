@@ -11,11 +11,13 @@ import { CarClass } from '../car-fleet/car-class.enum';
 import { CarTypeService } from '../car-fleet/car-type.service';
 import { Clock } from '../common/clock';
 import { Distance } from '../distance/distance';
+import { DriverFeeService } from '../driver-fleet/driver-fee.service';
+import { DriverStatus } from '../driver-fleet/driver.entity';
+import { DriverRepository } from '../driver-fleet/driver.repository';
 import { AddressDTO } from '../dto/address.dto';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
 import { TransitDTO } from '../dto/transit.dto';
 import { Address } from '../entity/address.entity';
-import { DriverStatus } from '../entity/driver.entity';
 import { NoFurtherThan } from '../entity/transit/rules/no-further-than.rule';
 import { NotPublished } from '../entity/transit/rules/not-published.rule';
 import { OrRule } from '../entity/transit/rules/or-rule';
@@ -27,14 +29,12 @@ import { AddressRepository } from '../repository/address.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
 import { DriverSessionRepository } from '../repository/driver-session.repository';
-import { DriverRepository } from '../repository/driver.repository';
 import { TransitRepository } from '../repository/transit.repository';
 import { TransitCompletedEvent } from '../transit-analyzer/events/transit-completed.event';
 import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
 import { AwardsService } from './awards.service';
 import { DistanceCalculator } from './distance-calculator.service';
-import { DriverFeeService } from './driver-fee.service';
 import { GeocodingService } from './geocoding.service';
 
 @Injectable()
@@ -366,15 +366,18 @@ export class TransitService {
           carClasses.push(...activeCarClasses);
         }
 
-        const drivers = driversAvgPositions.map((item) => item.getDriver());
+        const driverIds: string[] = driversAvgPositions.map((pos) =>
+          pos.getDriver().getId(),
+        );
 
         const fetchedCars =
-          await this.driverSessionRepository.findAllByLoggedOutAtNullAndDriverInAndCarClassIn(
-            drivers,
+          await this.driverSessionRepository.findAllByLoggedOutAtNullAndDriverIdInAndCarClassIn(
+            driverIds,
             carClasses,
           );
+
         const activeDriverIdsInSpecificCar = fetchedCars.map((ds) =>
-          ds.getDriver().getId(),
+          ds.getDriverId(),
         );
 
         driversAvgPositions = driversAvgPositions.filter((dp) =>

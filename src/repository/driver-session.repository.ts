@@ -3,55 +3,51 @@ import { EntityRepository, MoreThan, Repository, IsNull, In } from 'typeorm';
 
 import { CarClass } from '../car-fleet/car-class.enum';
 import { DriverSession } from '../entity/driver-session.entity';
-import { Driver } from '../entity/driver.entity';
 
 @EntityRepository(DriverSession)
 export class DriverSessionRepository extends Repository<DriverSession> {
-  public async findAllByLoggedOutAtNullAndDriverInAndCarClassIn(
-    drivers: Driver[],
+  public async findAllByLoggedOutAtNullAndDriverIdInAndCarClassIn(
+    driverIds: string[],
     carClasses: CarClass[],
   ): Promise<DriverSession[]> {
     return this.find({
       where: {
-        driver: {
-          id: In(drivers.map((driver) => driver.getId())),
-        },
+        driverId: In(driverIds),
         carClass: In(carClasses),
         loggedOutAt: IsNull(),
       },
-      relations: ['driver'],
     });
   }
 
-  public async findTopByDriverAndLoggedOutAtIsNullOrderByLoggedAtDesc(
-    driver: Driver,
+  public async findTopByDriverIdAndLoggedOutAtIsNullOrderByLoggedAtDesc(
+    driverId: string,
   ): Promise<DriverSession> {
     const session = await this.findOne({
-      where: { driver, loggedOutAt: IsNull() },
+      where: { driverId, loggedOutAt: IsNull() },
       order: {
         loggedAt: 'DESC',
       },
     });
 
     if (!session) {
-      throw new NotFoundException(`Session for ${driver.getId()} not exists`);
+      throw new NotFoundException(`Session for ${driverId} not exists`);
     }
     return session;
   }
 
-  public async findAllByDriverAndLoggedAtAfter(
-    driver: Driver,
+  public async findAllByDriverIdAndLoggedAtAfter(
+    driverId: string,
     since: number,
   ): Promise<DriverSession[]> {
     return this.find({
       where: {
-        driver,
+        driverId,
         loggedAt: MoreThan(since),
       },
     });
   }
 
-  public async findByDriver(driver: Driver): Promise<DriverSession[]> {
-    return this.find({ where: { driver } });
+  public async findByDriverId(driverId: string): Promise<DriverSession[]> {
+    return this.find({ where: { driverId } });
   }
 }

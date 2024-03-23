@@ -1,10 +1,8 @@
 import objectHash from 'object-hash';
 
-import {
-  DriverAttribute,
-  DriverAttributeName,
-} from '../entity/driver-attribute.entity';
-import { Driver } from '../entity/driver.entity';
+import { DriverAttributeName } from './driver-attribute-name.enum';
+import { DriverAttribute } from './driver-attribute.entity';
+import { Driver } from './driver.entity';
 
 export class DriverAttributeDTO {
   public name: DriverAttributeName;

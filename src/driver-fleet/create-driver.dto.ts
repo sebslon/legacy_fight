@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
-import { DriverStatus, DriverType } from '../entity/driver.entity';
+import { DriverStatus, DriverType } from './driver.entity';
 
 export class CreateDriverDto {
   @IsNotEmpty()

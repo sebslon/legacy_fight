@@ -1,9 +1,7 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 import { CarClass } from '../car-fleet/car-class.enum';
 import { BaseEntity } from '../common/base.entity';
-
-import { Driver } from './driver.entity';
 
 @Entity()
 export class DriverSession extends BaseEntity {
@@ -13,8 +11,8 @@ export class DriverSession extends BaseEntity {
   @Column({ nullable: true, type: 'bigint' })
   private loggedOutAt: number | null;
 
-  @ManyToOne(() => Driver)
-  private driver: Driver;
+  @Column({ type: 'uuid' })
+  private driverId: string;
 
   @Column()
   private platesNumber: string;
@@ -49,12 +47,12 @@ export class DriverSession extends BaseEntity {
     this.loggedOutAt = loggedOutAt;
   }
 
-  public getDriver() {
-    return this.driver;
+  public getDriverId() {
+    return this.driverId;
   }
 
-  public setDriver(driver: Driver) {
-    this.driver = driver;
+  public setDriverId(driverId: string) {
+    this.driverId = driverId;
   }
 
   public getPlatesNumber() {

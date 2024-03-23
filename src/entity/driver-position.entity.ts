@@ -1,8 +1,7 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
-
-import { Driver } from './driver.entity';
+import { Driver } from '../driver-fleet/driver.entity';
 
 @Entity()
 export class DriverPosition extends BaseEntity {

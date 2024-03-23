@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Distance } from '../../distance/distance';
+import { Distance } from '../../../distance/distance';
 
 import { TimeSlot } from './time-slot';
 

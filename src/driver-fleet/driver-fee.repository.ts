@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 
-import { DriverFee } from '../entity/driver-fee.entity';
+import { DriverFee } from './driver-fee.entity';
 
 @EntityRepository(DriverFee)
 export class DriverFeeRepository extends Repository<DriverFee> {

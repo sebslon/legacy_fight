@@ -14,41 +14,32 @@ import { AwardsAccountController } from './controllers/awards-account.controller
 import { ClientController } from './controllers/client.controller';
 import { DriverSessionController } from './controllers/driver-session.controller';
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
-import { DriverController } from './controllers/driver.controller';
 import { TransitController } from './controllers/transit.controller';
 import { ClaimModule } from './crm/claims/claim.module';
 import { ClaimRepository } from './crm/claims/claim.repository';
-import { DriverReportController } from './driver-report/driver-report.controller';
-import { DriverReportTokens } from './driver-report/driver-report.tokens';
-import {
-  DriverReportCreator,
-  TestDummyReconciliation,
-} from './driver-report/old/driver-report-creator';
-import { OldDriverReportCreator } from './driver-report/old/old-driver-report-creator';
-import { SQLBasedDriverReportCreator } from './driver-report/sql-based-driver-report-creator';
-import { TravelledDistance } from './driver-report/travelled-distance/travelled-distance.entity';
-import { TravelledDistanceRepository } from './driver-report/travelled-distance/travelled-distance.repository';
-import { TravelledDistanceService } from './driver-report/travelled-distance/travelled-distance.service';
+import { DriverAttributeRepository } from './driver-fleet/driver-attribute.repository';
+import { DriverFeeRepository } from './driver-fleet/driver-fee.repository';
+import { DriverFleetModule } from './driver-fleet/driver-fleet.module';
+import { DriverReportModule } from './driver-fleet/driver-report/driver-report.module';
+import { TravelledDistance } from './driver-fleet/driver-report/travelled-distance/travelled-distance.entity';
+import { TravelledDistanceRepository } from './driver-fleet/driver-report/travelled-distance/travelled-distance.repository';
+import { TravelledDistanceService } from './driver-fleet/driver-report/travelled-distance/travelled-distance.service';
+import { DriverRepository } from './driver-fleet/driver.repository';
 import { InvoiceModule } from './invoicing/invoice.module';
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { NotificationModule } from './notification/notification.module';
 import { AddressRepository } from './repository/address.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
 import { ClientRepository } from './repository/client.repository';
-import { DriverAttributeRepository } from './repository/driver-attribute.repository';
-import { DriverFeeRepository } from './repository/driver-fee.repository';
 import { DriverPositionRepository } from './repository/driver-position.repository';
 import { DriverSessionRepository } from './repository/driver-session.repository';
-import { DriverRepository } from './repository/driver.repository';
 import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
 import { AwardsService } from './service/awards.service';
 import { ClientService } from './service/client.service';
 import { DistanceCalculator } from './service/distance-calculator.service';
-import { DriverFeeService } from './service/driver-fee.service';
 import { DriverSessionService } from './service/driver-session.service';
 import { DriverTrackingService } from './service/driver-tracking.service';
-import { DriverService } from './service/driver.service';
 import { GeocodingService } from './service/geocoding.service';
 import { TransitService } from './service/transit.service';
 import { GraphTransitAnalyzer } from './transit-analyzer/graph-transit-analyzer';
@@ -58,6 +49,8 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
 
 @Module({
   imports: [
+    DriverReportModule,
+    DriverFleetModule,
     ClaimModule,
     ContractsModule,
     CarFleetModule,
@@ -76,14 +69,14 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
       global: true,
     }),
     TypeOrmModule.forFeature([
-      DriverRepository,
       ClientRepository,
-      DriverSessionRepository,
-      DriverFeeRepository,
       TransitRepository,
+      DriverRepository,
+      DriverSessionRepository,
       DriverPositionRepository,
-      AddressRepository,
+      DriverFeeRepository,
       DriverAttributeRepository,
+      AddressRepository,
       AwardsAccountRepository,
       TariffRepository,
       AwardedMiles,
@@ -94,35 +87,24 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     TransitDetailsModule,
   ],
   controllers: [
-    DriverController,
     ClientController,
     DriverSessionController,
     DriverTrackingController,
     TransitController,
     AwardsAccountController,
-    DriverReportController,
     TransitAnalyzerController,
   ],
   providers: [
     AppProperties,
-    DriverService,
     DistanceCalculator,
     GeocodingService,
     ClientService,
     DriverSessionService,
-    DriverFeeService,
     DriverTrackingService,
+    TravelledDistanceService,
     AwardsService,
     TransitService,
-    SQLBasedDriverReportCreator,
-    OldDriverReportCreator,
-    DriverReportCreator,
     GraphTransitAnalyzer,
-    {
-      provide: DriverReportTokens.DriverReportReconciliation,
-      useClass: TestDummyReconciliation,
-    },
-    TravelledDistanceService,
     TransitCompletedListener,
     Fixtures, // TODO: For now for tests, refactor
   ],

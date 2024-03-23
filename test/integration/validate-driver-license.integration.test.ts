@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { DriverDTO } from '../../src/dto/driver.dto';
+import { DriverDTO } from '../../src/driver-fleet/driver.dto';
 import {
   Driver,
   DriverStatus,
   DriverType,
-} from '../../src/entity/driver.entity';
-import { DriverService } from '../../src/service/driver.service';
+} from '../../src/driver-fleet/driver.entity';
+import { DriverService } from '../../src/driver-fleet/driver.service';
 
 describe('Validate Driver License', () => {
   let driverService: DriverService;

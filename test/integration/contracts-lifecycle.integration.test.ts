@@ -8,9 +8,9 @@ import { ContractAttachmentStatus } from '../../src/agreements/contract-attachme
 import { ContractDTO } from '../../src/agreements/contract.dto';
 import { ContractStatus } from '../../src/agreements/contract.entity';
 import { ContractService } from '../../src/agreements/contract.service';
+import { CreateContractAttachmentDTO } from '../../src/agreements/create-contract-attachment.dto';
+import { CreateContractDTO } from '../../src/agreements/create-contract.dto';
 import { AppModule } from '../../src/app.module';
-import { CreateContractAttachmentDTO } from '../../src/dto/create-contract-attachment.dto';
-import { CreateContractDTO } from '../../src/dto/create-contract.dto';
 
 describe('Contracts lifecycle', () => {
   let contractService: ContractService;

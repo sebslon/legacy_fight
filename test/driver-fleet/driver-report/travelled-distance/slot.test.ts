@@ -1,4 +1,4 @@
-import { TimeSlot } from '../../../src/driver-report/travelled-distance/time-slot';
+import { TimeSlot } from '../../../../src/driver-fleet/driver-report/travelled-distance/time-slot';
 
 describe('Slot', () => {
   const NOON = new Date('2021-01-01T12:00:00Z');

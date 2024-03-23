@@ -1,20 +1,21 @@
 import { CarClass } from '../../../src/car-fleet/car-class.enum';
 import { Clock } from '../../../src/common/clock';
+import { DriverAttributeName } from '../../../src/driver-fleet/driver-attribute-name.enum';
+import { DriverAttribute } from '../../../src/driver-fleet/driver-attribute.entity';
+import { DriverAttributeRepository } from '../../../src/driver-fleet/driver-attribute.repository';
 import {
-  DriverAttribute,
-  DriverAttributeName,
-} from '../../../src/entity/driver-attribute.entity';
-import { DriverFee, FeeType } from '../../../src/entity/driver-fee.entity';
+  DriverFee,
+  FeeType,
+} from '../../../src/driver-fleet/driver-fee.entity';
+import { DriverFeeRepository } from '../../../src/driver-fleet/driver-fee.repository';
 import {
   Driver,
   DriverStatus,
   DriverType,
-} from '../../../src/entity/driver.entity';
-import { DriverAttributeRepository } from '../../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../../src/repository/driver-fee.repository';
+} from '../../../src/driver-fleet/driver.entity';
+import { DriverService } from '../../../src/driver-fleet/driver.service';
 import { DriverSessionService } from '../../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
-import { DriverService } from '../../../src/service/driver.service';
 
 export class DriverFixture {
   constructor(

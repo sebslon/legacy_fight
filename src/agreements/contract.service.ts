@@ -1,15 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
-import { CreateContractDTO } from '../dto/create-contract.dto';
-
 import { ContractAttachmentData } from './contract-attachment-data.entity';
 import { ContractAttachmentDataRepository } from './contract-attachment-data.repository';
 import { ContractAttachmentDto } from './contract-attachment.dto';
 import { ContractDTO } from './contract.dto';
 import { Contract } from './contract.entity';
 import { ContractRepository } from './contract.repository';
+import { CreateContractAttachmentDTO } from './create-contract-attachment.dto';
+import { CreateContractDTO } from './create-contract.dto';
 
 @Injectable()
 export class ContractService {

@@ -1,9 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 
-import { CreateContractAttachmentDTO } from '../dto/create-contract-attachment.dto';
-import { CreateContractDTO } from '../dto/create-contract.dto';
-
 import { ContractService } from './contract.service';
+import { CreateContractAttachmentDTO } from './create-contract-attachment.dto';
+import { CreateContractDTO } from './create-contract.dto';
 
 @Controller('contracts')
 export class ContractController {

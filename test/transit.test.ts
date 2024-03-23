@@ -1,7 +1,7 @@
 import { Clock } from '../src/common/clock';
 import { Distance } from '../src/distance/distance';
+import { Driver } from '../src/driver-fleet/driver.entity';
 import { Address } from '../src/entity/address.entity';
-import { Driver } from '../src/entity/driver.entity';
 import { NotPublished } from '../src/entity/transit/rules/not-published.rule';
 import { OrRule } from '../src/entity/transit/rules/or-rule';
 import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';

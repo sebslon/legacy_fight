@@ -3,7 +3,7 @@ import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
-import { TravelledDistanceService } from '../../../src/driver-report/travelled-distance/travelled-distance.service';
+import { TravelledDistanceService } from '../../../src/driver-fleet/driver-report/travelled-distance/travelled-distance.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Calculate Driver Travelled Distance', () => {

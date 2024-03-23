@@ -1,4 +1,4 @@
-import { DriverLicense } from '../src/entity/driver-license';
+import { DriverLicense } from '../../src/driver-fleet/driver-license';
 
 describe('DriverLicense', () => {
   const validLicense = 'FARME100165AB5EW';

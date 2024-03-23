@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { Clock } from '../../common/clock';
-import { Distance } from '../../distance/distance';
-import { DistanceCalculator } from '../../service/distance-calculator.service';
+import { Clock } from '../../../common/clock';
+import { Distance } from '../../../distance/distance';
+import { DistanceCalculator } from '../../../service/distance-calculator.service';
 
 import { TimeSlot } from './time-slot';
 import { TravelledDistance } from './travelled-distance.entity';

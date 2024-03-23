@@ -6,14 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 
-import { CreateDriverDto } from '../dto/create-driver.dto';
-import { DriverDTO } from '../dto/driver.dto';
-import { DriverLicense } from '../entity/driver-license';
-import { Driver, DriverStatus } from '../entity/driver.entity';
-import { DriverRepository } from '../repository/driver.repository';
 import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
+import { CreateDriverDto } from './create-driver.dto';
 import { DriverFeeService } from './driver-fee.service';
+import { DriverLicense } from './driver-license';
+import { DriverDTO } from './driver.dto';
+import { Driver, DriverStatus } from './driver.entity';
+import { DriverRepository } from './driver.repository';
 
 @Injectable()
 export class DriverService {

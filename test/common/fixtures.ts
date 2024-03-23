@@ -8,6 +8,17 @@ import { Clock } from '../../src/common/clock';
 import { ClaimDTO } from '../../src/crm/claims/claim.dto';
 import { ClaimService } from '../../src/crm/claims/claim.service';
 import { Distance } from '../../src/distance/distance';
+import { DriverAttributeName } from '../../src/driver-fleet/driver-attribute-name.enum';
+import { DriverAttribute } from '../../src/driver-fleet/driver-attribute.entity';
+import { DriverAttributeRepository } from '../../src/driver-fleet/driver-attribute.repository';
+import { DriverFee, FeeType } from '../../src/driver-fleet/driver-fee.entity';
+import { DriverFeeRepository } from '../../src/driver-fleet/driver-fee.repository';
+import {
+  Driver,
+  DriverStatus,
+  DriverType,
+} from '../../src/driver-fleet/driver.entity';
+import { DriverService } from '../../src/driver-fleet/driver.service';
 import { AddressDTO } from '../../src/dto/address.dto';
 import { ClientDTO } from '../../src/dto/client.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';
@@ -18,28 +29,15 @@ import {
   PaymentType,
   Type,
 } from '../../src/entity/client.entity';
-import {
-  DriverAttribute,
-  DriverAttributeName,
-} from '../../src/entity/driver-attribute.entity';
-import { DriverFee, FeeType } from '../../src/entity/driver-fee.entity';
-import {
-  Driver,
-  DriverStatus,
-  DriverType,
-} from '../../src/entity/driver.entity';
 import { Tariff } from '../../src/entity/tariff.entity';
 import { Transit } from '../../src/entity/transit/transit.entity';
 import { Money } from '../../src/money/money';
 import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
-import { DriverAttributeRepository } from '../../src/repository/driver-attribute.repository';
-import { DriverFeeRepository } from '../../src/repository/driver-fee.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { AwardsService } from '../../src/service/awards.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
-import { DriverService } from '../../src/service/driver.service';
 import { TransitService } from '../../src/service/transit.service';
 import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 

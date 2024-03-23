@@ -1,8 +1,8 @@
 import { Between, EntityRepository, Repository } from 'typeorm';
 
+import { Driver } from '../driver-fleet/driver.entity';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
 import { DriverPosition } from '../entity/driver-position.entity';
-import { Driver } from '../entity/driver.entity';
 
 @EntityRepository(DriverPosition)
 export class DriverPositionRepository extends Repository<DriverPosition> {

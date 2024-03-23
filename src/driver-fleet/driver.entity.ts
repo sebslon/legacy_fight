@@ -1,11 +1,11 @@
 import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
+import { Transit } from '../entity/transit/transit.entity';
 
 import { DriverAttribute } from './driver-attribute.entity';
 import { DriverFee } from './driver-fee.entity';
 import { DriverLicense } from './driver-license';
-import { Transit } from './transit/transit.entity';
 
 export enum DriverStatus {
   INACTIVE = 'inactive',

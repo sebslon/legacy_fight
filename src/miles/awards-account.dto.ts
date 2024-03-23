@@ -1,6 +1,6 @@
-import { AwardsAccount } from '../miles/awards-account.entity';
+import { ClientDTO } from '../dto/client.dto';
 
-import { ClientDTO } from './client.dto';
+import { AwardsAccount } from './awards-account.entity';
 
 export class AwardsAccountDTO {
   private client: ClientDTO;

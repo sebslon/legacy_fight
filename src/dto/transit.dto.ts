@@ -2,12 +2,12 @@ import { CarClass } from '../car-fleet/car-class.enum';
 import { Clock } from '../common/clock';
 import { ClaimDTO } from '../crm/claims/claim.dto';
 import { Distance } from '../distance/distance';
+import { DriverDTO } from '../driver-fleet/driver.dto';
 import { TransitStatus, Transit } from '../entity/transit/transit.entity';
 import { TransitDetailsDTO } from '../transit-details/transit-details.dto';
 
 import { AddressDTO } from './address.dto';
 import { ClientDTO } from './client.dto';
-import { DriverDTO } from './driver.dto';
 
 export class TransitDTO {
   public id: string;

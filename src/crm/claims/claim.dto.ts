@@ -1,6 +1,5 @@
-import { CreateClaimDto } from '../../dto/create-claim.dto';
-
 import { Claim, ClaimStatus, ClaimCompletionMode } from './claim.entity';
+import { CreateClaimDto } from './create-claim.dto';
 
 export class ClaimDTO {
   private claimID: string;

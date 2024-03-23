@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { FeeType } from '../../src/entity/driver-fee.entity';
+import { FeeType } from '../../src/driver-fleet/driver-fee.entity';
+import { DriverFeeService } from '../../src/driver-fleet/driver-fee.service';
 import { Money } from '../../src/money/money';
-import { DriverFeeService } from '../../src/service/driver-fee.service';
 import { Fixtures } from '../common/fixtures';
 
 describe('Calculate Driver Fee', () => {

@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { FeeType } from '../../src/entity/driver-fee.entity';
+import { FeeType } from '../../src/driver-fleet/driver-fee.entity';
+import { DriverService } from '../../src/driver-fleet/driver.service';
 import { Month } from '../../src/entity/transit/transit.entity';
-import { DriverService } from '../../src/service/driver.service';
 import { Fixtures } from '../common/fixtures';
 
 describe('Calculate Driver Periodic Payments', () => {

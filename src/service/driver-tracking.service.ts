@@ -6,11 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Distance } from '../distance/distance';
-import { TravelledDistanceService } from '../driver-report/travelled-distance/travelled-distance.service';
+import { TravelledDistanceService } from '../driver-fleet/driver-report/travelled-distance/travelled-distance.service';
+import { DriverStatus } from '../driver-fleet/driver.entity';
+import { DriverRepository } from '../driver-fleet/driver.repository';
 import { DriverPosition } from '../entity/driver-position.entity';
-import { DriverStatus } from '../entity/driver.entity';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
-import { DriverRepository } from '../repository/driver.repository';
 
 @Injectable()
 export class DriverTrackingService {

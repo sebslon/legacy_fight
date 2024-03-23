@@ -9,11 +9,11 @@ import {
 } from '../../src/crm/claims/claim.entity';
 import { ClaimModule } from '../../src/crm/claims/claim.module';
 import { ClaimService } from '../../src/crm/claims/claim.service';
+import { Driver } from '../../src/driver-fleet/driver.entity';
 import { Client, Type } from '../../src/entity/client.entity';
-import { Driver } from '../../src/entity/driver.entity';
-import { AwardsService } from '../../src/service/awards.service';
 import { ClientNotificationService } from '../../src/notification/client-notification.service';
 import { DriverNotificationService } from '../../src/notification/driver-notification.service';
+import { AwardsService } from '../../src/service/awards.service';
 import { Fixtures } from '../common/fixtures';
 
 jest.setTimeout(300000);

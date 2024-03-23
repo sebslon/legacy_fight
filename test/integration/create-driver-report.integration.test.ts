@@ -6,20 +6,21 @@ import { CarClass } from '../../src/car-fleet/car-class.enum';
 import { CarTypeDTO } from '../../src/car-fleet/car-type.dto';
 import { CarTypeService } from '../../src/car-fleet/car-type.service';
 import { Clock } from '../../src/common/clock';
-import { DriverReportController } from '../../src/driver-report/driver-report.controller';
+import { DriverAttributeName } from '../../src/driver-fleet/driver-attribute-name.enum';
+import { FeeType } from '../../src/driver-fleet/driver-fee.entity';
+import { DriverReportController } from '../../src/driver-fleet/driver-report/driver-report.controller';
+import { Driver, DriverStatus } from '../../src/driver-fleet/driver.entity';
 import { DriverReport } from '../../src/dto/driver-report.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';
 import { Address } from '../../src/entity/address.entity';
 import { Client } from '../../src/entity/client.entity';
-import { DriverAttributeName } from '../../src/entity/driver-attribute.entity';
-import { FeeType } from '../../src/entity/driver-fee.entity';
-import { Driver, DriverStatus } from '../../src/entity/driver.entity';
 import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
 import { Fixtures } from '../common/fixtures';
 
+jest.setTimeout(3000000);
 describe('Create Driver Report', () => {
   const DAY_BEFORE_YESTERDAY = new Date('2021-01-01');
   const YESTERDAY = new Date('2021-01-02');

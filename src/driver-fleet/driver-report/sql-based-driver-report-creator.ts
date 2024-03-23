@@ -1,19 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
-import { CarClass } from '../car-fleet/car-class.enum';
-import { Clock } from '../common/clock';
-import { ClaimDTO } from '../crm/claims/claim.dto';
-import { ClaimCompletionMode, ClaimStatus } from '../crm/claims/claim.entity';
-import { Distance } from '../distance/distance';
-import { AddressDTO } from '../dto/address.dto';
-import { DriverReport } from '../dto/driver-report.dto';
-import { DriverSessionDTO } from '../dto/driver-session.dto';
-import { DriverDTO } from '../dto/driver.dto';
-import { TransitDTO } from '../dto/transit.dto';
-import { DriverAttributeName } from '../entity/driver-attribute.entity';
-import { DriverStatus, DriverType } from '../entity/driver.entity';
-import { TransitStatus } from '../entity/transit/transit.entity';
+import { CarClass } from '../../car-fleet/car-class.enum';
+import { Clock } from '../../common/clock';
+import { ClaimDTO } from '../../crm/claims/claim.dto';
+import {
+  ClaimCompletionMode,
+  ClaimStatus,
+} from '../../crm/claims/claim.entity';
+import { Distance } from '../../distance/distance';
+import { AddressDTO } from '../../dto/address.dto';
+import { DriverReport } from '../../dto/driver-report.dto';
+import { DriverSessionDTO } from '../../dto/driver-session.dto';
+import { TransitDTO } from '../../dto/transit.dto';
+import { TransitStatus } from '../../entity/transit/transit.entity';
+import { DriverAttributeName } from '../driver-attribute-name.enum';
+import { DriverDTO } from '../driver.dto';
+import { DriverStatus, DriverType } from '../driver.entity';
 
 interface QueryForDriverWithAttributesResult {
   id: string;

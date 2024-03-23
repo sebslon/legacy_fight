@@ -1,6 +1,6 @@
 import { Between, EntityRepository, Repository } from 'typeorm';
 
-import { Driver } from '../entity/driver.entity';
+import { Driver } from '../driver-fleet/driver.entity';
 import { TransitStatus, Transit } from '../entity/transit/transit.entity';
 
 @EntityRepository(Transit)
