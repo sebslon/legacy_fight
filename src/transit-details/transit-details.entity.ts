@@ -8,12 +8,12 @@ import {
 } from 'typeorm';
 
 import { CarClass } from '../car-fleet/car-class.enum';
-import { Distance } from '../distance/distance';
 import { Driver } from '../driver-fleet/driver.entity';
-import { Address } from '../entity/address.entity';
 import { Client } from '../entity/client.entity';
 import { Tariff } from '../entity/tariff.entity';
 import { Transit, TransitStatus } from '../entity/transit/transit.entity';
+import { Address } from '../geolocation/address/address.entity';
+import { Distance } from '../geolocation/distance';
 import { Money } from '../money/money';
 
 @Entity()

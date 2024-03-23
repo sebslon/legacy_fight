@@ -1,8 +1,8 @@
 import * as objectHash from 'object-hash';
 import { Column, Entity, OneToMany } from 'typeorm';
 
-import { BaseEntity } from '../common/base.entity';
-import { TransitDetails } from '../transit-details/transit-details.entity';
+import { BaseEntity } from '../../common/base.entity';
+import { TransitDetails } from '../../transit-details/transit-details.entity';
 
 @Entity()
 export class Address extends BaseEntity {

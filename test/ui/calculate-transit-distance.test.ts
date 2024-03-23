@@ -1,12 +1,15 @@
-import { CarClass } from '../src/car-fleet/car-class.enum';
-import { Clock } from '../src/common/clock';
-import { Distance } from '../src/distance/distance';
-import { AddressDTO } from '../src/dto/address.dto';
-import { ClientDTO } from '../src/dto/client.dto';
-import { TransitDTO } from '../src/dto/transit.dto';
-import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';
-import { Money } from '../src/money/money';
-import { TransitDetailsDTO } from '../src/transit-details/transit-details.dto';
+import { CarClass } from '../../src/car-fleet/car-class.enum';
+import { Clock } from '../../src/common/clock';
+import { ClientDTO } from '../../src/dto/client.dto';
+import { TransitDTO } from '../../src/dto/transit.dto';
+import {
+  Transit,
+  TransitStatus,
+} from '../../src/entity/transit/transit.entity';
+import { AddressDTO } from '../../src/geolocation/address/address.dto';
+import { Distance } from '../../src/geolocation/distance';
+import { Money } from '../../src/money/money';
+import { TransitDetailsDTO } from '../../src/transit-details/transit-details.dto';
 
 describe('Calculate Transit Distance', () => {
   it('Should not work with invalid unit', () => {

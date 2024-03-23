@@ -1,10 +1,10 @@
 import { Clock } from '../src/common/clock';
-import { Distance } from '../src/distance/distance';
 import { Driver } from '../src/driver-fleet/driver.entity';
-import { Address } from '../src/entity/address.entity';
 import { NotPublished } from '../src/entity/transit/rules/not-published.rule';
 import { OrRule } from '../src/entity/transit/rules/or-rule';
 import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';
+import { Address } from '../src/geolocation/address/address.entity';
+import { Distance } from '../src/geolocation/distance';
 
 describe('Transit - Life Cycle', () => {
   it('Can create transit', () => {

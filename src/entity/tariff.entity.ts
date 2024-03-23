@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
-import { Distance } from '../distance/distance';
+import { Distance } from '../geolocation/distance';
 import { Money } from '../money/money';
 
 import { DayOfWeek, Month } from './transit/transit.entity';

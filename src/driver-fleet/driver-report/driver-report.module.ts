@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { DistanceCalculator } from '../../service/distance-calculator.service';
+import { DistanceCalculator } from '../../geolocation/distance-calculator.service';
 
 import { DriverReportController } from './driver-report.controller';
 import { SQLBasedDriverReportCreator } from './sql-based-driver-report-creator';

@@ -5,9 +5,9 @@ import { getConnection } from 'typeorm';
 import { AppModule } from '../../../src/app.module';
 import { CarClass } from '../../../src/car-fleet/car-class.enum';
 import { TransitAnalyzerController } from '../../../src/crm/transit-analyzer/transit-analyzer.controller';
-import { Address } from '../../../src/entity/address.entity';
-import { AddressRepository } from '../../../src/repository/address.repository';
-import { GeocodingService } from '../../../src/service/geocoding.service';
+import { Address } from '../../../src/geolocation/address/address.entity';
+import { AddressRepository } from '../../../src/geolocation/address/address.repository';
+import { GeocodingService } from '../../../src/geolocation/geocoding.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Analyze Nearby Transits', () => {

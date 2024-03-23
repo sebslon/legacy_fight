@@ -1,8 +1,8 @@
 import { ForbiddenException } from '@nestjs/common';
 
 import { Clock } from '../src/common/clock';
-import { Distance } from '../src/distance/distance';
 import { TransitStatus, Transit } from '../src/entity/transit/transit.entity';
+import { Distance } from '../src/geolocation/distance';
 import { Money } from '../src/money/money';
 
 describe('Calculate Transit Price', () => {

@@ -1,4 +1,4 @@
-import { Distance } from '../../../distance/distance';
+import { Distance } from '../../../geolocation/distance';
 import { Transit, TransitStatus } from '../transit.entity';
 
 import { ChangeDestinationRule } from './change-destination-rule.interface';

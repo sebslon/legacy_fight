@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 
-import { AddressDTO } from '../../dto/address.dto';
 import { AnalyzedAddressesDTO } from '../../dto/analyzed-addresses.dto';
-import { AddressRepository } from '../../repository/address.repository';
+import { AddressDTO } from '../../geolocation/address/address.dto';
+import { AddressRepository } from '../../geolocation/address/address.repository';
 
 import { GraphTransitAnalyzer } from './graph-transit-analyzer';
 

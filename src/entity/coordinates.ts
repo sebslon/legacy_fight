@@ -1,4 +1,4 @@
-import { Distance } from '../distance/distance';
+import { Distance } from '../geolocation/distance';
 
 export class Coordinates {
   private latitude: number;

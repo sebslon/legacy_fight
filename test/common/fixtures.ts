@@ -7,7 +7,6 @@ import { CarTypeService } from '../../src/car-fleet/car-type.service';
 import { Clock } from '../../src/common/clock';
 import { ClaimDTO } from '../../src/crm/claims/claim.dto';
 import { ClaimService } from '../../src/crm/claims/claim.service';
-import { Distance } from '../../src/distance/distance';
 import { DriverAttributeName } from '../../src/driver-fleet/driver-attribute-name.enum';
 import { DriverAttribute } from '../../src/driver-fleet/driver-attribute.entity';
 import { DriverAttributeRepository } from '../../src/driver-fleet/driver-attribute.repository';
@@ -19,10 +18,8 @@ import {
   DriverType,
 } from '../../src/driver-fleet/driver.entity';
 import { DriverService } from '../../src/driver-fleet/driver.service';
-import { AddressDTO } from '../../src/dto/address.dto';
 import { ClientDTO } from '../../src/dto/client.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';
-import { Address } from '../../src/entity/address.entity';
 import {
   Client,
   ClientType,
@@ -31,9 +28,12 @@ import {
 } from '../../src/entity/client.entity';
 import { Tariff } from '../../src/entity/tariff.entity';
 import { Transit } from '../../src/entity/transit/transit.entity';
+import { AddressDTO } from '../../src/geolocation/address/address.dto';
+import { Address } from '../../src/geolocation/address/address.entity';
+import { AddressRepository } from '../../src/geolocation/address/address.repository';
+import { Distance } from '../../src/geolocation/distance';
 import { AwardsService } from '../../src/loyalty/awards.service';
 import { Money } from '../../src/money/money';
-import { AddressRepository } from '../../src/repository/address.repository';
 import { ClientRepository } from '../../src/repository/client.repository';
 import { TransitRepository } from '../../src/repository/transit.repository';
 import { DriverSessionService } from '../../src/service/driver-session.service';

@@ -4,10 +4,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Address } from '../../../entity/address.entity';
 import { Client } from '../../../entity/client.entity';
 import { Transit, TransitStatus } from '../../../entity/transit/transit.entity';
-import { AddressRepository } from '../../../repository/address.repository';
+import { Address } from '../../../geolocation/address/address.entity';
+import { AddressRepository } from '../../../geolocation/address/address.repository';
 import { ClientRepository } from '../../../repository/client.repository';
 import { TransitRepository } from '../../../repository/transit.repository';
 

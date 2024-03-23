@@ -11,31 +11,30 @@ import { CarClass } from '../car-fleet/car-class.enum';
 import { CarTypeService } from '../car-fleet/car-type.service';
 import { Clock } from '../common/clock';
 import { TransitCompletedEvent } from '../crm/transit-analyzer/events/transit-completed.event';
-import { Distance } from '../distance/distance';
 import { DriverFeeService } from '../driver-fleet/driver-fee.service';
 import { DriverStatus } from '../driver-fleet/driver.entity';
 import { DriverRepository } from '../driver-fleet/driver.repository';
-import { AddressDTO } from '../dto/address.dto';
 import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
 import { TransitDTO } from '../dto/transit.dto';
-import { Address } from '../entity/address.entity';
 import { NoFurtherThan } from '../entity/transit/rules/no-further-than.rule';
 import { NotPublished } from '../entity/transit/rules/not-published.rule';
 import { OrRule } from '../entity/transit/rules/or-rule';
 import { Transit, TransitStatus } from '../entity/transit/transit.entity';
+import { AddressDTO } from '../geolocation/address/address.dto';
+import { Address } from '../geolocation/address/address.entity';
+import { AddressRepository } from '../geolocation/address/address.repository';
+import { Distance } from '../geolocation/distance';
+import { DistanceCalculator } from '../geolocation/distance-calculator.service';
+import { GeocodingService } from '../geolocation/geocoding.service';
 import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
 import { AwardsService } from '../loyalty/awards.service';
 import { Money } from '../money/money';
 import { DriverNotificationService } from '../notification/driver-notification.service';
-import { AddressRepository } from '../repository/address.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
 import { DriverSessionRepository } from '../repository/driver-session.repository';
 import { TransitRepository } from '../repository/transit.repository';
 import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
-
-import { DistanceCalculator } from './distance-calculator.service';
-import { GeocodingService } from './geocoding.service';
 
 @Injectable()
 export class TransitService {

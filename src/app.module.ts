@@ -25,21 +25,20 @@ import { TravelledDistance } from './driver-fleet/driver-report/travelled-distan
 import { TravelledDistanceRepository } from './driver-fleet/driver-report/travelled-distance/travelled-distance.repository';
 import { TravelledDistanceService } from './driver-fleet/driver-report/travelled-distance/travelled-distance.service';
 import { DriverRepository } from './driver-fleet/driver.repository';
+import { AddressRepository } from './geolocation/address/address.repository';
+import { GeolocationModule } from './geolocation/geolocation.module';
 import { InvoiceModule } from './invoicing/invoice.module';
 import { AwardedMiles } from './loyalty/awarded-miles.entity';
 import { AwardsModule } from './loyalty/awards.module';
 import { NotificationModule } from './notification/notification.module';
-import { AddressRepository } from './repository/address.repository';
 import { ClientRepository } from './repository/client.repository';
 import { DriverPositionRepository } from './repository/driver-position.repository';
 import { DriverSessionRepository } from './repository/driver-session.repository';
 import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
 import { ClientService } from './service/client.service';
-import { DistanceCalculator } from './service/distance-calculator.service';
 import { DriverSessionService } from './service/driver-session.service';
 import { DriverTrackingService } from './service/driver-tracking.service';
-import { GeocodingService } from './service/geocoding.service';
 import { TransitService } from './service/transit.service';
 import { TransitDetailsModule } from './transit-details/transit-details.module';
 
@@ -54,6 +53,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     InvoiceModule,
     NotificationModule,
     TransitAnalyzerModule,
+    GeolocationModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -91,8 +91,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
   ],
   providers: [
     AppProperties,
-    DistanceCalculator,
-    GeocodingService,
     ClientService,
     DriverSessionService,
     DriverTrackingService,

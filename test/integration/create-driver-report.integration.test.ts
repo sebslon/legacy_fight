@@ -12,11 +12,11 @@ import { DriverReportController } from '../../src/driver-fleet/driver-report/dri
 import { Driver, DriverStatus } from '../../src/driver-fleet/driver.entity';
 import { DriverReport } from '../../src/dto/driver-report.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';
-import { Address } from '../../src/entity/address.entity';
 import { Client } from '../../src/entity/client.entity';
+import { Address } from '../../src/geolocation/address/address.entity';
+import { GeocodingService } from '../../src/geolocation/geocoding.service';
 import { DriverSessionService } from '../../src/service/driver-session.service';
 import { DriverTrackingService } from '../../src/service/driver-tracking.service';
-import { GeocodingService } from '../../src/service/geocoding.service';
 import { TransitService } from '../../src/service/transit.service';
 import { Fixtures } from '../common/fixtures';
 

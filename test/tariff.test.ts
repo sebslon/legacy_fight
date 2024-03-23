@@ -1,5 +1,5 @@
-import { Distance } from '../src/distance/distance';
 import { Tariff } from '../src/entity/tariff.entity';
+import { Distance } from '../src/geolocation/distance';
 import { Money } from '../src/money/money';
 
 describe('Tariff', () => {

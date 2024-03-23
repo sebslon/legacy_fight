@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AddressRepository } from '../../repository/address.repository';
+import { AddressRepository } from '../../geolocation/address/address.repository';
 import { TransitDetailsModule } from '../../transit-details/transit-details.module';
 
 import { GraphTransitAnalyzer } from './graph-transit-analyzer';

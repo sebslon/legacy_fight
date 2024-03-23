@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { Address } from '../entity/address.entity';
+import { Address } from './address/address.entity';
 
 @Injectable()
 export class GeocodingService {

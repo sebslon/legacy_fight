@@ -1,5 +1,5 @@
-import { Address } from '../../../src/entity/address.entity';
-import { AddressRepository } from '../../../src/repository/address.repository';
+import { Address } from '../../../src/geolocation/address/address.entity';
+import { AddressRepository } from '../../../src/geolocation/address/address.repository';
 
 export class AddressFixture {
   constructor(private addressRepository: AddressRepository) {
