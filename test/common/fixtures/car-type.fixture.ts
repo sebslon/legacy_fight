@@ -1,6 +1,6 @@
+import { CarClass } from '../../../src/car-fleet/car-class.enum';
 import { CarTypeDTO } from '../../../src/car-fleet/car-type.dto';
 import { CarType } from '../../../src/car-fleet/car-type.entity';
-import { CarClass } from '../../../src/car-fleet/car-class.enum';
 import { CarTypeService } from '../../../src/car-fleet/car-type.service';
 
 export class CarTypeFixture {

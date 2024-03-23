@@ -3,8 +3,8 @@ import { Neo4jService } from '@nhogs/nestjs-neo4j';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
-import { Address } from '../../../src/entity/address.entity';
 import { CarClass } from '../../../src/car-fleet/car-class.enum';
+import { Address } from '../../../src/entity/address.entity';
 import { AddressRepository } from '../../../src/repository/address.repository';
 import { GeocodingService } from '../../../src/service/geocoding.service';
 import { TransitAnalyzerController } from '../../../src/transit-analyzer/transit-analyzer.controller';

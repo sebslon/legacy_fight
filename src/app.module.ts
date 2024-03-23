@@ -29,6 +29,7 @@ import { SQLBasedDriverReportCreator } from './driver-report/sql-based-driver-re
 import { TravelledDistance } from './driver-report/travelled-distance/travelled-distance.entity';
 import { TravelledDistanceRepository } from './driver-report/travelled-distance/travelled-distance.repository';
 import { TravelledDistanceService } from './driver-report/travelled-distance/travelled-distance.service';
+import { InvoiceModule } from './invoicing/invoice.module';
 import { AwardedMiles } from './miles/awarded-miles.entity';
 import { AddressRepository } from './repository/address.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
@@ -38,7 +39,6 @@ import { DriverFeeRepository } from './repository/driver-fee.repository';
 import { DriverPositionRepository } from './repository/driver-position.repository';
 import { DriverSessionRepository } from './repository/driver-session.repository';
 import { DriverRepository } from './repository/driver.repository';
-import { InvoiceRepository } from './repository/invoice.repository';
 import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
 import { AwardsService } from './service/awards.service';
@@ -51,7 +51,6 @@ import { DriverSessionService } from './service/driver-session.service';
 import { DriverTrackingService } from './service/driver-tracking.service';
 import { DriverService } from './service/driver.service';
 import { GeocodingService } from './service/geocoding.service';
-import { InvoiceGenerator } from './service/invoice-generator.service';
 import { TransitService } from './service/transit.service';
 import { GraphTransitAnalyzer } from './transit-analyzer/graph-transit-analyzer';
 import { TransitAnalyzerController } from './transit-analyzer/transit-analyzer.controller';
@@ -63,6 +62,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     ClaimModule,
     ContractsModule,
     CarFleetModule,
+    InvoiceModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -77,7 +77,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     }),
     TypeOrmModule.forFeature([
       DriverRepository,
-      InvoiceRepository,
       ClientRepository,
       DriverSessionRepository,
       DriverFeeRepository,
@@ -108,7 +107,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     AppProperties,
     DriverService,
     DistanceCalculator,
-    InvoiceGenerator,
     DriverNotificationService,
     GeocodingService,
     ClientNotificationService,

@@ -7,8 +7,8 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { CarTypeService } from '../car-fleet/car-type.service';
 import { CarClass } from '../car-fleet/car-class.enum';
+import { CarTypeService } from '../car-fleet/car-type.service';
 import { Clock } from '../common/clock';
 import { Distance } from '../distance/distance';
 import { AddressDTO } from '../dto/address.dto';
@@ -35,7 +35,7 @@ import { DistanceCalculator } from './distance-calculator.service';
 import { DriverFeeService } from './driver-fee.service';
 import { DriverNotificationService } from './driver-notification.service';
 import { GeocodingService } from './geocoding.service';
-import { InvoiceGenerator } from './invoice-generator.service';
+import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
 
 @Injectable()
 export class TransitService {

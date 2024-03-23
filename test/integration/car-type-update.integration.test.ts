@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { CarTypeDTO } from '../../src/car-fleet/car-type.dto';
 import { CarClass } from '../../src/car-fleet/car-class.enum';
+import { CarTypeDTO } from '../../src/car-fleet/car-type.dto';
 import { CarTypeService } from '../../src/car-fleet/car-type.service';
 
 describe('Car Type Update', () => {

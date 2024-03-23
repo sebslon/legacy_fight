@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
+import { CarClass } from '../../src/car-fleet/car-class.enum';
 import { CarTypeDTO } from '../../src/car-fleet/car-type.dto';
 import { CarTypeService } from '../../src/car-fleet/car-type.service';
-import { CarClass } from '../../src/car-fleet/car-class.enum';
 import { Clock } from '../../src/common/clock';
 import { DriverReportController } from '../../src/driver-report/driver-report.controller';
 import { DriverReport } from '../../src/dto/driver-report.dto';
