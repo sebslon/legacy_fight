@@ -4,10 +4,10 @@ import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
 import { CarClass } from '../../../src/car-fleet/car-class.enum';
+import { TransitAnalyzerController } from '../../../src/crm/transit-analyzer/transit-analyzer.controller';
 import { Address } from '../../../src/entity/address.entity';
 import { AddressRepository } from '../../../src/repository/address.repository';
 import { GeocodingService } from '../../../src/service/geocoding.service';
-import { TransitAnalyzerController } from '../../../src/transit-analyzer/transit-analyzer.controller';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Analyze Nearby Transits', () => {

@@ -17,6 +17,7 @@ import { DriverTrackingController } from './controllers/driver-tracking.controll
 import { TransitController } from './controllers/transit.controller';
 import { ClaimModule } from './crm/claims/claim.module';
 import { ClaimRepository } from './crm/claims/claim.repository';
+import { TransitAnalyzerModule } from './crm/transit-analyzer/transit-analyzer.module';
 import { DriverAttributeRepository } from './driver-fleet/driver-attribute.repository';
 import { DriverFeeRepository } from './driver-fleet/driver-fee.repository';
 import { DriverFleetModule } from './driver-fleet/driver-fleet.module';
@@ -42,9 +43,6 @@ import { DriverSessionService } from './service/driver-session.service';
 import { DriverTrackingService } from './service/driver-tracking.service';
 import { GeocodingService } from './service/geocoding.service';
 import { TransitService } from './service/transit.service';
-import { GraphTransitAnalyzer } from './transit-analyzer/graph-transit-analyzer';
-import { TransitAnalyzerController } from './transit-analyzer/transit-analyzer.controller';
-import { TransitCompletedListener } from './transit-analyzer/transit-completed.listener';
 import { TransitDetailsModule } from './transit-details/transit-details.module';
 
 @Module({
@@ -56,6 +54,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     CarFleetModule,
     InvoiceModule,
     NotificationModule,
+    TransitAnalyzerModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -92,7 +91,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     DriverTrackingController,
     TransitController,
     AwardsAccountController,
-    TransitAnalyzerController,
   ],
   providers: [
     AppProperties,
@@ -104,8 +102,6 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     TravelledDistanceService,
     AwardsService,
     TransitService,
-    GraphTransitAnalyzer,
-    TransitCompletedListener,
     Fixtures, // TODO: For now for tests, refactor
   ],
 })

@@ -6,6 +6,7 @@ import { Driver } from '../driver-fleet/driver.entity';
 import { Address } from '../entity/address.entity';
 import { Client } from '../entity/client.entity';
 import { Tariff } from '../entity/tariff.entity';
+import { TransitStatus } from '../entity/transit/transit.entity';
 import { Money } from '../money/money';
 
 import { TransitDetailsDTO } from './transit-details.dto';
@@ -129,6 +130,16 @@ export class TransitDetailsFacade {
         to,
       )
     ).map((details) => TransitDetailsDTO.fromTransitDetails(details));
+  }
+
+  public async findCompleted(): Promise<TransitDetailsDTO[]> {
+    const completed = await this.transitDetailsRepository.findByStatus(
+      TransitStatus.COMPLETED,
+    );
+
+    return completed.map((details) =>
+      TransitDetailsDTO.fromTransitDetails(details),
+    );
   }
 
   private async load(transitId: string): Promise<TransitDetails> {

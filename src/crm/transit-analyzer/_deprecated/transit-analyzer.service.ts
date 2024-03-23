@@ -1,18 +1,18 @@
-//
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Address } from '../../entity/address.entity';
-import { Client } from '../../entity/client.entity';
-import { Transit, TransitStatus } from '../../entity/transit/transit.entity';
-import { AddressRepository } from '../../repository/address.repository';
-import { ClientRepository } from '../../repository/client.repository';
-import { TransitRepository } from '../../repository/transit.repository';
+import { Address } from '../../../entity/address.entity';
+import { Client } from '../../../entity/client.entity';
+import { Transit, TransitStatus } from '../../../entity/transit/transit.entity';
+import { AddressRepository } from '../../../repository/address.repository';
+import { ClientRepository } from '../../../repository/client.repository';
+import { TransitRepository } from '../../../repository/transit.repository';
 
 // DEPRECATED since split of Transit/TransitDetails
+// Kept just for reference, not used in the application.
 @Injectable()
 export class TransitAnalyzerService {
   constructor(

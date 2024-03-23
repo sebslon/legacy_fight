@@ -1,4 +1,4 @@
-import { Distance } from '../src/distance/distance';
+import { Distance } from '../../src/distance/distance';
 
 describe('Distance', () => {
   it("Can't use invalid unit", () => {

@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CarClass } from '../car-fleet/car-class.enum';
 import { CarTypeService } from '../car-fleet/car-type.service';
 import { Clock } from '../common/clock';
+import { TransitCompletedEvent } from '../crm/transit-analyzer/events/transit-completed.event';
 import { Distance } from '../distance/distance';
 import { DriverFeeService } from '../driver-fleet/driver-fee.service';
 import { DriverStatus } from '../driver-fleet/driver.entity';
@@ -30,7 +31,6 @@ import { ClientRepository } from '../repository/client.repository';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
 import { DriverSessionRepository } from '../repository/driver-session.repository';
 import { TransitRepository } from '../repository/transit.repository';
-import { TransitCompletedEvent } from '../transit-analyzer/events/transit-completed.event';
 import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
 import { AwardsService } from './awards.service';

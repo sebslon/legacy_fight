@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AppModule } from '../../../src/app.module';
-import { GraphTransitAnalyzer } from '../../../src/transit-analyzer/graph-transit-analyzer';
+import { GraphTransitAnalyzer } from '../../../src/crm/transit-analyzer/graph-transit-analyzer';
 
 describe('Graph Transit Analyzer', () => {
   let graphTransitAnalyzer: GraphTransitAnalyzer;
