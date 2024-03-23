@@ -20,7 +20,9 @@ import { NoFurtherThan } from '../entity/transit/rules/no-further-than.rule';
 import { NotPublished } from '../entity/transit/rules/not-published.rule';
 import { OrRule } from '../entity/transit/rules/or-rule';
 import { Transit, TransitStatus } from '../entity/transit/transit.entity';
+import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
 import { Money } from '../money/money';
+import { DriverNotificationService } from '../notification/driver-notification.service';
 import { AddressRepository } from '../repository/address.repository';
 import { ClientRepository } from '../repository/client.repository';
 import { DriverPositionRepository } from '../repository/driver-position.repository';
@@ -33,9 +35,7 @@ import { TransitDetailsFacade } from '../transit-details/transit-details.facade'
 import { AwardsService } from './awards.service';
 import { DistanceCalculator } from './distance-calculator.service';
 import { DriverFeeService } from './driver-fee.service';
-import { DriverNotificationService } from './driver-notification.service';
 import { GeocodingService } from './geocoding.service';
-import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
 
 @Injectable()
 export class TransitService {

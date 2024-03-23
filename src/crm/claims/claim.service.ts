@@ -8,10 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { AppProperties } from '../../config/app-properties.config';
 import { Type } from '../../entity/client.entity';
+import { ClientNotificationService } from '../../notification/client-notification.service';
+import { DriverNotificationService } from '../../notification/driver-notification.service';
 import { ClientRepository } from '../../repository/client.repository';
 import { AwardsService } from '../../service/awards.service';
-import { ClientNotificationService } from '../../service/client-notification.service';
-import { DriverNotificationService } from '../../service/driver-notification.service';
 import { TransitDetailsFacade } from '../../transit-details/transit-details.facade';
 
 import { ClaimNumberGenerator } from './claim-number-generator.service';

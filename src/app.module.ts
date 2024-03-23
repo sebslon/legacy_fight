@@ -31,6 +31,7 @@ import { TravelledDistanceRepository } from './driver-report/travelled-distance/
 import { TravelledDistanceService } from './driver-report/travelled-distance/travelled-distance.service';
 import { InvoiceModule } from './invoicing/invoice.module';
 import { AwardedMiles } from './miles/awarded-miles.entity';
+import { NotificationModule } from './notification/notification.module';
 import { AddressRepository } from './repository/address.repository';
 import { AwardsAccountRepository } from './repository/awards-account.repository';
 import { ClientRepository } from './repository/client.repository';
@@ -42,11 +43,9 @@ import { DriverRepository } from './repository/driver.repository';
 import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
 import { AwardsService } from './service/awards.service';
-import { ClientNotificationService } from './service/client-notification.service';
 import { ClientService } from './service/client.service';
 import { DistanceCalculator } from './service/distance-calculator.service';
 import { DriverFeeService } from './service/driver-fee.service';
-import { DriverNotificationService } from './service/driver-notification.service';
 import { DriverSessionService } from './service/driver-session.service';
 import { DriverTrackingService } from './service/driver-tracking.service';
 import { DriverService } from './service/driver.service';
@@ -63,6 +62,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     ContractsModule,
     CarFleetModule,
     InvoiceModule,
+    NotificationModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -107,9 +107,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     AppProperties,
     DriverService,
     DistanceCalculator,
-    DriverNotificationService,
     GeocodingService,
-    ClientNotificationService,
     ClientService,
     DriverSessionService,
     DriverFeeService,

@@ -93,11 +93,11 @@ Archetypes in software design provide common patterns and models for developers 
 
 - Splitting Transit/TransitDetails
 - Loosening dependencies
-  - Removed direct coupling between `Claim` and `Transit` leaving only `transitId` and `transitPrice` - other informations are not needed in this context
-  - Removed `driversFee` info from `Transit` (`TransitDetails`)
-  - Removed direct coupling between `AwardedMiles` and `Transit` leaving only `transitId`
+  - Loose coupling between `Claim` and `Transit` leaving only `transitId` and `transitPrice` - other informations are not needed in this context
+  - Remove `driversFee` info from `Transit` (`TransitDetails`)
+  - Loose coupling between `AwardedMiles` and `Transit` leaving only `transitId`
 - Extracted `ClaimModule` - loose Claim/Client, Client/AwardedMiles/AwardsAccount dependencies - leaving id references, simplified `AwardsService`
-- Extracted `ContractsModule` / `CarFleetModule` / `InvoiceModule`
+- Extracted `ContractsModule` / `CarFleetModule` / `InvoiceModule` / `NotificationModule`
 
 ## Summary
 

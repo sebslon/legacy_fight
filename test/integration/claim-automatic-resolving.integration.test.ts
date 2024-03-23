@@ -12,8 +12,8 @@ import { ClaimService } from '../../src/crm/claims/claim.service';
 import { Client, Type } from '../../src/entity/client.entity';
 import { Driver } from '../../src/entity/driver.entity';
 import { AwardsService } from '../../src/service/awards.service';
-import { ClientNotificationService } from '../../src/service/client-notification.service';
-import { DriverNotificationService } from '../../src/service/driver-notification.service';
+import { ClientNotificationService } from '../../src/notification/client-notification.service';
+import { DriverNotificationService } from '../../src/notification/driver-notification.service';
 import { Fixtures } from '../common/fixtures';
 
 jest.setTimeout(300000);
