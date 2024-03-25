@@ -4,9 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Clock } from '../common/clock';
 import { AppProperties } from '../config/app-properties.config';
 import { ClaimService } from '../crm/claims/claim.service';
-import { Type } from '../entity/client.entity';
+import { Type } from '../crm/client.entity';
+import { ClientService } from '../crm/client.service';
 import { TransitRepository } from '../repository/transit.repository';
-import { ClientService } from '../service/client.service';
 
 import { AwardedMiles } from './awarded-miles.entity';
 import { AwardsAccountDTO } from './awards-account.dto';

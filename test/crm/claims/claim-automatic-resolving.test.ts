@@ -3,7 +3,7 @@ import {
   ClaimsResolver,
   WhoToAsk,
 } from '../../../src/crm/claims/claims-resolver.entity';
-import { Client, Type } from '../../../src/entity/client.entity';
+import { Client, Type } from '../../../src/crm/client.entity';
 import { Transit } from '../../../src/entity/transit/transit.entity';
 import { Money } from '../../../src/money/money';
 

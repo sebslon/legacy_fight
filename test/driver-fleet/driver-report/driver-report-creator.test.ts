@@ -1,10 +1,10 @@
+import { DriverReport } from '../../../src/driver-fleet/driver-report/driver-report.dto';
 import {
   DriverReportCreator,
   DriverReportReconciliation,
 } from '../../../src/driver-fleet/driver-report/old/driver-report-creator';
 import { OldDriverReportCreator } from '../../../src/driver-fleet/driver-report/old/old-driver-report-creator';
 import { SQLBasedDriverReportCreator } from '../../../src/driver-fleet/driver-report/sql-based-driver-report-creator';
-import { DriverReport } from '../../../src/dto/driver-report.dto';
 
 describe('Driver Report Creator', () => {
   const LAST_DAYS = 3;

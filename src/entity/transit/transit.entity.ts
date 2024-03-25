@@ -12,12 +12,12 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import { BaseEntity } from '../../common/base.entity';
+import { PaymentType } from '../../crm/client.entity';
 import { Driver } from '../../driver-fleet/driver.entity';
 import { Address } from '../../geolocation/address/address.entity';
 import { Distance } from '../../geolocation/distance';
 import { Money } from '../../money/money';
 import { TransitDetails } from '../../transit-details/transit-details.entity';
-import { PaymentType } from '../client.entity';
 import { Tariff } from '../tariff.entity';
 
 import { ChangeDestinationRule } from './rules/change-destination-rule.interface';

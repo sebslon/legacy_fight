@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from '../../common/base.entity';
-import { Type } from '../../entity/client.entity';
+import { Type } from '../client.entity';
 
 import { Claim, ClaimStatus } from './claim.entity';
 

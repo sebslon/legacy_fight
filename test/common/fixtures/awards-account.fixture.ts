@@ -1,4 +1,4 @@
-import { Client } from '../../../src/entity/client.entity';
+import { Client } from '../../../src/crm/client.entity';
 import { AwardsService } from '../../../src/loyalty/awards.service';
 
 export class AwardsAccountFixture {

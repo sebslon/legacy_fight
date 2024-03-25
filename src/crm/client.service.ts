@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { ClientDTO } from '../dto/client.dto';
-import { Client, PaymentType, Type } from '../entity/client.entity';
-import { ClientRepository } from '../repository/client.repository';
+import { ClientDTO } from './client.dto';
+import { Client, PaymentType, Type } from './client.entity';
+import { ClientRepository } from './client.repository';
 
 @Injectable()
 export class ClientService {

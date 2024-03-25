@@ -6,7 +6,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Clock } from '../../../common/clock';
 import { ClaimDTO } from '../../../crm/claims/claim.dto';
 import { ClaimRepository } from '../../../crm/claims/claim.repository';
-import { DriverReport } from '../../../dto/driver-report.dto';
 import { DriverSessionDTO } from '../../../dto/driver-session.dto';
 import { TransitDTO } from '../../../dto/transit.dto';
 import { Transit, TransitStatus } from '../../../entity/transit/transit.entity';
@@ -15,6 +14,7 @@ import { DriverAttributeName } from '../../driver-attribute-name.enum';
 import { DriverAttributeDTO } from '../../driver-attribute.dto';
 import { DriverRepository } from '../../driver.repository';
 import { DriverService } from '../../driver.service';
+import { DriverReport } from '../driver-report.dto';
 
 // DEPRECATED after splitting Transit/TransitDetails
 @Injectable()

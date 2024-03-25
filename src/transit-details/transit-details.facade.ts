@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import { CarClass } from '../car-fleet/car-class.enum';
+import { Client } from '../crm/client.entity';
 import { Driver } from '../driver-fleet/driver.entity';
-import { Client } from '../entity/client.entity';
 import { Tariff } from '../entity/tariff.entity';
 import { TransitStatus } from '../entity/transit/transit.entity';
 import { Address } from '../geolocation/address/address.entity';

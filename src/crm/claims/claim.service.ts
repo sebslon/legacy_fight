@@ -7,12 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { AppProperties } from '../../config/app-properties.config';
-import { Type } from '../../entity/client.entity';
 import { AwardsService } from '../../loyalty/awards.service';
 import { ClientNotificationService } from '../../notification/client-notification.service';
 import { DriverNotificationService } from '../../notification/driver-notification.service';
-import { ClientRepository } from '../../repository/client.repository';
 import { TransitDetailsFacade } from '../../transit-details/transit-details.facade';
+import { Type } from '../client.entity';
+import { ClientRepository } from '../client.repository';
 
 import { ClaimNumberGenerator } from './claim-number-generator.service';
 import { ClaimDTO } from './claim.dto';

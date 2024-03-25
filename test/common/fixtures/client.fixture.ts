@@ -3,8 +3,8 @@ import {
   ClientType,
   PaymentType,
   Type,
-} from '../../../src/entity/client.entity';
-import { ClientRepository } from '../../../src/repository/client.repository';
+} from '../../../src/crm/client.entity';
+import { ClientRepository } from '../../../src/crm/client.repository';
 
 export class ClientFixture {
   constructor(private readonly clientRepository: ClientRepository) {}

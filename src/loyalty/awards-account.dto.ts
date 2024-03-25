@@ -1,4 +1,4 @@
-import { ClientDTO } from '../dto/client.dto';
+import { ClientDTO } from '../crm/client.dto';
 
 import { AwardsAccount } from './awards-account.entity';
 

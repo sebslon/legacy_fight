@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 
-import { Client } from '../entity/client.entity';
+import { Client } from '../crm/client.entity';
 
 import { AwardsAccount } from './awards-account.entity';
 

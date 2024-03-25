@@ -9,8 +9,8 @@ import {
 } from '../../src/crm/claims/claim.entity';
 import { ClaimModule } from '../../src/crm/claims/claim.module';
 import { ClaimService } from '../../src/crm/claims/claim.service';
+import { Client, Type } from '../../src/crm/client.entity';
 import { Driver } from '../../src/driver-fleet/driver.entity';
-import { Client, Type } from '../../src/entity/client.entity';
 import { AwardsService } from '../../src/loyalty/awards.service';
 import { ClientNotificationService } from '../../src/notification/client-notification.service';
 import { DriverNotificationService } from '../../src/notification/driver-notification.service';

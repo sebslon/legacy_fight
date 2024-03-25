@@ -1,5 +1,5 @@
 import { CarClass } from '../car-fleet/car-class.enum';
-import { ClientDTO } from '../dto/client.dto';
+import { ClientDTO } from '../crm/client.dto';
 import { Tariff } from '../entity/tariff.entity';
 import { TransitStatus } from '../entity/transit/transit.entity';
 import { AddressDTO } from '../geolocation/address/address.dto';

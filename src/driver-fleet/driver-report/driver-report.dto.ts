@@ -1,9 +1,8 @@
-import { DriverAttributeName } from '../driver-fleet/driver-attribute-name.enum';
-import { DriverAttributeDTO } from '../driver-fleet/driver-attribute.dto';
-import { DriverDTO } from '../driver-fleet/driver.dto';
-
-import { DriverSessionDTO } from './driver-session.dto';
-import { TransitDTO } from './transit.dto';
+import { DriverSessionDTO } from '../../dto/driver-session.dto';
+import { TransitDTO } from '../../dto/transit.dto';
+import { DriverAttributeName } from '../driver-attribute-name.enum';
+import { DriverAttributeDTO } from '../driver-attribute.dto';
+import { DriverDTO } from '../driver.dto';
 
 export class DriverReport {
   public driverDto: DriverDTO;

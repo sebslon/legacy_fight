@@ -10,12 +10,13 @@ import { CarFleetModule } from './car-fleet/car-fleet.module';
 import { AppProperties } from './config/app-properties.config';
 import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
-import { ClientController } from './controllers/client.controller';
 import { DriverSessionController } from './controllers/driver-session.controller';
 import { DriverTrackingController } from './controllers/driver-tracking.controller';
 import { TransitController } from './controllers/transit.controller';
 import { ClaimModule } from './crm/claims/claim.module';
 import { ClaimRepository } from './crm/claims/claim.repository';
+import { ClientModule } from './crm/client.module';
+import { ClientRepository } from './crm/client.repository';
 import { TransitAnalyzerModule } from './crm/transit-analyzer/transit-analyzer.module';
 import { DriverAttributeRepository } from './driver-fleet/driver-attribute.repository';
 import { DriverFeeRepository } from './driver-fleet/driver-fee.repository';
@@ -31,12 +32,10 @@ import { InvoiceModule } from './invoicing/invoice.module';
 import { AwardedMiles } from './loyalty/awarded-miles.entity';
 import { AwardsModule } from './loyalty/awards.module';
 import { NotificationModule } from './notification/notification.module';
-import { ClientRepository } from './repository/client.repository';
 import { DriverPositionRepository } from './repository/driver-position.repository';
 import { DriverSessionRepository } from './repository/driver-session.repository';
 import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
-import { ClientService } from './service/client.service';
 import { DriverSessionService } from './service/driver-session.service';
 import { DriverTrackingService } from './service/driver-tracking.service';
 import { TransitService } from './service/transit.service';
@@ -54,6 +53,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     NotificationModule,
     TransitAnalyzerModule,
     GeolocationModule,
+    ClientModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -84,14 +84,12 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     TransitDetailsModule,
   ],
   controllers: [
-    ClientController,
     DriverSessionController,
     DriverTrackingController,
     TransitController,
   ],
   providers: [
     AppProperties,
-    ClientService,
     DriverSessionService,
     DriverTrackingService,
     TravelledDistanceService,

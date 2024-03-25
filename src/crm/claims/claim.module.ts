@@ -5,10 +5,10 @@ import { AppProperties } from '../../config/app-properties.config';
 import { AwardsAccountRepository } from '../../loyalty/awards-account.repository';
 import { AwardsService } from '../../loyalty/awards.service';
 import { NotificationModule } from '../../notification/notification.module';
-import { ClientRepository } from '../../repository/client.repository';
 import { TransitRepository } from '../../repository/transit.repository';
-import { ClientService } from '../../service/client.service';
 import { TransitDetailsModule } from '../../transit-details/transit-details.module';
+import { ClientModule } from '../client.module';
+import { ClientRepository } from '../client.repository';
 
 import { ClaimAttachment } from './claim-attachment.entity';
 import { ClaimAttachmentRepository } from './claim-attachment.repository';
@@ -24,6 +24,7 @@ import { ClaimsResolverRepository } from './claims-resolver.repository';
   imports: [
     TransitDetailsModule,
     NotificationModule,
+    ClientModule,
     TypeOrmModule.forFeature([
       ClaimAttachment,
       ClaimAttachmentRepository,
@@ -43,7 +44,6 @@ import { ClaimsResolverRepository } from './claims-resolver.repository';
     // TODO: clean up after introducing more modules
     AwardsService,
     AppProperties,
-    ClientService,
   ],
   exports: [ClaimService],
 })

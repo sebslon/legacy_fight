@@ -1,6 +1,6 @@
 import { CarClass } from '../../src/car-fleet/car-class.enum';
 import { Clock } from '../../src/common/clock';
-import { ClientDTO } from '../../src/dto/client.dto';
+import { ClientDTO } from '../../src/crm/client.dto';
 import { TransitDTO } from '../../src/dto/transit.dto';
 import {
   Transit,

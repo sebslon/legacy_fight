@@ -1,6 +1,6 @@
 import { ClaimDTO } from '../../../src/crm/claims/claim.dto';
 import { ClaimService } from '../../../src/crm/claims/claim.service';
-import { Client } from '../../../src/entity/client.entity';
+import { Client } from '../../../src/crm/client.entity';
 import { Transit } from '../../../src/entity/transit/transit.entity';
 
 export class ClaimFixture {

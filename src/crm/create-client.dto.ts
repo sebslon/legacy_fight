@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
-import { PaymentType, Type } from '../entity/client.entity';
+import { PaymentType, Type } from './client.entity';
 
 export class CreateClientDto {
   @IsNotEmpty()

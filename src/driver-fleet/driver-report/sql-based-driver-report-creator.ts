@@ -8,7 +8,6 @@ import {
   ClaimCompletionMode,
   ClaimStatus,
 } from '../../crm/claims/claim.entity';
-import { DriverReport } from '../../dto/driver-report.dto';
 import { DriverSessionDTO } from '../../dto/driver-session.dto';
 import { TransitDTO } from '../../dto/transit.dto';
 import { TransitStatus } from '../../entity/transit/transit.entity';
@@ -17,6 +16,8 @@ import { Distance } from '../../geolocation/distance';
 import { DriverAttributeName } from '../driver-attribute-name.enum';
 import { DriverDTO } from '../driver.dto';
 import { DriverStatus, DriverType } from '../driver.entity';
+
+import { DriverReport } from './driver-report.dto';
 
 interface QueryForDriverWithAttributesResult {
   id: string;

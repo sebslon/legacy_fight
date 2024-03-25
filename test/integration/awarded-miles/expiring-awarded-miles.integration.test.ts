@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
 import { AppProperties } from '../../../src/config/app-properties.config';
-import { Client } from '../../../src/entity/client.entity';
+import { Client } from '../../../src/crm/client.entity';
 import { AwardsService } from '../../../src/loyalty/awards.service';
 import { Fixtures } from '../../common/fixtures';
 

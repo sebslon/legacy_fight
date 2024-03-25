@@ -1,7 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 
-import { DriverReport } from '../../dto/driver-report.dto';
-
+import { DriverReport } from './driver-report.dto';
 import { SQLBasedDriverReportCreator } from './sql-based-driver-report-creator';
 
 @Controller('driverreport')

@@ -5,7 +5,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { FeatureFlags } from '../../../config/feature-flags';
-import { DriverReport } from '../../../dto/driver-report.dto';
+import { DriverReport } from '../driver-report.dto';
 import { DriverReportTokens } from '../driver-report.tokens';
 import { SQLBasedDriverReportCreator } from '../sql-based-driver-report-creator';
 
