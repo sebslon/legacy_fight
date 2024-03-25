@@ -1,4 +1,4 @@
-import { AddressDTO } from '../geolocation/address/address.dto';
+import { AddressDTO } from '../../geolocation/address/address.dto';
 
 export class AnalyzedAddressesDTO {
   public addresses: AddressDTO[];

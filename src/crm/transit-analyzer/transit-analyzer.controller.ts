@@ -1,9 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
 
-import { AnalyzedAddressesDTO } from '../../dto/analyzed-addresses.dto';
 import { AddressDTO } from '../../geolocation/address/address.dto';
 import { AddressRepository } from '../../geolocation/address/address.repository';
 
+import { AnalyzedAddressesDTO } from './analyzed-addresses.dto';
 import { GraphTransitAnalyzer } from './graph-transit-analyzer';
 
 @Controller('transitAnalyze')
