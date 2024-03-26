@@ -12,7 +12,7 @@ export class TransitRepository extends Repository<Transit> {
   ): Promise<Transit[]> {
     return await this.find({
       where: {
-        driver,
+        driverId: driver.getId(),
         transitDetails: {
           dateTime: Between(from, to),
         },

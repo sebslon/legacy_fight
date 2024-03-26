@@ -14,8 +14,8 @@ import {
   DriverType,
 } from '../../../src/driver-fleet/driver.entity';
 import { DriverService } from '../../../src/driver-fleet/driver.service';
-import { DriverSessionService } from '../../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
+import { DriverSessionService } from '../../../src/tracking/driver-session.service';
+import { DriverTrackingService } from '../../../src/tracking/driver-tracking.service';
 
 export class DriverFixture {
   constructor(

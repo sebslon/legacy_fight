@@ -9,10 +9,11 @@ import {
 } from '@nestjs/common';
 
 import { Clock } from '../common/clock';
-import { CreateDriverPositionDto } from '../dto/create-driver-position.dto';
-import { DriverPositionDto } from '../dto/driver-position.dto';
-import { DriverPosition } from '../entity/driver-position.entity';
-import { DriverTrackingService } from '../service/driver-tracking.service';
+
+import { CreateDriverPositionDto } from './create-driver-position.dto';
+import { DriverPositionDto } from './driver-position.dto';
+import { DriverPosition } from './driver-position.entity';
+import { DriverTrackingService } from './driver-tracking.service';
 
 @Controller('driverPositions')
 export class DriverTrackingController {
@@ -49,7 +50,7 @@ export class DriverTrackingController {
 
   private toDto(driverPosition: DriverPosition) {
     return new DriverPositionDto(
-      driverPosition.getDriver().getId(),
+      driverPosition.getDriverId(),
       driverPosition.getLatitude(),
       driverPosition.getLongitude(),
       driverPosition.getSeenAt(),

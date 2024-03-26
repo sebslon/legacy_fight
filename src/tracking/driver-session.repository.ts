@@ -2,7 +2,8 @@ import { NotFoundException } from '@nestjs/common';
 import { EntityRepository, MoreThan, Repository, IsNull, In } from 'typeorm';
 
 import { CarClass } from '../car-fleet/car-class.enum';
-import { DriverSession } from '../entity/driver-session.entity';
+
+import { DriverSession } from './driver-session.entity';
 
 @EntityRepository(DriverSession)
 export class DriverSessionRepository extends Repository<DriverSession> {

@@ -10,8 +10,6 @@ import { CarFleetModule } from './car-fleet/car-fleet.module';
 import { AppProperties } from './config/app-properties.config';
 import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
-import { DriverSessionController } from './controllers/driver-session.controller';
-import { DriverTrackingController } from './controllers/driver-tracking.controller';
 import { TransitController } from './controllers/transit.controller';
 import { ClaimModule } from './crm/claims/claim.module';
 import { ClaimRepository } from './crm/claims/claim.repository';
@@ -32,13 +30,12 @@ import { InvoiceModule } from './invoicing/invoice.module';
 import { AwardedMiles } from './loyalty/awarded-miles.entity';
 import { AwardsModule } from './loyalty/awards.module';
 import { NotificationModule } from './notification/notification.module';
-import { DriverPositionRepository } from './repository/driver-position.repository';
-import { DriverSessionRepository } from './repository/driver-session.repository';
 import { TariffRepository } from './repository/tariff.repository';
 import { TransitRepository } from './repository/transit.repository';
-import { DriverSessionService } from './service/driver-session.service';
-import { DriverTrackingService } from './service/driver-tracking.service';
 import { TransitService } from './service/transit.service';
+import { DriverPositionRepository } from './tracking/driver-position.repository';
+import { DriverSessionRepository } from './tracking/driver-session.repository';
+import { DriverTrackingModule } from './tracking/driver-tracking.module';
 import { TransitDetailsModule } from './transit-details/transit-details.module';
 
 @Module({
@@ -54,6 +51,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     TransitAnalyzerModule,
     GeolocationModule,
     ClientModule,
+    DriverTrackingModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -70,9 +68,9 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
       ClientRepository,
       TransitRepository,
       DriverRepository,
-      DriverSessionRepository,
-      DriverPositionRepository,
       DriverFeeRepository,
+      DriverPositionRepository,
+      DriverSessionRepository,
       DriverAttributeRepository,
       AddressRepository,
       TariffRepository,
@@ -83,15 +81,9 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     ]),
     TransitDetailsModule,
   ],
-  controllers: [
-    DriverSessionController,
-    DriverTrackingController,
-    TransitController,
-  ],
+  controllers: [TransitController],
   providers: [
     AppProperties,
-    DriverSessionService,
-    DriverTrackingService,
     TravelledDistanceService,
     TransitService,
     Fixtures, // TODO: For now for tests, refactor

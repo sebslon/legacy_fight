@@ -1,19 +1,10 @@
 import { ForbiddenException, NotAcceptableException } from '@nestjs/common';
 import * as dayjs from 'dayjs';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 import { BaseEntity } from '../../common/base.entity';
 import { PaymentType } from '../../crm/client.entity';
-import { Driver } from '../../driver-fleet/driver.entity';
 import { Address } from '../../geolocation/address/address.entity';
 import { Distance } from '../../geolocation/distance';
 import { Money } from '../../money/money';
@@ -72,15 +63,8 @@ export enum DayOfWeek {
 
 @Entity()
 export class Transit extends BaseEntity {
-  @ManyToOne(() => Driver, {
-    eager: true,
-  })
-  @JoinColumn()
-  public driver: Driver | null;
-
-  @OneToOne(() => Tariff, { eager: true, cascade: true })
-  @JoinColumn()
-  public tariff: Tariff;
+  @Column({ type: 'uuid', nullable: true })
+  public driverId: string | null;
 
   @Column({ nullable: true })
   private driverPaymentStatus: DriverPaymentStatus;
@@ -97,24 +81,17 @@ export class Transit extends BaseEntity {
   @Column({ default: 0 })
   public pickupAddressChangeCounter: number;
 
-  @ManyToMany(() => Driver, { eager: true })
-  @JoinTable()
-  public driversRejections: Driver[];
+  @Column({ type: 'uuid', default: [], array: true })
+  public driversRejections: string[];
 
-  @ManyToMany(() => Driver, { eager: true })
-  @JoinTable()
-  public proposedDrivers: Driver[];
+  @Column({ type: 'uuid', default: [], array: true })
+  public proposedDrivers: string[];
 
   @Column({ default: 0, type: 'integer' })
   public awaitingDriversResponses: number;
 
   @Column({ nullable: false, default: 0 })
   private km: number;
-
-  @OneToOne(() => TransitDetails, (td) => td.transit, {
-    eager: true,
-  })
-  public transitDetails: TransitDetails;
 
   // https://stackoverflow.com/questions/37107123/sould-i-store-price-as-decimal-or-integer-in-mysql
   @Column({
@@ -139,6 +116,15 @@ export class Transit extends BaseEntity {
 
   @Column({ type: 'bigint', nullable: true })
   private published: number;
+
+  @OneToOne(() => TransitDetails, (td) => td.transit, {
+    eager: true,
+  })
+  public transitDetails: TransitDetails;
+
+  @OneToOne(() => Tariff, { eager: true, cascade: true })
+  @JoinColumn()
+  public tariff: Tariff;
 
   public constructor(
     status: TransitStatus = TransitStatus.DRAFT,
@@ -181,31 +167,30 @@ export class Transit extends BaseEntity {
     }
   }
 
-  public rejectBy(driver: Driver) {
-    this.driversRejections.push(driver);
+  public rejectBy(driverId: string) {
+    this.driversRejections.push(driverId);
     this.awaitingDriversResponses = this.awaitingDriversResponses - 1;
   }
 
-  public acceptBy(driver: Driver) {
-    if (this.driver) {
+  public acceptBy(driverId: string) {
+    if (this.driverId) {
       throw new NotAcceptableException(
         'Transit already accepted, id = ' + this.getId(),
       );
     } else {
-      if (!this.proposedDrivers.some((d) => d.getId() === driver.getId())) {
+      if (!this.getProposedDrivers().some((id) => id === driverId)) {
         throw new NotAcceptableException(
           'Driver out of possible drivers, id = ' + this.getId(),
         );
       }
 
-      if (this.driversRejections.some((d) => d.getId() === driver.getId())) {
+      if (this.getDriversRejections().some((id) => id === driverId)) {
         throw new NotAcceptableException(
           'Driver out of possible drivers, id = ' + this.getId(),
         );
       }
 
-      this.driver = driver;
-      this.driver.setOccupied(true);
+      this.driverId = driverId;
       this.awaitingDriversResponses = 0;
       this.status = TransitStatus.TRANSIT_TO_PASSENGER;
     }
@@ -213,18 +198,16 @@ export class Transit extends BaseEntity {
     return this;
   }
 
-  public canProposeTo(driver: Driver) {
-    return !this.driversRejections.some((d) => d.getId() === driver.getId());
+  public canProposeTo(driverId: string) {
+    return !this.getProposedDrivers().includes(driverId);
   }
 
-  public proposeTo(driver: Driver) {
-    if (this.canProposeTo(driver)) {
-      const isInProposed = this.proposedDrivers.some(
-        (d) => d.getId() === driver.getId(),
-      );
+  public proposeTo(driverId: string) {
+    if (this.canProposeTo(driverId)) {
+      const isInProposed = this.proposedDrivers.some((id) => id === driverId);
 
       if (!isInProposed) {
-        this.proposedDrivers.push(driver);
+        this.proposedDrivers.push(driverId);
       }
 
       this.awaitingDriversResponses = this.awaitingDriversResponses + 1;
@@ -233,7 +216,7 @@ export class Transit extends BaseEntity {
 
   public failDriverAssignment() {
     this.status = TransitStatus.DRIVER_ASSIGNMENT_FAILED;
-    this.driver = null;
+    this.driverId = null;
     this.km = Distance.ZERO.toKmInFloat();
     this.awaitingDriversResponses = 0;
   }
@@ -309,7 +292,7 @@ export class Transit extends BaseEntity {
     }
 
     this.status = TransitStatus.CANCELLED;
-    this.driver = null;
+    this.driverId = null;
     this.km = Distance.ZERO.toKmInFloat();
     this.awaitingDriversResponses = 0;
   }
@@ -362,8 +345,8 @@ export class Transit extends BaseEntity {
     return this.tariff;
   }
 
-  public getDriver() {
-    return this.driver;
+  public getDriverId() {
+    return this.driverId;
   }
 
   public getPrice() {
@@ -393,6 +376,10 @@ export class Transit extends BaseEntity {
 
   public getProposedDrivers() {
     return this.proposedDrivers || [];
+  }
+
+  public getDriversRejections() {
+    return this.driversRejections || [];
   }
 
   public getPickupAddressChangeCounter() {

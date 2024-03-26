@@ -65,7 +65,7 @@ Repository isn't perfect and fully refactored, there is still big room for impro
 - Problem: Creating too heavy reads with use of entities
   - Solution: `SQLBasedDriverReportCreator` - Use single SQL statement to create report instead of using entities and lazy/eager loaded collections
     - Basic example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
-    - Usage of `Reconciliation` to compare old and new report (#todo - remove - 686a8fe/cabs-java)
+    - Usage of `Reconciliation` to compare old and new report (deprecated)
 
 ###### Other:
 
@@ -78,9 +78,7 @@ Repository isn't perfect and fully refactored, there is still big room for impro
 
 Archetypes in software design provide common patterns and models for developers to follow, aiding in creating more maintainable and scalable codebases. They help streamline development by offering proven solutions to recurring problems, fostering consistency and efficiency in the software development process.
 
-`repair`/`contracts` module - Examples of archetypes.
-
-⚙️ TODO: Finish the implementation of `Party, PartyRole, PartyRelationship` archetypes. (tag#archetypes-repair-better)
+`archetypes` / `repair` | `contracts` module - Examples of archetypes.
 
 - Introduction to `Party, PartyRole, PartyRelationship` patterns/archetypes - responsible for organizing informations about people in different organizations
 - State (`Contracts` (tag#archetypes-contracts-better)) - complex state transitions, state management
@@ -102,10 +100,18 @@ Archetypes in software design provide common patterns and models for developers 
 - Extracted `TransitAnalyzerModule` - loose coupling to `TransitRepository`
 - Created `Loyalty` with `AwardsModule`
 - Move `Address`/`Geocoding` and `Distance` to `GeolocationModule`
+- Extracted `DriverTrackingModule` - reduce coupling between `Driver` & `Transit` (leave only necessary ids)
 
 ## Summary
 
 Goal of this project was to practice refactoring techniques and patterns. It's not a perfect project and there is still a lot of work to do but it's a playground for learning and practicing some of refactoring techniques.
+
+Left todos:
+
+- [ ] refactor tests (fixtures)
+- [x] remove reconciliation when creating driver-report (marked as deprecated)
+- [ ] transactional outbox (graph db / transit history)
+- [ ] finish the implementation of `Party, PartyRole, PartyRelationship` archetypes. (_archetypes_)
 
 ## Installation
 

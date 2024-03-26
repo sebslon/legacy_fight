@@ -60,9 +60,6 @@ export class Driver extends BaseEntity {
   @OneToMany(() => DriverAttribute, (driverAttribute) => driverAttribute.driver)
   public attributes: DriverAttribute[];
 
-  @OneToMany(() => Transit, (transit) => transit.driver)
-  public transits: Transit[];
-
   public calculateEarningsForTransit(transit: Transit) {
     console.log(transit.getId());
     return null;
@@ -130,9 +127,5 @@ export class Driver extends BaseEntity {
 
   public setOccupied(isOccupied: boolean) {
     this.isOccupied = isOccupied;
-  }
-
-  public getTransits() {
-    return this.transits || [];
   }
 }

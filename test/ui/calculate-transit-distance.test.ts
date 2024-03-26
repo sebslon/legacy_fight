@@ -56,6 +56,6 @@ describe('Calculate Transit Distance', () => {
       transit.getTariff(),
     );
 
-    return new TransitDTO(transit, transitDetails);
+    return new TransitDTO(transitDetails, [], [], null);
   }
 });

@@ -14,7 +14,10 @@ export class DriverNotificationService {
     console.log({ driverId, transitId });
   }
 
-  public notifyAboutCancelledTransit(driverId: string, transitId: string) {
+  public notifyAboutCancelledTransit(
+    driverId: string | null,
+    transitId: string,
+  ) {
     // ...
     console.log(`To implement...`);
     console.log({ driverId, transitId });

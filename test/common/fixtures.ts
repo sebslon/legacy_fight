@@ -36,9 +36,9 @@ import { Distance } from '../../src/geolocation/distance';
 import { AwardsService } from '../../src/loyalty/awards.service';
 import { Money } from '../../src/money/money';
 import { TransitRepository } from '../../src/repository/transit.repository';
-import { DriverSessionService } from '../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { TransitService } from '../../src/service/transit.service';
+import { DriverSessionService } from '../../src/tracking/driver-session.service';
+import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
 import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 
 // TODO: refactor with module (to be composed with specific fixtures instead of single big class)
@@ -201,8 +201,8 @@ export class Fixtures {
     const transitDriver = driver ?? (await this.createTestDriver());
 
     transit.publishAt(date);
-    transit.proposeTo(transitDriver);
-    transit.acceptBy(transitDriver);
+    transit.proposeTo(transitDriver.getId());
+    transit.acceptBy(transitDriver.getId());
     transit.start();
     transit.completeTransitAt(Distance.ZERO);
     transit.setPrice(new Money(price));
@@ -268,7 +268,7 @@ export class Fixtures {
     jest.spyOn(Date, 'now').mockReturnValue(completedAt.getTime());
 
     await this.transitService.completeTransit(driver.getId(), transit.getId());
-    transit.setPrice(new Money(price));
+    // transit.setPrice(new Money(price));
 
     await this.transitDetailsFacade.transitRequested(
       publishedAt,
@@ -279,7 +279,7 @@ export class Fixtures {
       client,
       CarClass.VAN,
       new Money(price),
-      transit.getTariff(),
+      Tariff.ofTime(publishedAt),
     );
     await this.transitDetailsFacade.transitAccepted(
       transit.getId(),
@@ -299,7 +299,9 @@ export class Fixtures {
 
     jest.clearAllMocks();
 
-    await this.transitRepository.save(transit);
+    await this.transitRepository.save(
+      await this.transitRepository.findOneOrFail(transit.getId()),
+    );
     return await this.transitRepository.findOneOrFail(transit.getId());
   }
 
@@ -371,7 +373,11 @@ export class Fixtures {
     return carType;
   }
 
-  public async createClaim(client: Client, transit: Transit, reason?: string) {
+  public async createClaim(
+    client: Client,
+    transit: Transit | TransitDTO,
+    reason?: string,
+  ) {
     const claimDto = this.createClaimDTO(
       'description',
       reason ?? 'reason',

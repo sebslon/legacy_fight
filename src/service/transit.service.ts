@@ -13,9 +13,8 @@ import { Clock } from '../common/clock';
 import { ClientRepository } from '../crm/client.repository';
 import { TransitCompletedEvent } from '../crm/transit-analyzer/events/transit-completed.event';
 import { DriverFeeService } from '../driver-fleet/driver-fee.service';
-import { DriverStatus } from '../driver-fleet/driver.entity';
 import { DriverRepository } from '../driver-fleet/driver.repository';
-import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
+import { DriverService } from '../driver-fleet/driver.service';
 import { TransitDTO } from '../dto/transit.dto';
 import { NoFurtherThan } from '../entity/transit/rules/no-further-than.rule';
 import { NotPublished } from '../entity/transit/rules/not-published.rule';
@@ -31,9 +30,10 @@ import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
 import { AwardsService } from '../loyalty/awards.service';
 import { Money } from '../money/money';
 import { DriverNotificationService } from '../notification/driver-notification.service';
-import { DriverPositionRepository } from '../repository/driver-position.repository';
-import { DriverSessionRepository } from '../repository/driver-session.repository';
 import { TransitRepository } from '../repository/transit.repository';
+import { DriverPositionRepository } from '../tracking/driver-position.repository';
+import { DriverSessionRepository } from '../tracking/driver-session.repository';
+import { DriverTrackingService } from '../tracking/driver-tracking.service';
 import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
 
 @Injectable()
@@ -60,6 +60,8 @@ export class TransitService {
     private notificationService: DriverNotificationService,
     private eventEmitter: EventEmitter2,
     private transitDetailsFacade: TransitDetailsFacade,
+    private readonly driverService: DriverService,
+    private readonly driverTrackingService: DriverTrackingService,
   ) {}
 
   public async createTransitFromDTO(transitDto: TransitDTO) {
@@ -126,7 +128,7 @@ export class TransitService {
       transit.getTariff(),
     );
 
-    return transit;
+    return this.loadTransit(transit.getId());
   }
 
   public changeTransitAddressFrom(transitId: string, newAddress: AddressDTO) {
@@ -165,9 +167,9 @@ export class TransitService {
       newDistance,
     );
 
-    for (const driver of transit.getProposedDrivers()) {
+    for (const driverId of transit.getProposedDrivers()) {
       await this.notificationService.notifyAboutChangedTransitAddress(
-        driver.getId(),
+        driverId,
         transitId,
       );
     }
@@ -222,11 +224,11 @@ export class TransitService {
       newDistance,
     );
 
-    const driver = transit.getDriver();
+    const driverId = transit.getDriverId();
 
-    if (driver) {
+    if (driverId) {
       this.notificationService.notifyAboutChangedTransitAddress(
-        driver.getId(),
+        driverId,
         transitId,
       );
     }
@@ -239,13 +241,10 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    const driver = transit.getDriver();
+    const driverId = transit.getDriverId();
 
-    if (driver) {
-      this.notificationService.notifyAboutCancelledTransit(
-        driver.getId(),
-        transitId,
-      );
+    if (driverId) {
+      this.notificationService.notifyAboutCancelledTransit(driverId, transitId);
     }
 
     transit.cancel();
@@ -316,97 +315,56 @@ export class TransitService {
       }
 
       const [latitude, longitude] = geocoded;
+      //https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
+      //Earth’s radius, sphere
+      //double R = 6378;
+      const R = 6371; // Changed to 6371 due to Copy&Paste pattern from different source
 
-      let driversAvgPositions = await this.getCloseDriversAvgPositions(
-        distanceToCheck,
-        latitude,
-        longitude,
+      //offsets in meters
+      const dn = distanceToCheck;
+      const de = distanceToCheck;
+
+      //Coordinate offsets in radians
+      const dLat = dn / R;
+      const dLon = de / (R * Math.cos((Math.PI * latitude) / 180));
+
+      //Offset positions, decimal degrees
+      const latitudeMin = latitude - (dLat * 180) / Math.PI;
+      const latitudeMax = latitude + (dLat * 180) / Math.PI;
+      const longitudeMin = longitude - (dLon * 180) / Math.PI;
+      const longitudeMax = longitude + (dLon * 180) / Math.PI;
+
+      const carClasses: CarClass[] = await this.choosePossibleCarClasses(
+        transitDetails.carType,
       );
 
-      if (driversAvgPositions.length) {
-        const comparator = (
-          d1: DriverPositionV2Dto,
-          d2: DriverPositionV2Dto,
-        ) => {
-          const a = Math.sqrt(
-            Math.pow(latitude - d1.getLatitude(), 2) +
-              Math.pow(longitude - d1.getLongitude(), 2),
-          );
-          const b = Math.sqrt(
-            Math.pow(latitude - d2.getLatitude(), 2) +
-              Math.pow(longitude - d2.getLongitude(), 2),
-          );
-          if (a < b) {
-            return -1;
-          }
-          if (a > b) {
-            return 1;
-          }
-          return 0;
-        };
-        driversAvgPositions.sort(comparator);
-        driversAvgPositions = driversAvgPositions.slice(0, 20);
+      if (carClasses.length === 0) {
+        return transit;
+      }
 
-        const carClasses: CarClass[] = [];
-        const activeCarClasses =
-          await this.carTypeService.findActiveCarClasses();
-
-        if (activeCarClasses.length === 0) {
-          return transit;
-        }
-
-        if (transitDetails.carType) {
-          if (activeCarClasses.includes(transitDetails.carType)) {
-            carClasses.push(transitDetails.carType);
-          } else {
-            return transit;
-          }
-        } else {
-          carClasses.push(...activeCarClasses);
-        }
-
-        const driverIds: string[] = driversAvgPositions.map((pos) =>
-          pos.getDriver().getId(),
+      const driversAvgPositions =
+        await this.driverTrackingService.findActiveDriversNearby(
+          latitudeMin,
+          latitudeMax,
+          longitudeMin,
+          longitudeMax,
+          latitude,
+          longitude,
+          carClasses,
         );
 
-        const fetchedCars =
-          await this.driverSessionRepository.findAllByLoggedOutAtNullAndDriverIdInAndCarClassIn(
-            driverIds,
-            carClasses,
-          );
-
-        const activeDriverIdsInSpecificCar = fetchedCars.map((ds) =>
-          ds.getDriverId(),
-        );
-
-        driversAvgPositions = driversAvgPositions.filter((dp) =>
-          activeDriverIdsInSpecificCar.includes(dp.getDriver().getId()),
-        );
-
-        // Iterate across average driver positions
-        for (const driverAvgPosition of driversAvgPositions) {
-          const driver = driverAvgPosition.getDriver();
-          if (
-            driver.getStatus() === DriverStatus.ACTIVE &&
-            !driver.getOccupied()
-          ) {
-            if (transit.canProposeTo(driver)) {
-              transit.proposeTo(driver);
-
-              await this.notificationService.notifyAboutPossibleTransit(
-                driver.getId(),
-                transitId,
-              );
-            }
-          } else {
-            // Not implemented yet!
-          }
-        }
-
-        await this.transitRepository.save(transit);
-      } else {
-        // Next iteration, no drivers at specified area
+      if (driversAvgPositions.length === 0) {
         continue;
+      }
+
+      for (const position of driversAvgPositions) {
+        if (transit.canProposeTo(position.getDriverId())) {
+          transit.proposeTo(position.getDriverId());
+          this.notificationService.notifyAboutPossibleTransit(
+            position.getDriverId(),
+            transitId,
+          );
+        }
       }
     }
   }
@@ -426,7 +384,8 @@ export class TransitService {
 
     const now = Clock.currentDate();
 
-    transit.acceptBy(driver);
+    transit.acceptBy(driverId);
+    driver.setOccupied(true);
 
     await this.driverRepository.save(driver);
     await this.transitRepository.save(transit);
@@ -466,7 +425,7 @@ export class TransitService {
       throw new NotFoundException('Transit does not exist, id = ' + transitId);
     }
 
-    transit.rejectBy(driver);
+    transit.rejectBy(driverId);
 
     await this.transitRepository.save(transit);
   }
@@ -555,51 +514,37 @@ export class TransitService {
   }
 
   public async loadTransit(transitId: string) {
-    const transit = await this.transitRepository.findOne(transitId);
-
-    if (!transit) {
-      throw new NotFoundException('Transit does not exist, id = ' + transitId);
-    }
-
     const transitDetails = await this.findTransitDetails(transitId);
+    const transit = await this.transitRepository.findOneOrFail(transitId);
 
-    return new TransitDTO(transit, transitDetails);
+    const proposedDrivers = await this.driverService.loadDrivers(
+      transit.getProposedDrivers(),
+    );
+    const driverRejections = await this.driverService.loadDrivers(
+      transit.getDriversRejections(),
+    );
+
+    return new TransitDTO(
+      transitDetails,
+      proposedDrivers,
+      driverRejections,
+      transit.getDriverId(),
+    );
   }
 
-  private async getCloseDriversAvgPositions(
-    distanceToCheck: number,
-    latitude: number,
-    longitude: number,
-    timeInMinutes = 5,
-  ) {
-    //https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
-    //Earth’s radius, sphere
-    //double R = 6378;
-    const R = 6371; // Changed to 6371 due to Copy&Paste pattern from different source
+  private async choosePossibleCarClasses(carClass: CarClass) {
+    const carClasses: CarClass[] = [];
+    const activeCarClasses = await this.carTypeService.findActiveCarClasses();
 
-    //offsets in meters
-    const dn = distanceToCheck;
-    const de = distanceToCheck;
+    if (carClass) {
+      if (activeCarClasses.includes(carClass)) {
+        carClasses.push(carClass);
+      }
+    } else {
+      carClasses.push(...activeCarClasses);
+    }
 
-    //Coordinate offsets in radians
-    const dLat = dn / R;
-    const dLon = de / (R * Math.cos((Math.PI * latitude) / 180));
-
-    //Offset positions, decimal degrees
-    const latitudeMin = latitude - (dLat * 180) / Math.PI;
-    const latitudeMax = latitude + (dLat * 180) / Math.PI;
-    const longitudeMin = longitude - (dLon * 180) / Math.PI;
-    const longitudeMax = longitude + (dLon * 180) / Math.PI;
-
-    const offsetTime = timeInMinutes * 60 * 1000;
-
-    return await this.driverPositionRepository.findAverageDriverPositionSince(
-      latitudeMin,
-      latitudeMax,
-      longitudeMin,
-      longitudeMax,
-      Clock.currentDate().getTime() - offsetTime,
-    );
+    return carClasses;
   }
 
   private calculateDistanceBetweenAddresses(

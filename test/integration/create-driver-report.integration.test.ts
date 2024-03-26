@@ -15,12 +15,11 @@ import { Driver, DriverStatus } from '../../src/driver-fleet/driver.entity';
 import { TransitDTO } from '../../src/dto/transit.dto';
 import { Address } from '../../src/geolocation/address/address.entity';
 import { GeocodingService } from '../../src/geolocation/geocoding.service';
-import { DriverSessionService } from '../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { TransitService } from '../../src/service/transit.service';
+import { DriverSessionService } from '../../src/tracking/driver-session.service';
+import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
 import { Fixtures } from '../common/fixtures';
 
-jest.setTimeout(3000000);
 describe('Create Driver Report', () => {
   const DAY_BEFORE_YESTERDAY = new Date('2021-01-01');
   const YESTERDAY = new Date('2021-01-02');

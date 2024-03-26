@@ -3,7 +3,7 @@ import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../../src/app.module';
 import { Clock } from '../../../src/common/clock';
-import { DriverTrackingService } from '../../../src/service/driver-tracking.service';
+import { DriverTrackingService } from '../../../src/tracking/driver-tracking.service';
 import { Fixtures } from '../../common/fixtures';
 
 describe('Driver Tracking Service', () => {

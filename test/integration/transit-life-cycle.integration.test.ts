@@ -8,10 +8,10 @@ import { FeeType } from '../../src/driver-fleet/driver-fee.entity';
 import { TransitStatus } from '../../src/entity/transit/transit.entity';
 import { AddressDTO } from '../../src/geolocation/address/address.dto';
 import { GeocodingService } from '../../src/geolocation/geocoding.service';
-import { DriverPositionRepository } from '../../src/repository/driver-position.repository';
-import { DriverSessionService } from '../../src/service/driver-session.service';
-import { DriverTrackingService } from '../../src/service/driver-tracking.service';
 import { TransitService } from '../../src/service/transit.service';
+import { DriverPositionRepository } from '../../src/tracking/driver-position.repository';
+import { DriverSessionService } from '../../src/tracking/driver-session.service';
+import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
 import { Fixtures } from '../common/fixtures';
 
 describe('Transit Life Cycle', () => {

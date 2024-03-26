@@ -8,11 +8,11 @@ import {
   ClaimCompletionMode,
   ClaimStatus,
 } from '../../crm/claims/claim.entity';
-import { DriverSessionDTO } from '../../dto/driver-session.dto';
 import { TransitDTO } from '../../dto/transit.dto';
 import { TransitStatus } from '../../entity/transit/transit.entity';
 import { AddressDTO } from '../../geolocation/address/address.dto';
 import { Distance } from '../../geolocation/distance';
+import { DriverSessionDTO } from '../../tracking/driver-session.dto';
 import { DriverAttributeName } from '../driver-attribute-name.enum';
 import { DriverDTO } from '../driver.dto';
 import { DriverStatus, DriverType } from '../driver.entity';

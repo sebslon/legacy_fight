@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { Coordinates } from '../entity/coordinates';
+import { Coordinates } from './coordinates';
 
 // TODO: Remove class when Coordinates will replace it
 @Injectable()

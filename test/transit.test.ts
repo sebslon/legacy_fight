@@ -1,5 +1,6 @@
+import { v4 as uuid } from 'uuid';
+
 import { Clock } from '../src/common/clock';
-import { Driver } from '../src/driver-fleet/driver.entity';
 import { NotPublished } from '../src/entity/transit/rules/not-published.rule';
 import { OrRule } from '../src/entity/transit/rules/or-rule';
 import { Transit, TransitStatus } from '../src/entity/transit/transit.entity';
@@ -7,6 +8,9 @@ import { Address } from '../src/geolocation/address/address.entity';
 import { Distance } from '../src/geolocation/distance';
 
 describe('Transit - Life Cycle', () => {
+  const DRIVER_ID = uuid();
+  const SECOND_DRIVER_ID = uuid();
+
   it('Can create transit', () => {
     const transit = requestTransitFromTo();
 
@@ -31,13 +35,11 @@ describe('Transit - Life Cycle', () => {
   });
 
   it("Can't change destination when transit is completed", () => {
-    const driver = new Driver();
-
     const transit = requestTransitFromTo();
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
     transit.start();
     transit.completeTransitAt(Distance.fromKm(20));
 
@@ -63,8 +65,6 @@ describe('Transit - Life Cycle', () => {
   });
 
   it("Can't change pickup place after transit is accepted, started or completed", () => {
-    const driver = new Driver();
-
     const transit = requestTransitFromTo();
     const newAddress = new Address(
       'Poland',
@@ -75,8 +75,8 @@ describe('Transit - Life Cycle', () => {
     );
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
 
     expect(() => {
       transit.changePickupTo(newAddress, Distance.fromKm(20), 0.2);
@@ -148,12 +148,11 @@ describe('Transit - Life Cycle', () => {
   });
 
   it("Can't cancel transit after it was started or completed", () => {
-    const driver = new Driver();
     const transit = requestTransitFromTo();
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
     transit.start();
 
     expect(() => {
@@ -179,59 +178,53 @@ describe('Transit - Life Cycle', () => {
 
   it('Can accept transit', () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
 
     expect(transit.getStatus()).toBe(TransitStatus.TRANSIT_TO_PASSENGER);
   });
 
   it('Only one driver can accept transit', () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
-    const driver2 = new Driver();
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
 
     expect(() => {
-      transit.acceptBy(driver2);
+      transit.acceptBy(SECOND_DRIVER_ID);
     }).toThrow();
   });
 
   it("Transit can't be accepted by driver who already rejected", () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
 
     transit.publishAt(new Date());
-    transit.rejectBy(driver);
+    transit.rejectBy(DRIVER_ID);
 
     expect(() => {
-      transit.acceptBy(driver);
+      transit.acceptBy(DRIVER_ID);
     }).toThrow();
   });
 
   it("Transit can't be accepted by driver who has not seen proposal", () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
 
     transit.publishAt(new Date());
 
     expect(() => {
-      transit.acceptBy(driver);
+      transit.acceptBy(DRIVER_ID);
     }).toThrow();
   });
 
   it('Can start transit', () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
     transit.start();
 
     expect(transit.getStatus()).toBe(TransitStatus.IN_TRANSIT);
@@ -249,11 +242,10 @@ describe('Transit - Life Cycle', () => {
 
   it('Can complete transit', () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
     transit.start();
 
     transit.completeTransitAt(Distance.fromKm(20));
@@ -265,11 +257,10 @@ describe('Transit - Life Cycle', () => {
 
   it("Can't complete not started transit", () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
 
     transit.publishAt(new Date());
-    transit.proposeTo(driver);
-    transit.acceptBy(driver);
+    transit.proposeTo(DRIVER_ID);
+    transit.acceptBy(DRIVER_ID);
 
     expect(() => {
       transit.completeTransitAt(Distance.fromKm(20));
@@ -278,10 +269,9 @@ describe('Transit - Life Cycle', () => {
 
   it('Can reject transit', () => {
     const transit = requestTransitFromTo();
-    const driver = new Driver();
 
     transit.publishAt(new Date());
-    transit.rejectBy(driver);
+    transit.rejectBy(DRIVER_ID);
 
     expect(transit.getStatus()).toBe(
       TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT,

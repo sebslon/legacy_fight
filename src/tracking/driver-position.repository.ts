@@ -1,8 +1,9 @@
 import { Between, EntityRepository, Repository } from 'typeorm';
 
 import { Driver } from '../driver-fleet/driver.entity';
-import { DriverPositionV2Dto } from '../dto/driver-position-v2.dto';
-import { DriverPosition } from '../entity/driver-position.entity';
+
+import { DriverPositionV2DTO } from './driver-position-v2.dto';
+import { DriverPosition } from './driver-position.entity';
 
 @EntityRepository(DriverPosition)
 export class DriverPositionRepository extends Repository<DriverPosition> {
@@ -12,16 +13,15 @@ export class DriverPositionRepository extends Repository<DriverPosition> {
     longitudeMin: number,
     longitudeMax: number,
     date: number,
-  ): Promise<DriverPositionV2Dto[]> {
+  ): Promise<DriverPositionV2DTO[]> {
     const driverPositions = await this.createQueryBuilder('dp')
-      .leftJoinAndSelect('dp.driver', 'd')
       .addSelect('AVG(dp.latitude)', 'latitude')
       .addSelect('AVG(dp.longitude)', 'longitude')
       .addSelect('MAX(dp.seenAt)', 'seenAt')
       .where('dp.longitude between :longitudeMin and :longitudeMax')
       .andWhere('dp.latitude between :latitudeMin and :latitudeMax')
       .andWhere('dp.seenAt >= :seenAt')
-      .groupBy('dp.id, d.id')
+      .groupBy('dp.id, dp.driverId')
       .setParameters({
         longitudeMin,
         longitudeMax,
@@ -33,8 +33,8 @@ export class DriverPositionRepository extends Repository<DriverPosition> {
 
     return driverPositions.map(
       (dp) =>
-        new DriverPositionV2Dto(
-          dp.driver,
+        new DriverPositionV2DTO(
+          dp.driverId,
           dp.latitude,
           dp.longitude,
           dp.seenAt,
@@ -49,7 +49,7 @@ export class DriverPositionRepository extends Repository<DriverPosition> {
   ): Promise<DriverPosition[]> {
     return this.find({
       where: {
-        driver,
+        driverId: driver,
         seenAt: Between(from, to),
       },
       order: {

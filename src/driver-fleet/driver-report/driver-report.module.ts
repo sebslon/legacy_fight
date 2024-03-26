@@ -6,11 +6,13 @@ import { DistanceCalculator } from '../../geolocation/distance-calculator.servic
 import { DriverReportController } from './driver-report.controller';
 import { SQLBasedDriverReportCreator } from './sql-based-driver-report-creator';
 import { TravelledDistance } from './travelled-distance/travelled-distance.entity';
+import { TravelledDistanceModule } from './travelled-distance/travelled-distance.module';
 import { TravelledDistanceRepository } from './travelled-distance/travelled-distance.repository';
 import { TravelledDistanceService } from './travelled-distance/travelled-distance.service';
 
 @Module({
   imports: [
+    TravelledDistanceModule,
     TypeOrmModule.forFeature([TravelledDistance, TravelledDistanceRepository]),
   ],
   controllers: [DriverReportController],

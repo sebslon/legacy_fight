@@ -1,12 +1,11 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
-import { Driver } from '../driver-fleet/driver.entity';
 
 @Entity()
 export class DriverPosition extends BaseEntity {
-  @ManyToOne(() => Driver)
-  public driver: Driver;
+  @Column({ type: 'uuid' })
+  public driverId: string;
 
   @Column({ type: 'float' })
   public latitude!: number;
@@ -18,20 +17,20 @@ export class DriverPosition extends BaseEntity {
   public seenAt: number;
 
   public constructor(
-    driver: Driver,
+    driverId: string,
     seenAt: number,
     latitude: number,
     longitude: number,
   ) {
     super();
-    this.driver = driver;
+    this.driverId = driverId;
     this.seenAt = seenAt;
     this.latitude = latitude;
     this.longitude = longitude;
   }
 
-  public getDriver() {
-    return this.driver;
+  public getDriverId() {
+    return this.driverId;
   }
 
   public getLatitude() {

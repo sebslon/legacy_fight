@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { CarClass } from '../car-fleet/car-class.enum';
 import { CarTypeService } from '../car-fleet/car-type.service';
-import { DriverSession } from '../entity/driver-session.entity';
-import { DriverSessionRepository } from '../repository/driver-session.repository';
+
+import { DriverSession } from './driver-session.entity';
+import { DriverSessionRepository } from './driver-session.repository';
 
 @Injectable()
 export class DriverSessionService {
@@ -58,5 +59,17 @@ export class DriverSessionService {
 
   public async findByDriver(driverId: string): Promise<DriverSession[]> {
     return this.driverSessionRepository.findByDriverId(driverId);
+  }
+
+  public async findCurrentlyLoggedDriverIds(
+    driversIds: string[],
+    carClasses: CarClass[],
+  ): Promise<string[]> {
+    return (
+      await this.driverSessionRepository.findAllByLoggedOutAtNullAndDriverIdInAndCarClassIn(
+        driversIds,
+        carClasses,
+      )
+    ).map((session) => session.getDriverId());
   }
 }

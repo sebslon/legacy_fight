@@ -1,5 +1,6 @@
 import { CarClass } from '../car-fleet/car-class.enum';
-import { DriverSession } from '../entity/driver-session.entity';
+
+import { DriverSession } from './driver-session.entity';
 
 export class DriverSessionDTO {
   private loggedAt: number | null;

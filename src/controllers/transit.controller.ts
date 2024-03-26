@@ -20,8 +20,7 @@ export class TransitController {
   public async createTransit(
     @Body() transitDto: TransitDTO,
   ): Promise<TransitDTO> {
-    const transit = await this.transitService.createTransitFromDTO(transitDto);
-    return this.transitService.loadTransit(transit.getId());
+    return this.transitService.createTransitFromDTO(transitDto);
   }
 
   @Post(':transitId/changeAddressTo')

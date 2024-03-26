@@ -3,7 +3,7 @@ import { Clock } from '../common/clock';
 import { ClaimDTO } from '../crm/claims/claim.dto';
 import { ClientDTO } from '../crm/client.dto';
 import { DriverDTO } from '../driver-fleet/driver.dto';
-import { TransitStatus, Transit } from '../entity/transit/transit.entity';
+import { TransitStatus } from '../entity/transit/transit.entity';
 import { AddressDTO } from '../geolocation/address/address.dto';
 import { Distance } from '../geolocation/distance';
 import { TransitDetailsDTO } from '../transit-details/transit-details.dto';
@@ -106,23 +106,28 @@ export class TransitDTO {
   }
 
   public static createEmpty() {
-    return new TransitDTO(null, null);
+    return new TransitDTO(null, [], [], null);
   }
 
   constructor(
-    transit: Transit | null,
     transitDetails: TransitDetailsDTO | null,
+    proposedDrivers: DriverDTO[],
+    driverRejections: DriverDTO[],
+    assignedDriver: string | null,
   ) {
-    if (!transit || !transitDetails) {
+    if (!transitDetails) {
       return;
     }
 
-    const driver = transit.getDriver();
-
     this.id = transitDetails.transitId;
-    this.distance = transitDetails.distance;
     this.factor = 1;
-    this.driver = driver ? new DriverDTO(driver) : null;
+    this.tariff = transitDetails.tariffName;
+    this.status = transitDetails.status;
+    this.proposedDrivers = proposedDrivers;
+    this.distance = transitDetails.distance;
+    this.driver =
+      proposedDrivers.find((driver) => driver.getId() === assignedDriver) ||
+      null;
 
     const price = transitDetails.price;
     if (price) {
@@ -130,15 +135,8 @@ export class TransitDTO {
     }
 
     this.date = transitDetails.dateTime || Clock.currentDate().getTime();
-    this.status = transitDetails.status;
-    this.tariff = transitDetails.tariffName;
     this.kmRate = transitDetails.kmRate;
     this.baseFee = transitDetails.baseFee;
-
-    for (const d of transit.getProposedDrivers()) {
-      this.proposedDrivers.push(new DriverDTO(d));
-    }
-
     this.to = new AddressDTO(transitDetails.to);
     this.from = new AddressDTO(transitDetails.from);
     this.carClass = transitDetails.carType;

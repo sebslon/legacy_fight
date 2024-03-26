@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 
-import { CreateDriverSessionDto } from '../dto/create-driver-session.dto';
-import { DriverSession } from '../entity/driver-session.entity';
-import { DriverSessionService } from '../service/driver-session.service';
+import { CreateDriverSessionDto } from './create-driver-session.dto';
+import { DriverSession } from './driver-session.entity';
+import { DriverSessionService } from './driver-session.service';
 
 @Controller('drivers')
 export class DriverSessionController {

@@ -15,6 +15,8 @@ export class DriverDTO {
 
   private type: DriverType;
 
+  private isOccupied: boolean;
+
   constructor(driver?: Driver) {
     if (!driver) {
       return this;
@@ -27,6 +29,7 @@ export class DriverDTO {
     this.photo = driver.getPhoto();
     this.status = driver.getStatus();
     this.type = driver.getType();
+    this.isOccupied = driver.getOccupied();
   }
 
   public static createFromRawData(
@@ -67,5 +70,9 @@ export class DriverDTO {
 
   public getLastName(): string {
     return this.lastName;
+  }
+
+  public getIsOccupied(): boolean {
+    return this.isOccupied;
   }
 }

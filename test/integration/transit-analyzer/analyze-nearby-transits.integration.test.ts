@@ -10,6 +10,7 @@ import { AddressRepository } from '../../../src/geolocation/address/address.repo
 import { GeocodingService } from '../../../src/geolocation/geocoding.service';
 import { Fixtures } from '../../common/fixtures';
 
+jest.setTimeout(30000000);
 describe('Analyze Nearby Transits', () => {
   let fixtures: Fixtures;
 

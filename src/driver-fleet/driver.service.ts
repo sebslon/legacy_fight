@@ -68,6 +68,12 @@ export class DriverService {
     return new DriverDTO(driver);
   }
 
+  public async loadDrivers(ids: string[]): Promise<DriverDTO[]> {
+    const drivers = await this.driverRepository.findByIds(ids);
+
+    return drivers.map((driver) => new DriverDTO(driver));
+  }
+
   public async changeDriverStatus(driverId: string, status: DriverStatus) {
     const driver = await this.driverRepository.findOne(driverId);
 

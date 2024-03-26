@@ -1,5 +1,5 @@
-import { DriverSessionDTO } from '../../dto/driver-session.dto';
 import { TransitDTO } from '../../dto/transit.dto';
+import { DriverSessionDTO } from '../../tracking/driver-session.dto';
 import { DriverAttributeName } from '../driver-attribute-name.enum';
 import { DriverAttributeDTO } from '../driver-attribute.dto';
 import { DriverDTO } from '../driver.dto';
