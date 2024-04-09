@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-import { Fixtures } from '../test/common/fixtures';
+import { FixturesModule } from '../test/common/fixtures.module';
 
 import { ContractsModule } from './agreements/contracts.module';
 import { CarFleetModule } from './car-fleet/car-fleet.module';
@@ -13,27 +13,16 @@ import typeormConfig from './config/typeorm.config';
 import { ClaimModule } from './crm/claims/claim.module';
 import { ClaimRepository } from './crm/claims/claim.repository';
 import { ClientModule } from './crm/client.module';
-import { ClientRepository } from './crm/client.repository';
 import { TransitAnalyzerModule } from './crm/transit-analyzer/transit-analyzer.module';
-import { DriverAttributeRepository } from './driver-fleet/driver-attribute.repository';
-import { DriverFeeRepository } from './driver-fleet/driver-fee.repository';
 import { DriverFleetModule } from './driver-fleet/driver-fleet.module';
 import { DriverReportModule } from './driver-fleet/driver-report/driver-report.module';
-import { TravelledDistance } from './driver-fleet/driver-report/travelled-distance/travelled-distance.entity';
-import { TravelledDistanceRepository } from './driver-fleet/driver-report/travelled-distance/travelled-distance.repository';
-import { TravelledDistanceService } from './driver-fleet/driver-report/travelled-distance/travelled-distance.service';
-import { DriverRepository } from './driver-fleet/driver.repository';
-import { AddressRepository } from './geolocation/address/address.repository';
 import { GeolocationModule } from './geolocation/geolocation.module';
 import { InvoiceModule } from './invoicing/invoice.module';
-import { AwardedMiles } from './loyalty/awarded-miles.entity';
 import { AwardsModule } from './loyalty/awards.module';
 import { NotificationModule } from './notification/notification.module';
 import { RideModule } from './ride/ride.module';
 import { TransitDetailsModule } from './ride/transit-details/transit-details.module';
 import { TransitRepository } from './ride/transit.repository';
-import { DriverPositionRepository } from './tracking/driver-position.repository';
-import { DriverSessionRepository } from './tracking/driver-session.repository';
 import { DriverTrackingModule } from './tracking/driver-tracking.module';
 
 @Module({
@@ -51,6 +40,8 @@ import { DriverTrackingModule } from './tracking/driver-tracking.module';
     ClientModule,
     DriverTrackingModule,
     RideModule,
+    TransitDetailsModule,
+    FixturesModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -63,27 +54,9 @@ import { DriverTrackingModule } from './tracking/driver-tracking.module';
       database: 'neo4j',
       global: true,
     }),
-    TypeOrmModule.forFeature([
-      ClientRepository,
-      DriverRepository,
-      DriverFeeRepository,
-      DriverPositionRepository,
-      DriverSessionRepository,
-      DriverAttributeRepository,
-      AddressRepository,
-      AwardedMiles,
-      TravelledDistance,
-      TravelledDistanceRepository,
-      ClaimRepository,
-      TransitRepository,
-    ]),
-    TransitDetailsModule,
+    TypeOrmModule.forFeature([ClaimRepository, TransitRepository]),
   ],
   controllers: [],
-  providers: [
-    AppProperties,
-    TravelledDistanceService,
-    Fixtures, // TODO: For now for tests, refactor
-  ],
+  providers: [AppProperties],
 })
 export class AppModule {}

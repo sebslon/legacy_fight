@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { Clock } from '../../../common/clock';
 import { Distance } from '../../../geolocation/distance';
@@ -11,6 +12,7 @@ import { TravelledDistanceRepository } from './travelled-distance.repository';
 @Injectable()
 export class TravelledDistanceService {
   public constructor(
+    @InjectRepository(TravelledDistanceRepository)
     private readonly travelledDistanceRepository: TravelledDistanceRepository,
     private readonly distanceCalculator: DistanceCalculator,
   ) {}
