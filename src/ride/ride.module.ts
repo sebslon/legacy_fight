@@ -11,6 +11,8 @@ import { InvoiceModule } from '../invoicing/invoice.module';
 import { AwardsModule } from '../loyalty/awards.module';
 import { PricingModule } from '../pricing/pricing.module';
 
+import { ChangeDestinationService } from './change-destination.service';
+import { ChangePickupService } from './change-pickup.service';
 import { RequestForTransit } from './request-for-transit.entity';
 import { RequestForTransitRepository } from './request-for-transit.repository';
 import { RequestTransitService } from './request-transit.service';
@@ -44,7 +46,12 @@ import { TransitRepository } from './transit.repository';
     ]),
   ],
   controllers: [TransitController],
-  providers: [RideService, RequestTransitService],
+  providers: [
+    RideService,
+    RequestTransitService,
+    ChangePickupService,
+    ChangeDestinationService,
+  ],
   exports: [TransitDetailsModule, RideService],
 })
 export class RideModule {}

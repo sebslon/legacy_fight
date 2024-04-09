@@ -171,8 +171,9 @@ export class TransitDetails {
     this.distance = distance;
   }
 
-  public destinationChangedTo(newAddress: Address) {
+  public destinationChangedTo(newAddress: Address, distance: Distance) {
     this.to = newAddress;
+    this.distance = distance;
   }
 
   public involvedDriversAre(involvedDriversSummary: InvolvedDriversSummary) {

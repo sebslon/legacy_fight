@@ -23,12 +23,11 @@ import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
 import { AwardsService } from '../loyalty/awards.service';
 import { Tariffs } from '../pricing/tariffs';
 
+import { ChangeDestinationService } from './change-destination.service';
+import { ChangePickupService } from './change-pickup.service';
 import { TransitCompletedEvent } from './events/transit-completed.event';
 import { RequestForTransitRepository } from './request-for-transit.repository';
 import { RequestTransitService } from './request-transit.service';
-import { NoFurtherThan } from './rules/no-further-than.rule';
-import { NotPublished } from './rules/not-published.rule';
-import { OrRule } from './rules/or-rule';
 import { TransitDemand } from './transit-demand.entity';
 import { TransitDemandRepository } from './transit-demand.repository';
 import { TransitDetailsFacade } from './transit-details/transit-details.facade';
@@ -60,6 +59,8 @@ export class RideService {
     private readonly transitDetailsFacade: TransitDetailsFacade,
     private readonly driverService: DriverService,
     private readonly requestTransitService: RequestTransitService,
+    private readonly changePickupService: ChangePickupService,
+    private readonly changeDestinationService: ChangeDestinationService,
     private readonly tariffs: Tariffs,
     private readonly driverAssignmentFacade: DriverAssignmentFacade,
   ) {}
@@ -113,33 +114,21 @@ export class RideService {
   }
 
   public async changeTransitAddressFrom(requestUUID: string, address: Address) {
-    const newAddress = await this.addressRepository.save(address);
-    const transitDemand =
-      await this.transitDemandRepository.findByTransitRequestUUID(requestUUID);
-
-    if (!transitDemand) {
-      throw new NotFoundException(
-        `Transit demand does not exist, id = ${requestUUID}`,
-      );
-    }
-
     if (await this.driverAssignmentFacade.isDriverAssigned(requestUUID)) {
       throw new NotAcceptableException(
         `Driver is already assigned to transit with id = ${requestUUID}`,
       );
     }
 
+    const newAddress = await this.addressRepository.save(address);
     const transitDetails = await this.findTransitDetails(requestUUID);
+    const oldAddress = transitDetails.from.toAddressEntity();
+    const newDistance = await this.changePickupService.pickupChangedTo(
+      requestUUID,
+      newAddress,
+      oldAddress,
+    );
 
-    const { newDistance, distanceInKMeters } =
-      this.calculateDistanceBetweenAddresses(
-        newAddress,
-        transitDetails.from.toAddressEntity(),
-      );
-
-    transitDemand.changePickup(distanceInKMeters);
-
-    await this.transitDemandRepository.save(transitDemand);
     await this.transitDetailsFacade.pickupChangedTo(
       requestUUID,
       newAddress,
@@ -157,50 +146,16 @@ export class RideService {
     const savedAddress = await this.addressRepository.save(
       newAddress.toAddressEntity(),
     );
-
-    const requestForTransit =
-      await this.requestForTransitRepository.findByRequestUUID(requestUUID);
     const transitDetails = await this.transitDetailsFacade.findByRequestUUID(
       requestUUID,
     );
 
-    if (!requestForTransit) {
-      throw new NotFoundException(
-        `Transit request does not exist, id = ${requestUUID}`,
-      );
-    }
-
-    const geoFrom = this.geocodingService.geocodeAddress(
-      transitDetails.from.toAddressEntity(),
-    );
-    const geoTo = this.geocodingService.geocodeAddress(savedAddress);
-    const newDistance = Distance.fromKm(
-      this.distanceCalculator.calculateByMap(
-        geoFrom[0],
-        geoFrom[1],
-        geoTo[0],
-        geoTo[1],
-      ),
-    );
-
-    // Change of destination is allowed when
-    // 1. Transit is not published - no limit on distance
-    // 2. Waiting for driver - to 5km from original destination
-    // 3. In progress - to 1km from original destination
-    const rules = new OrRule([
-      new NotPublished(),
-      new NoFurtherThan(TransitStatus.IN_TRANSIT, Distance.fromKm(5)),
-      new NoFurtherThan(TransitStatus.IN_TRANSIT, Distance.fromKm(1)),
-    ]);
-
-    const transit = await this.transitRepository.findByTransitRequestUUID(
+    const oldAddress = transitDetails.to.toAddressEntity();
+    const distance = await this.changeDestinationService.changeTransitAddressTo(
       requestUUID,
+      savedAddress,
+      oldAddress,
     );
-
-    if (transit) {
-      transit.changeDestinationTo(newDistance, rules);
-      await this.transitRepository.save(transit);
-    }
 
     await this.driverAssignmentFacade.notifyAssignedDriverAboutChangedDestination(
       requestUUID,
@@ -208,6 +163,7 @@ export class RideService {
     await this.transitDetailsFacade.destinationChanged(
       requestUUID,
       savedAddress,
+      distance,
     );
   }
 

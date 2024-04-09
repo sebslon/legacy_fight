@@ -71,9 +71,13 @@ export class TransitDetailsFacade {
     return await this.transitDetailsRepository.save(details);
   }
 
-  public async destinationChanged(requestUUID: string, newAddress: Address) {
+  public async destinationChanged(
+    requestUUID: string,
+    newAddress: Address,
+    newDistance: Distance,
+  ) {
     const details = await this.loadByRequestUUID(requestUUID);
-    details.destinationChangedTo(newAddress);
+    details.destinationChangedTo(newAddress, newDistance);
 
     return await this.transitDetailsRepository.save(details);
   }
