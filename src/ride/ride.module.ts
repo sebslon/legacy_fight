@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { DriverAssignmentModule } from '../assignment/driver-assignment.module';
-import { CarFleetModule } from '../car-fleet/car-fleet.module';
 import { ClientRepository } from '../crm/client.repository';
 import { DriverFleetModule } from '../driver-fleet/driver-fleet.module';
 import { DriverRepository } from '../driver-fleet/driver.repository';
@@ -14,20 +13,20 @@ import { PricingModule } from '../pricing/pricing.module';
 
 import { RequestForTransit } from './request-for-transit.entity';
 import { RequestForTransitRepository } from './request-for-transit.repository';
+import { RequestTransitService } from './request-transit.service';
+import { RideService } from './ride.service';
 import { TransitDemand } from './transit-demand.entity';
 import { TransitDemandRepository } from './transit-demand.repository';
 import { TransitDetailsModule } from './transit-details/transit-details.module';
 import { TransitController } from './transit.controller';
 import { Transit } from './transit.entity';
 import { TransitRepository } from './transit.repository';
-import { TransitService } from './transit.service';
 
 @Module({
   imports: [
     TransitDetailsModule,
     AwardsModule,
     DriverFleetModule,
-    CarFleetModule,
     GeolocationModule,
     InvoiceModule,
     PricingModule,
@@ -45,7 +44,7 @@ import { TransitService } from './transit.service';
     ]),
   ],
   controllers: [TransitController],
-  providers: [TransitService],
-  exports: [TransitDetailsModule, TransitService],
+  providers: [RideService, RequestTransitService],
+  exports: [TransitDetailsModule, RideService],
 })
 export class RideModule {}

@@ -14,8 +14,8 @@ import { DriverReport } from '../../src/driver-fleet/driver-report/driver-report
 import { Driver, DriverStatus } from '../../src/driver-fleet/driver.entity';
 import { Address } from '../../src/geolocation/address/address.entity';
 import { GeocodingService } from '../../src/geolocation/geocoding.service';
+import { RideService } from '../../src/ride/ride.service';
 import { TransitDTO } from '../../src/ride/transit.dto';
-import { TransitService } from '../../src/ride/transit.service';
 import { DriverSessionService } from '../../src/tracking/driver-session.service';
 import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
 import { Fixtures } from '../common/fixtures';
@@ -29,7 +29,7 @@ describe('Create Driver Report', () => {
   let geocodingService: GeocodingService;
   let driverSessionService: DriverSessionService;
   let driverTrackingService: DriverTrackingService;
-  let transitService: TransitService;
+  let rideService: RideService;
   let driverReportController: DriverReportController;
   let fixtures: Fixtures;
 
@@ -48,7 +48,7 @@ describe('Create Driver Report', () => {
     driverReportController = module.get<DriverReportController>(
       DriverReportController,
     );
-    transitService = module.get<TransitService>(TransitService);
+    rideService = module.get<RideService>(RideService);
 
     fixtures = module.get<Fixtures>(Fixtures);
   });
@@ -250,26 +250,22 @@ describe('Create Driver Report', () => {
     const from = await address('PL', 'MAZ', 'WAW', 'STREET', 1, 10, 20);
     const to = await address('PL', 'MAZ', 'WAW', 'STREET', 100, 10.01, 20.01);
 
-    const transit = await transitService.createTransit(
+    const transit = await rideService.createTransit(
       client.getId(),
       from,
       to,
       carClass,
     );
 
-    await transitService.publishTransit(transit.getRequestUUID());
-    await transitService.findDriversForTransit(transit.getRequestUUID());
-    await transitService.acceptTransit(driverId, transit.getRequestUUID());
-    await transitService.startTransit(driverId, transit.getRequestUUID());
-    await transitService.completeTransit(
-      driverId,
-      transit.getRequestUUID(),
-      to,
-    );
+    await rideService.publishTransit(transit.getRequestUUID());
+    await rideService.findDriversForTransit(transit.getRequestUUID());
+    await rideService.acceptTransit(driverId, transit.getRequestUUID());
+    await rideService.startTransit(driverId, transit.getRequestUUID());
+    await rideService.completeTransit(driverId, transit.getRequestUUID(), to);
 
     await driverSessionService.logOutCurrentSession(driverId);
 
-    return transitService.loadTransit(transit.getRequestUUID());
+    return rideService.loadTransit(transit.getRequestUUID());
   }
 
   async function aDriver(

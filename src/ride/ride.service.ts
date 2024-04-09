@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { DriverAssignmentFacade } from '../assignment/driver-assignment.facade';
 import { CarClass } from '../car-fleet/car-class.enum';
-import { CarTypeService } from '../car-fleet/car-type.service';
 import { Clock } from '../common/clock';
 import { ClientRepository } from '../crm/client.repository';
 import { DriverFeeService } from '../driver-fleet/driver-fee.service';
@@ -25,8 +24,8 @@ import { AwardsService } from '../loyalty/awards.service';
 import { Tariffs } from '../pricing/tariffs';
 
 import { TransitCompletedEvent } from './events/transit-completed.event';
-import { RequestForTransit } from './request-for-transit.entity';
 import { RequestForTransitRepository } from './request-for-transit.repository';
+import { RequestTransitService } from './request-transit.service';
 import { NoFurtherThan } from './rules/no-further-than.rule';
 import { NotPublished } from './rules/not-published.rule';
 import { OrRule } from './rules/or-rule';
@@ -38,7 +37,7 @@ import { Transit, TransitStatus } from './transit.entity';
 import { TransitRepository } from './transit.repository';
 
 @Injectable()
-export class TransitService {
+export class RideService {
   constructor(
     @InjectRepository(ClientRepository)
     private readonly clientRepository: ClientRepository,
@@ -54,13 +53,13 @@ export class TransitService {
     private readonly transitDemandRepository: TransitDemandRepository,
     private readonly awardsService: AwardsService,
     private readonly driverFeeService: DriverFeeService,
-    private readonly carTypeService: CarTypeService,
     private readonly geocodingService: GeocodingService,
     private readonly invoiceGenerator: InvoiceGenerator,
     private readonly distanceCalculator: DistanceCalculator,
     private readonly eventEmitter: EventEmitter2,
     private readonly transitDetailsFacade: TransitDetailsFacade,
     private readonly driverService: DriverService,
+    private readonly requestTransitService: RequestTransitService,
     private readonly tariffs: Tariffs,
     private readonly driverAssignmentFacade: DriverAssignmentFacade,
   ) {}
@@ -90,39 +89,20 @@ export class TransitService {
     carClass: CarClass,
   ) {
     const now = Clock.currentDate();
-    const client = await this.clientRepository.findOne(clientId);
 
+    const client = await this.findClient(clientId);
     const addressFrom = await this.addressRepository.getOrCreate(from);
     const addressTo = await this.addressRepository.getOrCreate(to);
 
-    if (!client) {
-      throw new NotFoundException('Client does not exist, id = ' + clientId);
-    }
-
-    // FIXME later: add some exceptions handling
-    const geoFrom = this.geocodingService.geocodeAddress(addressFrom);
-    const geoTo = this.geocodingService.geocodeAddress(addressTo);
-
-    const distance = Distance.fromKm(
-      this.distanceCalculator.calculateByMap(
-        geoFrom[0],
-        geoFrom[1],
-        geoTo[0],
-        geoTo[1],
-      ),
-    );
-
-    const tariff = this.chooseTariff(now);
-    const requestForTransit = await this.requestForTransitRepository.save(
-      new RequestForTransit(tariff, distance),
-    );
+    const requestForTransit =
+      await this.requestTransitService.createRequestForTransit(from, to);
 
     await this.transitDetailsFacade.transitRequested(
       now,
       requestForTransit.getRequestUUID(),
       addressFrom,
       addressTo,
-      distance,
+      requestForTransit.getDistance(),
       client,
       carClass,
       requestForTransit.getEstimatedPrice(),
@@ -362,7 +342,7 @@ export class TransitService {
     }
     const transit = new Transit(
       TransitStatus.IN_TRANSIT,
-      this.chooseTariff(now),
+      this.tariffs.choose(now),
       requestUUID,
     );
 
@@ -503,19 +483,14 @@ export class TransitService {
     );
   }
 
-  private async choosePossibleCarClasses(carClass: CarClass) {
-    const carClasses: CarClass[] = [];
-    const activeCarClasses = await this.carTypeService.findActiveCarClasses();
+  private async findClient(clientId: string) {
+    const client = await this.clientRepository.findOne(clientId);
 
-    if (carClass) {
-      if (activeCarClasses.includes(carClass)) {
-        carClasses.push(carClass);
-      }
-    } else {
-      carClasses.push(...activeCarClasses);
+    if (!client) {
+      throw new NotFoundException('Client does not exist, id = ' + clientId);
     }
 
-    return carClasses;
+    return client;
   }
 
   private calculateDistanceBetweenAddresses(
@@ -566,9 +541,5 @@ export class TransitService {
 
   private findTransitDetails(requestUUID: string) {
     return this.transitDetailsFacade.findByRequestUUID(requestUUID);
-  }
-
-  private chooseTariff(when: Date) {
-    return this.tariffs.choose(when);
   }
 }

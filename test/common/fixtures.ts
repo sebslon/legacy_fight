@@ -35,11 +35,11 @@ import { AwardsService } from '../../src/loyalty/awards.service';
 import { Money } from '../../src/money/money';
 import { Tariff } from '../../src/pricing/tariff';
 import { Tariffs } from '../../src/pricing/tariffs';
+import { RideService } from '../../src/ride/ride.service';
 import { TransitDetailsFacade } from '../../src/ride/transit-details/transit-details.facade';
 import { TransitDTO } from '../../src/ride/transit.dto';
 import { Transit, TransitStatus } from '../../src/ride/transit.entity';
 import { TransitRepository } from '../../src/ride/transit.repository';
-import { TransitService } from '../../src/ride/transit.service';
 import { DriverSessionService } from '../../src/tracking/driver-session.service';
 import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
 
@@ -58,7 +58,7 @@ export class Fixtures {
     private readonly claimService: ClaimService,
     private readonly awardsService: AwardsService,
     private readonly driverAttributeRepository: DriverAttributeRepository,
-    private readonly transitService: TransitService,
+    private readonly rideService: RideService,
     private readonly driverSessionService: DriverSessionService,
     private readonly driverTrackingService: DriverTrackingService,
   ) {}
@@ -266,21 +266,19 @@ export class Fixtures {
     jest.spyOn(Clock, 'currentDate').mockReturnValue(publishedAt);
     jest.spyOn(Date, 'now').mockReturnValue(publishedAt.getTime());
 
-    const transitView = await this.transitService.createTransit(
+    const transitView = await this.rideService.createTransit(
       client.getId(),
       from,
       to,
       carClass,
     );
-    await this.transitService.publishTransit(transitView.getRequestUUID());
-    await this.transitService.findDriversForTransit(
-      transitView.getRequestUUID(),
-    );
-    await this.transitService.acceptTransit(
+    await this.rideService.publishTransit(transitView.getRequestUUID());
+    await this.rideService.findDriversForTransit(transitView.getRequestUUID());
+    await this.rideService.acceptTransit(
       driver.getId(),
       transitView.getRequestUUID(),
     );
-    await this.transitService.startTransit(
+    await this.rideService.startTransit(
       driver.getId(),
       transitView.getRequestUUID(),
     );
@@ -288,7 +286,7 @@ export class Fixtures {
     jest.spyOn(Clock, 'currentDate').mockReturnValue(completedAt);
     jest.spyOn(Date, 'now').mockReturnValue(completedAt.getTime());
 
-    await this.transitService.completeTransit(
+    await this.rideService.completeTransit(
       driver.getId(),
       transitView.getRequestUUID(),
       to,
@@ -296,7 +294,7 @@ export class Fixtures {
 
     jest.clearAllMocks();
 
-    return this.transitService.loadTransit(transitView.getRequestUUID());
+    return this.rideService.loadTransit(transitView.getRequestUUID());
   }
 
   public async createTransitDTO(

@@ -3,25 +3,25 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AddressDTO } from '../geolocation/address/address.dto';
 import { CreateAddressDto } from '../geolocation/address/create-address.dto';
 
+import { RideService } from './ride.service';
 import { TransitDTO } from './transit.dto';
-import { TransitService } from './transit.service';
 
 @Controller('transits')
 export class TransitController {
-  constructor(private readonly transitService: TransitService) {}
+  constructor(private readonly rideService: RideService) {}
 
   @Get(':transitId')
   public async getTransit(
     @Param('transitId') requestUUID: string,
   ): Promise<TransitDTO> {
-    return this.transitService.loadTransit(requestUUID);
+    return this.rideService.loadTransit(requestUUID);
   }
 
   @Post()
   public async createTransit(
     @Body() transitDto: TransitDTO,
   ): Promise<TransitDTO> {
-    return this.transitService.createTransitFromDTO(transitDto);
+    return this.rideService.createTransitFromDTO(transitDto);
   }
 
   @Post(':transitId/changeAddressTo')
@@ -29,11 +29,11 @@ export class TransitController {
     @Param('transitId') transitId: string,
     @Body() createAddressDto: CreateAddressDto,
   ): Promise<TransitDTO> {
-    await this.transitService.changeTransitAddressTo(
+    await this.rideService.changeTransitAddressTo(
       transitId,
       new AddressDTO(createAddressDto),
     );
-    return this.transitService.loadTransit(transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/changeAddressFrom')
@@ -41,35 +41,35 @@ export class TransitController {
     @Param('transitId') transitId: string,
     @Body() createAddressDto: CreateAddressDto,
   ): Promise<TransitDTO> {
-    await this.transitService.changeTransitAddressFrom(
+    await this.rideService.changeTransitAddressFrom(
       transitId,
       new AddressDTO(createAddressDto).toAddressEntity(),
     );
-    return this.transitService.loadTransit(transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/cancel')
   public async cancel(
     @Param('transitId') transitId: string,
   ): Promise<TransitDTO> {
-    await this.transitService.cancelTransit(transitId);
-    return this.transitService.loadTransit(transitId);
+    await this.rideService.cancelTransit(transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/publish')
   public async publishTransit(
     @Param('transitId') transitId: string,
   ): Promise<TransitDTO> {
-    await this.transitService.publishTransit(transitId);
-    return this.transitService.loadTransit(transitId);
+    await this.rideService.publishTransit(transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/findDrivers')
   public async findDriversForTransit(
     @Param('transitId') transitId: string,
   ): Promise<TransitDTO> {
-    await this.transitService.findDriversForTransit(transitId);
-    return this.transitService.loadTransit(transitId);
+    await this.rideService.findDriversForTransit(transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/accept/:driverId')
@@ -77,8 +77,8 @@ export class TransitController {
     @Param('transitId') transitId: string,
     @Param('driverId') driverId: string,
   ): Promise<TransitDTO> {
-    await this.transitService.acceptTransit(driverId, transitId);
-    return this.transitService.loadTransit(transitId);
+    await this.rideService.acceptTransit(driverId, transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/start/:driverId')
@@ -86,8 +86,8 @@ export class TransitController {
     @Param('transitId') transitId: string,
     @Param('driverId') driverId: string,
   ): Promise<TransitDTO> {
-    await this.transitService.startTransit(driverId, transitId);
-    return this.transitService.loadTransit(transitId);
+    await this.rideService.startTransit(driverId, transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/reject/:driverId')
@@ -95,8 +95,8 @@ export class TransitController {
     @Param('transitId') transitId: string,
     @Param('driverId') driverId: string,
   ): Promise<TransitDTO> {
-    await this.transitService.rejectTransit(driverId, transitId);
-    return this.transitService.loadTransit(transitId);
+    await this.rideService.rejectTransit(driverId, transitId);
+    return this.rideService.loadTransit(transitId);
   }
 
   @Post(':transitId/complete/:driverId')
@@ -105,11 +105,11 @@ export class TransitController {
     @Param('driverId') driverId: string,
     @Body() destination: AddressDTO,
   ): Promise<TransitDTO> {
-    await this.transitService.completeTransitFromDto(
+    await this.rideService.completeTransitFromDto(
       driverId,
       transitId,
       destination,
     );
-    return this.transitService.loadTransit(transitId);
+    return this.rideService.loadTransit(transitId);
   }
 }
