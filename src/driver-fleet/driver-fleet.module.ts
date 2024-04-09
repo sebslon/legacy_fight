@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { TransitDetailsModule } from '../transit-details/transit-details.module';
+import { TransitDetailsModule } from '../ride/transit-details/transit-details.module';
 
 import { DriverAttribute } from './driver-attribute.entity';
 import { DriverAttributeRepository } from './driver-attribute.repository';

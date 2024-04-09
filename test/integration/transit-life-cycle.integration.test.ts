@@ -5,10 +5,10 @@ import { AppModule } from '../../src/app.module';
 import { CarClass } from '../../src/car-fleet/car-class.enum';
 import { Clock } from '../../src/common/clock';
 import { FeeType } from '../../src/driver-fleet/driver-fee.entity';
-import { TransitStatus } from '../../src/entity/transit/transit.entity';
 import { AddressDTO } from '../../src/geolocation/address/address.dto';
 import { GeocodingService } from '../../src/geolocation/geocoding.service';
-import { TransitService } from '../../src/service/transit.service';
+import { TransitStatus } from '../../src/ride/transit.entity';
+import { TransitService } from '../../src/ride/transit.service';
 import { DriverPositionRepository } from '../../src/tracking/driver-position.repository';
 import { DriverSessionService } from '../../src/tracking/driver-session.service';
 import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
@@ -72,7 +72,9 @@ describe('Transit Life Cycle', () => {
       new AddressDTO(addressData2),
     );
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getCarClass()).toBe(CarClass.VAN);
     expect(loadedTransit.getEstimatedPrice()).not.toBeNull();
@@ -114,11 +116,13 @@ describe('Transit Life Cycle', () => {
     };
 
     await transitService.changeTransitAddressTo(
-      transit.getId(),
+      transit.getRequestUUID(),
       new AddressDTO(newDestination),
     );
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getTo().getCountry()).toBe(newDestination.country);
     expect(loadedTransit.getTo().getCity()).toBe(newDestination.city);
@@ -149,14 +153,18 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver, transit.getId());
-    await transitService.startTransit(driver, transit.getId());
-    await transitService.completeTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driver, transit.getRequestUUID());
+    await transitService.startTransit(driver, transit.getRequestUUID());
+    await transitService.completeTransit(
+      driver,
+      transit.getRequestUUID(),
+      destination.toAddressEntity(),
+    );
 
     await expect(
       transitService.changeTransitAddressTo(
-        transit.getId(),
+        transit.getRequestUUID(),
         new AddressDTO({
           country: 'Poland',
           city: 'Warsaw',
@@ -169,11 +177,6 @@ describe('Transit Life Cycle', () => {
   });
 
   it('Can change pickup place', async () => {
-    const transit = await requestTransitFromTo(
-      new AddressDTO(addressData),
-      new AddressDTO(addressData2),
-    );
-
     const pickup = {
       country: 'Poland',
       city: 'Warsaw',
@@ -182,12 +185,23 @@ describe('Transit Life Cycle', () => {
       postalCode: '00-100',
     };
 
-    await transitService.changeTransitAddressFrom(
-      transit.getId(),
-      new AddressDTO(pickup),
+    createNearbyDriver('WU1212');
+
+    const transit = await requestTransitFromTo(
+      new AddressDTO(addressData),
+      new AddressDTO(addressData2),
     );
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+
+    await transitService.changeTransitAddressFrom(
+      transit.getRequestUUID(),
+      new AddressDTO(pickup).toAddressEntity(),
+    );
+
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getFrom().getCountry()).toBe(pickup.country);
     expect(loadedTransit.getFrom().getCity()).toBe(pickup.city);
@@ -222,23 +236,36 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driver, transit.getRequestUUID());
 
     await expect(
-      transitService.changeTransitAddressFrom(transit.getId(), changedTo),
+      transitService.changeTransitAddressFrom(
+        transit.getRequestUUID(),
+        changedTo.toAddressEntity(),
+      ),
     ).rejects.toThrow();
 
-    await transitService.startTransit(driver, transit.getId());
+    await transitService.startTransit(driver, transit.getRequestUUID());
 
     await expect(
-      transitService.changeTransitAddressFrom(transit.getId(), changedTo),
+      transitService.changeTransitAddressFrom(
+        transit.getRequestUUID(),
+        changedTo.toAddressEntity(),
+      ),
     ).rejects.toThrow();
 
-    await transitService.completeTransit(driver, transit.getId());
+    await transitService.completeTransit(
+      driver,
+      transit.getRequestUUID(),
+      destination.toAddressEntity(),
+    );
 
     await expect(
-      transitService.changeTransitAddressFrom(transit.getId(), changedTo),
+      transitService.changeTransitAddressFrom(
+        transit.getRequestUUID(),
+        changedTo.toAddressEntity(),
+      ),
     ).rejects.toThrow();
   });
 
@@ -248,6 +275,8 @@ describe('Transit Life Cycle', () => {
       new AddressDTO(addressData2),
     );
 
+    await transitService.publishTransit(transit.getRequestUUID());
+
     const newAddress = new AddressDTO({
       country: 'Poland',
       city: 'Warsaw',
@@ -256,12 +285,24 @@ describe('Transit Life Cycle', () => {
       postalCode: '00-100',
     });
 
-    await transitService.changeTransitAddressFrom(transit.getId(), newAddress);
-    await transitService.changeTransitAddressFrom(transit.getId(), newAddress);
-    await transitService.changeTransitAddressFrom(transit.getId(), newAddress);
+    await transitService.changeTransitAddressFrom(
+      transit.getRequestUUID(),
+      newAddress.toAddressEntity(),
+    );
+    await transitService.changeTransitAddressFrom(
+      transit.getRequestUUID(),
+      newAddress.toAddressEntity(),
+    );
+    await transitService.changeTransitAddressFrom(
+      transit.getRequestUUID(),
+      newAddress.toAddressEntity(),
+    );
 
     await expect(
-      transitService.changeTransitAddressFrom(transit.getId(), newAddress),
+      transitService.changeTransitAddressFrom(
+        transit.getRequestUUID(),
+        newAddress.toAddressEntity(),
+      ),
     ).rejects.toThrow();
   });
 
@@ -274,7 +315,10 @@ describe('Transit Life Cycle', () => {
     const newAddress = farAwayAddress();
 
     await expect(
-      transitService.changeTransitAddressFrom(transit.getId(), newAddress),
+      transitService.changeTransitAddressFrom(
+        transit.getRequestUUID(),
+        newAddress.toAddressEntity(),
+      ),
     ).rejects.toThrow();
   });
 
@@ -284,9 +328,11 @@ describe('Transit Life Cycle', () => {
       new AddressDTO(addressData2),
     );
 
-    await transitService.cancelTransit(transit.getId());
+    await transitService.cancelTransit(transit.getRequestUUID());
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getStatus()).toBe(TransitStatus.CANCELLED);
   });
@@ -307,18 +353,22 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212'); // HERE CHECK
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver, transit.getId());
-    await transitService.startTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driver, transit.getRequestUUID());
+    await transitService.startTransit(driver, transit.getRequestUUID());
 
     await expect(
-      transitService.cancelTransit(transit.getId()),
+      transitService.cancelTransit(transit.getRequestUUID()),
     ).rejects.toThrow();
 
-    await transitService.completeTransit(driver, transit.getId());
+    await transitService.completeTransit(
+      driver,
+      transit.getRequestUUID(),
+      destination.toAddressEntity(),
+    );
 
     await expect(
-      transitService.cancelTransit(transit.getId()),
+      transitService.cancelTransit(transit.getRequestUUID()),
     ).rejects.toThrow();
   });
 
@@ -331,9 +381,11 @@ describe('Transit Life Cycle', () => {
     await createNearbyDriver('WU1212');
     await createMinimumAmountOfDriversToNotFailAssignment();
 
-    await transitService.publishTransit(transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getStatus()).toBe(
       TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT,
@@ -349,10 +401,12 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driver, transit.getRequestUUID());
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getStatus()).toBe(TransitStatus.TRANSIT_TO_PASSENGER);
     expect(loadedTransit.getAcceptedAt()).not.toBeNull();
@@ -367,12 +421,12 @@ describe('Transit Life Cycle', () => {
     const driver1 = await createNearbyDriver('WU1212');
     const driver2 = await createNearbyDriver('WU1213');
 
-    await transitService.publishTransit(transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
 
-    await transitService.acceptTransit(driver1, transit.getId());
+    await transitService.acceptTransit(driver1, transit.getRequestUUID());
 
     await expect(
-      transitService.acceptTransit(driver2, transit.getId()),
+      transitService.acceptTransit(driver2, transit.getRequestUUID()),
     ).rejects.toThrow();
   });
 
@@ -384,11 +438,11 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.rejectTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.rejectTransit(driver, transit.getRequestUUID());
 
     await expect(
-      transitService.acceptTransit(driver, transit.getId()),
+      transitService.acceptTransit(driver, transit.getRequestUUID()),
     ).rejects.toThrow();
   });
 
@@ -400,10 +454,10 @@ describe('Transit Life Cycle', () => {
 
     const driver = await farAwayDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
 
     await expect(
-      transitService.acceptTransit(driver, transit.getId()),
+      transitService.acceptTransit(driver, transit.getRequestUUID()),
     ).rejects.toThrow();
   });
 
@@ -415,11 +469,13 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver, transit.getId());
-    await transitService.startTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driver, transit.getRequestUUID());
+    await transitService.startTransit(driver, transit.getRequestUUID());
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getStatus()).toBe(TransitStatus.IN_TRANSIT);
     expect(loadedTransit.getStarted()).not.toBeNull();
@@ -433,10 +489,10 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
 
     await expect(
-      transitService.startTransit(driver, transit.getId()),
+      transitService.startTransit(driver, transit.getRequestUUID()),
     ).rejects.toThrow();
   });
 
@@ -456,12 +512,18 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver, transit.getId());
-    await transitService.startTransit(driver, transit.getId());
-    await transitService.completeTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driver, transit.getRequestUUID());
+    await transitService.startTransit(driver, transit.getRequestUUID());
+    await transitService.completeTransit(
+      driver,
+      transit.getRequestUUID(),
+      destination.toAddressEntity(),
+    );
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getStatus()).toBe(TransitStatus.COMPLETED);
     expect(loadedTransit.getTariff()).not.toBeNull();
@@ -486,11 +548,15 @@ describe('Transit Life Cycle', () => {
 
     const driver = await createNearbyDriver('WU1212');
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driver, transit.getRequestUUID());
 
     await expect(
-      transitService.completeTransit(driver, transit.getId()),
+      transitService.completeTransit(
+        driver,
+        transit.getRequestUUID(),
+        destination.toAddressEntity(),
+      ),
     ).rejects.toThrow();
   });
 
@@ -503,10 +569,12 @@ describe('Transit Life Cycle', () => {
     const driver = await createNearbyDriver('WU1212');
     await createMinimumAmountOfDriversToNotFailAssignment();
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.rejectTransit(driver, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.rejectTransit(driver, transit.getRequestUUID());
 
-    const loadedTransit = await transitService.loadTransit(transit.getId());
+    const loadedTransit = await transitService.loadTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(loadedTransit.getStatus()).toBe(
       TransitStatus.WAITING_FOR_DRIVER_ASSIGNMENT,

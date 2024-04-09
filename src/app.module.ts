@@ -10,7 +10,6 @@ import { CarFleetModule } from './car-fleet/car-fleet.module';
 import { AppProperties } from './config/app-properties.config';
 import { Neo4jModule } from './config/neo4j/neo4j.module';
 import typeormConfig from './config/typeorm.config';
-import { TransitController } from './controllers/transit.controller';
 import { ClaimModule } from './crm/claims/claim.module';
 import { ClaimRepository } from './crm/claims/claim.repository';
 import { ClientModule } from './crm/client.module';
@@ -30,13 +29,12 @@ import { InvoiceModule } from './invoicing/invoice.module';
 import { AwardedMiles } from './loyalty/awarded-miles.entity';
 import { AwardsModule } from './loyalty/awards.module';
 import { NotificationModule } from './notification/notification.module';
-import { TariffRepository } from './repository/tariff.repository';
-import { TransitRepository } from './repository/transit.repository';
-import { TransitService } from './service/transit.service';
+import { RideModule } from './ride/ride.module';
+import { TransitDetailsModule } from './ride/transit-details/transit-details.module';
+import { TransitRepository } from './ride/transit.repository';
 import { DriverPositionRepository } from './tracking/driver-position.repository';
 import { DriverSessionRepository } from './tracking/driver-session.repository';
 import { DriverTrackingModule } from './tracking/driver-tracking.module';
-import { TransitDetailsModule } from './transit-details/transit-details.module';
 
 @Module({
   imports: [
@@ -52,6 +50,7 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     GeolocationModule,
     ClientModule,
     DriverTrackingModule,
+    RideModule,
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeormConfig() as TypeOrmModuleOptions),
@@ -66,26 +65,24 @@ import { TransitDetailsModule } from './transit-details/transit-details.module';
     }),
     TypeOrmModule.forFeature([
       ClientRepository,
-      TransitRepository,
       DriverRepository,
       DriverFeeRepository,
       DriverPositionRepository,
       DriverSessionRepository,
       DriverAttributeRepository,
       AddressRepository,
-      TariffRepository,
       AwardedMiles,
       TravelledDistance,
       TravelledDistanceRepository,
       ClaimRepository,
+      TransitRepository,
     ]),
     TransitDetailsModule,
   ],
-  controllers: [TransitController],
+  controllers: [],
   providers: [
     AppProperties,
     TravelledDistanceService,
-    TransitService,
     Fixtures, // TODO: For now for tests, refactor
   ],
 })

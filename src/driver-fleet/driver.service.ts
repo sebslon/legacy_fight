@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 
-import { TransitDetailsFacade } from '../transit-details/transit-details.facade';
+import { TransitDetailsFacade } from '../ride/transit-details/transit-details.facade';
 
 import { CreateDriverDto } from './create-driver.dto';
 import { DriverFeeService } from './driver-fee.service';

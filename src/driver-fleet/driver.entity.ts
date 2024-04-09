@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
-import { Transit } from '../entity/transit/transit.entity';
+import { Transit } from '../ride/transit.entity';
 
 import { DriverAttribute } from './driver-attribute.entity';
 import { DriverFee } from './driver-fee.entity';

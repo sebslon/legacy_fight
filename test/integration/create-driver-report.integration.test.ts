@@ -12,10 +12,10 @@ import { FeeType } from '../../src/driver-fleet/driver-fee.entity';
 import { DriverReportController } from '../../src/driver-fleet/driver-report/driver-report.controller';
 import { DriverReport } from '../../src/driver-fleet/driver-report/driver-report.dto';
 import { Driver, DriverStatus } from '../../src/driver-fleet/driver.entity';
-import { TransitDTO } from '../../src/dto/transit.dto';
 import { Address } from '../../src/geolocation/address/address.entity';
 import { GeocodingService } from '../../src/geolocation/geocoding.service';
-import { TransitService } from '../../src/service/transit.service';
+import { TransitDTO } from '../../src/ride/transit.dto';
+import { TransitService } from '../../src/ride/transit.service';
 import { DriverSessionService } from '../../src/tracking/driver-session.service';
 import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
 import { Fixtures } from '../common/fixtures';
@@ -257,14 +257,19 @@ describe('Create Driver Report', () => {
       carClass,
     );
 
-    await transitService.publishTransit(transit.getId());
-    await transitService.acceptTransit(driverId, transit.getId());
-    await transitService.startTransit(driverId, transit.getId());
-    await transitService.completeTransit(driverId, transit.getId());
+    await transitService.publishTransit(transit.getRequestUUID());
+    await transitService.findDriversForTransit(transit.getRequestUUID());
+    await transitService.acceptTransit(driverId, transit.getRequestUUID());
+    await transitService.startTransit(driverId, transit.getRequestUUID());
+    await transitService.completeTransit(
+      driverId,
+      transit.getRequestUUID(),
+      to,
+    );
 
     await driverSessionService.logOutCurrentSession(driverId);
 
-    return transit;
+    return transitService.loadTransit(transit.getRequestUUID());
   }
 
   async function aDriver(

@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
-import { TransitCompletedEvent } from './events/transit-completed.event';
+import { TransitCompletedEvent } from '../../ride/events/transit-completed.event';
+
 import { GraphTransitAnalyzer } from './graph-transit-analyzer';
 
 @Injectable()

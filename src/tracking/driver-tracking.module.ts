@@ -5,6 +5,7 @@ import { CarFleetModule } from '../car-fleet/car-fleet.module';
 import { DriverFleetModule } from '../driver-fleet/driver-fleet.module';
 import { TravelledDistanceModule } from '../driver-fleet/driver-report/travelled-distance/travelled-distance.module';
 import { DriverRepository } from '../driver-fleet/driver.repository';
+import { GeolocationModule } from '../geolocation/geolocation.module';
 
 import { DriverPosition } from './driver-position.entity';
 import { DriverPositionRepository } from './driver-position.repository';
@@ -20,6 +21,7 @@ import { DriverTrackingService } from './driver-tracking.service';
     DriverFleetModule,
     TravelledDistanceModule,
     CarFleetModule,
+    GeolocationModule,
     TypeOrmModule.forFeature([
       DriverRepository,
       DriverPosition,

@@ -6,8 +6,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Clock } from '../../../common/clock';
 import { ClaimDTO } from '../../../crm/claims/claim.dto';
 import { ClaimRepository } from '../../../crm/claims/claim.repository';
-import { TransitDTO } from '../../../dto/transit.dto';
-import { Transit, TransitStatus } from '../../../entity/transit/transit.entity';
+import { TransitDTO } from '../../../ride/transit.dto';
+import { Transit, TransitStatus } from '../../../ride/transit.entity';
 import {
   DriverSessionRepository,
   DriverSessionDTO,

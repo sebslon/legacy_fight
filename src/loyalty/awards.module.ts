@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppProperties } from '../config/app-properties.config';
 import { ClaimModule } from '../crm/claims/claim.module';
 import { ClientModule } from '../crm/client.module';
-import { TransitRepository } from '../repository/transit.repository';
+import { TransitRepository } from '../ride/transit.repository';
 
 import { AwardedMiles } from './awarded-miles.entity';
 import { AwardsAccountController } from './awards-account.controller';

@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '../common/base.entity';
-import { TransitDetails } from '../transit-details/transit-details.entity';
+import { TransitDetails } from '../ride/transit-details/transit-details.entity';
 
 export enum ClientType {
   INDIVIDUAL = 'individual',

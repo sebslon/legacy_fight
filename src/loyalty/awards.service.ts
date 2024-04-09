@@ -6,7 +6,7 @@ import { AppProperties } from '../config/app-properties.config';
 import { ClaimService } from '../crm/claims/claim.service';
 import { Type } from '../crm/client.entity';
 import { ClientService } from '../crm/client.service';
-import { TransitRepository } from '../repository/transit.repository';
+import { TransitRepository } from '../ride/transit.repository';
 
 import { AwardedMiles } from './awarded-miles.entity';
 import { AwardsAccountDTO } from './awards-account.dto';

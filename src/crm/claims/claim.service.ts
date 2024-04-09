@@ -10,7 +10,7 @@ import { AppProperties } from '../../config/app-properties.config';
 import { AwardsService } from '../../loyalty/awards.service';
 import { ClientNotificationService } from '../../notification/client-notification.service';
 import { DriverNotificationService } from '../../notification/driver-notification.service';
-import { TransitDetailsFacade } from '../../transit-details/transit-details.facade';
+import { TransitDetailsFacade } from '../../ride/transit-details/transit-details.facade';
 import { Type } from '../client.entity';
 import { ClientRepository } from '../client.repository';
 
@@ -57,7 +57,7 @@ export class ClaimService {
 
   public async update(claimDTO: ClaimDTO, claim: Claim) {
     const client = await this.clientRepository.findOne(claimDTO.getClientId());
-    const transit = await this.transitDetailsFacade.find(
+    const transit = await this.transitDetailsFacade.findByTransitId(
       claimDTO.getTransitId(),
     );
 
@@ -137,7 +137,7 @@ export class ClaimService {
     }
 
     if (result.whoToAsk === WhoToAsk.ASK_DRIVER) {
-      const transitDetailsDto = await this.transitDetailsFacade.find(
+      const transitDetailsDto = await this.transitDetailsFacade.findByTransitId(
         claim.getTransitId(),
       );
 

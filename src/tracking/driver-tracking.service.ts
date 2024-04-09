@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   NotAcceptableException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -11,7 +12,9 @@ import { TravelledDistanceService } from '../driver-fleet/driver-report/travelle
 import { DriverStatus } from '../driver-fleet/driver.entity';
 import { DriverRepository } from '../driver-fleet/driver.repository';
 import { DriverService } from '../driver-fleet/driver.service';
+import { AddressDTO } from '../geolocation/address/address.dto';
 import { Distance } from '../geolocation/distance';
+import { GeocodingService } from '../geolocation/geocoding.service';
 
 import { DriverPositionV2DTO } from './driver-position-v2.dto';
 import { DriverPosition } from './driver-position.entity';
@@ -28,6 +31,7 @@ export class DriverTrackingService {
     private travelledDistanceService: TravelledDistanceService,
     private readonly driverSessionService: DriverSessionService,
     private readonly driverService: DriverService,
+    private readonly geocodingService: GeocodingService,
   ) {}
 
   public async registerPosition(
@@ -86,14 +90,41 @@ export class DriverTrackingService {
   }
 
   public async findActiveDriversNearby(
-    latitudeMin: number,
-    latitudeMax: number,
-    longitudeMin: number,
-    longitudeMax: number,
-    latitude: number,
-    longitude: number,
+    address: AddressDTO,
+    distance: Distance,
     carClasses: CarClass[],
   ): Promise<DriverPositionV2DTO[]> {
+    let geocoded: number[] = new Array(2);
+
+    try {
+      geocoded = this.geocodingService.geocodeAddress(
+        address.toAddressEntity(),
+      );
+    } catch (e) {
+      Logger.error('Geocoding failed while finding drivers for transit.');
+      // Geocoding failed! Ask Jessica or Bryan for some help if needed.
+    }
+
+    const [latitude, longitude] = geocoded;
+    //https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
+    //Earth’s radius, sphere
+    //double R = 6378;
+    const R = 6371; // Changed to 6371 due to Copy&Paste pattern from different source
+
+    //offsets in meters
+    const dn = distance.toKmInFloat();
+    const de = distance.toKmInFloat();
+
+    //Coordinate offsets in radians
+    const dLat = dn / R;
+    const dLon = de / (R * Math.cos((Math.PI * latitude) / 180));
+
+    //Offset positions, decimal degrees
+    const latitudeMin = latitude - (dLat * 180) / Math.PI;
+    const latitudeMax = latitude + (dLat * 180) / Math.PI;
+    const longitudeMin = longitude - (dLon * 180) / Math.PI;
+    const longitudeMax = longitude + (dLon * 180) / Math.PI;
+
     const fiveMinutesOffset = 5 * 60 * 1000;
 
     let driversAvgPositions =

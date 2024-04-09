@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { TransitDetailsDTO } from '../../transit-details/transit-details.dto';
-import { TransitDetailsFacade } from '../../transit-details/transit-details.facade';
+import { TransitDetailsDTO } from '../../ride/transit-details/transit-details.dto';
+import { TransitDetailsFacade } from '../../ride/transit-details/transit-details.facade';
 
 import { GraphTransitAnalyzer } from './graph-transit-analyzer';
 

@@ -1,6 +1,6 @@
-import { TransitRepository } from '../../../src/repository/transit.repository';
-import { TransitService } from '../../../src/service/transit.service';
-import { TransitDetailsFacade } from '../../../src/transit-details/transit-details.facade';
+import { TransitDetailsFacade } from '../../../src/ride/transit-details/transit-details.facade';
+import { TransitRepository } from '../../../src/ride/transit.repository';
+import { TransitService } from '../../../src/ride/transit.service';
 
 export class TransitFixture {
   constructor(

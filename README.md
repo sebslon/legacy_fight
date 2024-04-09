@@ -101,6 +101,18 @@ Archetypes in software design provide common patterns and models for developers 
 - Created `Loyalty` with `AwardsModule`
 - Move `Address`/`Geocoding` and `Distance` to `GeolocationModule`
 - Extracted `DriverTrackingModule` - reduce coupling between `Driver` & `Transit` (leave only necessary ids)
+- Extracted `RideModule` - splitted `Transit` into `RequestForTransit`, `TransitDemand`, `Transit` entities
+  - Extracted `DriverAssignmentModule`
+  - Turned `Tariff` into value object
+
+Above refactorings of operations/entities target was to head into more modular approach
+- Splitted the previously monolithic approach into more manageable parts, facilitating clearer transitions between different stages of a ride's lifecycle and having a more maintainable codebase.
+- Centralized transit-related and other operations within modules, enhancing code organization and maintainability by grouping relevant functionalities.
+- Extracted `DriverAssignment` logic into a dedicated module, simplifying the assignment process and improving driver management during transit requests.
+- Created new units tests and updated existing ones to align with structural changes, ensuring reliability and stability post-refactoring.
+- Streamlined tariff recognition and calculation through `Tariffs` service, decoupling price computation from transit management for better separation of concerns.
+
+These changes aim at a more modular, maintainable, and clear structure for managing transit lifecycle and related operations, setting a solid foundation for future enhancements.
 
 ## Summary
 

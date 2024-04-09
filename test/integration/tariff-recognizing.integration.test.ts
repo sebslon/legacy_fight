@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnection } from 'typeorm';
 
 import { AppModule } from '../../src/app.module';
-import { TransitController } from '../../src/controllers/transit.controller';
+import { TransitController } from '../../src/ride/transit.controller';
 import { Fixtures } from '../common/fixtures';
 
 describe('Tariff recognizing', () => {
@@ -29,7 +29,9 @@ describe('Tariff recognizing', () => {
       new Date('2023-12-31 08:00'),
     );
 
-    const transitDTO = await transitController.getTransit(transit.getId());
+    const transitDTO = await transitController.getTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(transitDTO.getTariff()).toBe('Sylwester');
     expect(transitDTO.getKmRate()).toBe(3.5);
@@ -41,7 +43,9 @@ describe('Tariff recognizing', () => {
       new Date('2023-12-23 08:00'),
     );
 
-    const transitDTO = await transitController.getTransit(transit.getId());
+    const transitDTO = await transitController.getTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(transitDTO.getTariff()).toBe('Weekend');
     expect(transitDTO.getKmRate()).toBe(1.5);
@@ -57,8 +61,12 @@ describe('Tariff recognizing', () => {
       new Date('2023-12-24 05:00'),
     );
 
-    const transitDTO = await transitController.getTransit(transit.getId());
-    const transitDTO2 = await transitController.getTransit(transit2.getId());
+    const transitDTO = await transitController.getTransit(
+      transit.getRequestUUID(),
+    );
+    const transitDTO2 = await transitController.getTransit(
+      transit2.getRequestUUID(),
+    );
 
     expect(transitDTO.getTariff()).toBe('Weekend+');
     expect(transitDTO.getKmRate()).toBe(2.5);
@@ -72,7 +80,9 @@ describe('Tariff recognizing', () => {
       new Date('2023-12-20 08:00'),
     );
 
-    const transitDTO = await transitController.getTransit(transit.getId());
+    const transitDTO = await transitController.getTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(transitDTO.getTariff()).toBe('Standard');
     expect(transitDTO.getKmRate()).toBe(1.0);
@@ -84,7 +94,9 @@ describe('Tariff recognizing', () => {
       new Date('2018-12-20 08:00'),
     );
 
-    const transitDTO = await transitController.getTransit(transit.getId());
+    const transitDTO = await transitController.getTransit(
+      transit.getRequestUUID(),
+    );
 
     expect(transitDTO.getTariff()).toBe('Standard');
     expect(transitDTO.getKmRate()).toBe(1.0);

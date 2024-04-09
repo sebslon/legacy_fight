@@ -1,14 +1,13 @@
 import { Money } from '../../../src/money/money';
-import { TransitRepository } from '../../../src/repository/transit.repository';
+import { Tariff } from '../../../src/pricing/tariff';
+import { Tariffs } from '../../../src/pricing/tariffs';
+import { TransitRepository } from '../../../src/ride/transit.repository';
 
 export class StubbedTransitPrice {
   constructor(private readonly transitRepository: TransitRepository) {}
 
   public async stub(transitId: string, faked: Money) {
-    const transit = await this.transitRepository.findOneOrFail(transitId);
-
-    transit.setPrice(faked);
-
-    return await this.transitRepository.save(transit);
+    const fakeTariff = Tariff.create(0, 'fake', faked);
+    jest.spyOn(Tariffs.prototype, 'choose').mockReturnValue(fakeTariff);
   }
 }

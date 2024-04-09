@@ -5,8 +5,8 @@ import { AppProperties } from '../../config/app-properties.config';
 import { AwardsAccountRepository } from '../../loyalty/awards-account.repository';
 import { AwardsService } from '../../loyalty/awards.service';
 import { NotificationModule } from '../../notification/notification.module';
-import { TransitRepository } from '../../repository/transit.repository';
-import { TransitDetailsModule } from '../../transit-details/transit-details.module';
+import { TransitDetailsModule } from '../../ride/transit-details/transit-details.module';
+import { TransitRepository } from '../../ride/transit.repository';
 import { ClientModule } from '../client.module';
 import { ClientRepository } from '../client.repository';
 

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
 
 import { CarClass } from '../../src/car-fleet/car-class.enum';
 import { CarTypeDTO } from '../../src/car-fleet/car-type.dto';
@@ -26,20 +27,21 @@ import {
   DriverType,
 } from '../../src/driver-fleet/driver.entity';
 import { DriverService } from '../../src/driver-fleet/driver.service';
-import { TransitDTO } from '../../src/dto/transit.dto';
-import { Tariff } from '../../src/entity/tariff.entity';
-import { Transit } from '../../src/entity/transit/transit.entity';
 import { AddressDTO } from '../../src/geolocation/address/address.dto';
 import { Address } from '../../src/geolocation/address/address.entity';
 import { AddressRepository } from '../../src/geolocation/address/address.repository';
 import { Distance } from '../../src/geolocation/distance';
 import { AwardsService } from '../../src/loyalty/awards.service';
 import { Money } from '../../src/money/money';
-import { TransitRepository } from '../../src/repository/transit.repository';
-import { TransitService } from '../../src/service/transit.service';
+import { Tariff } from '../../src/pricing/tariff';
+import { Tariffs } from '../../src/pricing/tariffs';
+import { TransitDetailsFacade } from '../../src/ride/transit-details/transit-details.facade';
+import { TransitDTO } from '../../src/ride/transit.dto';
+import { Transit, TransitStatus } from '../../src/ride/transit.entity';
+import { TransitRepository } from '../../src/ride/transit.repository';
+import { TransitService } from '../../src/ride/transit.service';
 import { DriverSessionService } from '../../src/tracking/driver-session.service';
 import { DriverTrackingService } from '../../src/tracking/driver-tracking.service';
-import { TransitDetailsFacade } from '../../src/transit-details/transit-details.facade';
 
 // TODO: refactor with module (to be composed with specific fixtures instead of single big class)
 
@@ -123,27 +125,39 @@ export class Fixtures {
     ),
   ) {
     const transit = await this.transitRepository.save(
-      Transit.create(when, Distance.ZERO),
+      new Transit(
+        TransitStatus.DRAFT,
+        Tariff.ofTime(Clock.currentDate()),
+        uuid(),
+      ),
     );
-    await this.stubTransitPrice(price, transit);
-    const transitId = transit.getId();
+
+    await this.stubTransitPrice(new Money(price));
 
     await this.transitDetailsFacade.transitRequested(
       when,
-      transitId,
+      transit.getRequestUUID(),
       from,
       to,
-      Distance.ZERO,
+      Distance.fromKm(20),
       client,
       CarClass.REGULAR,
       new Money(price),
       Tariff.ofTime(when),
     );
 
-    await this.transitDetailsFacade.transitAccepted(transitId, when, driver);
-    await this.transitDetailsFacade.transitStarted(transitId, when);
+    await this.transitDetailsFacade.transitAccepted(
+      transit.getRequestUUID(),
+      when,
+      driver,
+    );
+    await this.transitDetailsFacade.transitStarted(
+      transit.getRequestUUID(),
+      transit.getId(),
+      when,
+    );
     await this.transitDetailsFacade.transitCompleted(
-      transitId,
+      transit.getRequestUUID(),
       when,
       new Money(price),
       new Money(0),
@@ -197,21 +211,14 @@ export class Fixtures {
       new Address('Polska', 'Warszawa', '00-001', 'ul. Testowa', 150),
     );
 
-    let transit = Transit.create(date, Distance.ZERO);
+    let transit = new Transit(TransitStatus.DRAFT, Tariff.ofTime(date), uuid());
     const transitDriver = driver ?? (await this.createTestDriver());
-
-    transit.publishAt(date);
-    transit.proposeTo(transitDriver.getId());
-    transit.acceptBy(transitDriver.getId());
-    transit.start();
-    transit.completeTransitAt(Distance.ZERO);
-    transit.setPrice(new Money(price));
 
     transit = await this.transitRepository.save(transit);
 
     await this.transitDetailsFacade.transitRequested(
       date,
-      transit.getId(),
+      transit.getRequestUUID(),
       fromAddress,
       toAddress,
       Distance.ZERO,
@@ -221,17 +228,22 @@ export class Fixtures {
       transit.getTariff(),
     );
     await this.transitDetailsFacade.transitAccepted(
-      transit.getId(),
+      transit.getRequestUUID(),
       date,
       transitDriver,
     );
-    await this.transitDetailsFacade.transitStarted(transit.getId(), date);
-    await this.transitDetailsFacade.transitCompleted(
+    await this.transitDetailsFacade.transitStarted(
+      transit.getRequestUUID(),
       transit.getId(),
+      date,
+    );
+    await this.transitDetailsFacade.transitCompleted(
+      transit.getRequestUUID(),
       date,
       new Money(price),
       new Money(0),
     );
+    // transit.completeTransitAt(Distance.ZERO);
 
     return transit;
   }
@@ -254,55 +266,37 @@ export class Fixtures {
     jest.spyOn(Clock, 'currentDate').mockReturnValue(publishedAt);
     jest.spyOn(Date, 'now').mockReturnValue(publishedAt.getTime());
 
-    const transit = await this.transitService.createTransit(
+    const transitView = await this.transitService.createTransit(
       client.getId(),
       from,
       to,
       carClass,
     );
-    await this.transitService.publishTransit(transit.getId());
-    await this.transitService.acceptTransit(driver.getId(), transit.getId());
-    await this.transitService.startTransit(driver.getId(), transit.getId());
+    await this.transitService.publishTransit(transitView.getRequestUUID());
+    await this.transitService.findDriversForTransit(
+      transitView.getRequestUUID(),
+    );
+    await this.transitService.acceptTransit(
+      driver.getId(),
+      transitView.getRequestUUID(),
+    );
+    await this.transitService.startTransit(
+      driver.getId(),
+      transitView.getRequestUUID(),
+    );
 
     jest.spyOn(Clock, 'currentDate').mockReturnValue(completedAt);
     jest.spyOn(Date, 'now').mockReturnValue(completedAt.getTime());
 
-    await this.transitService.completeTransit(driver.getId(), transit.getId());
-    // transit.setPrice(new Money(price));
-
-    await this.transitDetailsFacade.transitRequested(
-      publishedAt,
-      transit.getId(),
-      from,
+    await this.transitService.completeTransit(
+      driver.getId(),
+      transitView.getRequestUUID(),
       to,
-      Distance.ZERO,
-      client,
-      CarClass.VAN,
-      new Money(price),
-      Tariff.ofTime(publishedAt),
-    );
-    await this.transitDetailsFacade.transitAccepted(
-      transit.getId(),
-      publishedAt,
-      driver,
-    );
-    await this.transitDetailsFacade.transitStarted(
-      transit.getId(),
-      publishedAt,
-    );
-    await this.transitDetailsFacade.transitCompleted(
-      transit.getId(),
-      completedAt,
-      new Money(price),
-      new Money(0),
     );
 
     jest.clearAllMocks();
 
-    await this.transitRepository.save(
-      await this.transitRepository.findOneOrFail(transit.getId()),
-    );
-    return await this.transitRepository.findOneOrFail(transit.getId());
+    return this.transitService.loadTransit(transitView.getRequestUUID());
   }
 
   public async createTransitDTO(
@@ -468,9 +462,9 @@ export class Fixtures {
     );
   }
 
-  private async stubTransitPrice(price: number, transit: Transit) {
-    const fakePrice = new Money(price);
-    transit.setPrice(fakePrice);
-    await this.transitRepository.save(transit);
+  private async stubTransitPrice(price: Money) {
+    const fakeTariff = Tariff.create(0, 'fake', price);
+
+    jest.spyOn(Tariffs.prototype, 'choose').mockReturnValue(fakeTariff);
   }
 }
