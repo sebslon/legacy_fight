@@ -4,31 +4,35 @@
 
 ## General Informations
 
-This is part of 'Legacy Fighter' course.
+This is part of **Legacy Fighter** course. 👨‍🚒🥊
 
 This is just a pet project to learn and practice refactoring techniques and patterns.
 It's a fork of the original project written in Java. I've decided to finish it in TypeScript/Node.js using Nest.js framework.
 
-- Commits are done to the main branch directly because it's just a 'pet/learning project'.
-- There is no docker-compose/setup files (maybe todo) - I've used already running databases on my local machine.
-- Not every part of code is perfect (as it is legacy) - Focus was on refactoring techniques/process.
+- ✔️ Commits are done to the main branch directly because it's just a 'pet/learning project'.
+- ✔️ There is no docker-compose/setup files (maybe todo) - I've used already running databases on my local machine.
+- ✔️ Not every part of code is perfect (as it is legacy) - Focus was on refactoring techniques/process.
 
 Repository isn't perfect and fully refactored, there is still big room for improvements but main goal was to practice few of refactoring techinques and apply them to the most important parts based on business value they provide in the context of the application.
 
-### Project Structure
+🔎 To compare the **BEGINNING** with **FINISHED** state, checkout with use of tags 🔎
+- `git checkout beginning`
+- `git checkout finished`
+
+### Project Structure 🏗️
 
 - Project is a legacy application with domain logic and some business rules about CABS which is a fictional cab/taxi company.
 - Goal is to refactor the codebase and make it more maintainable and scalable - step by step.
 
-## Introduced Refactorings
+## Introduced Refactorings ⚙️
 
 ### General Approach:
 
-- Build safety net with tests (unit or e2e) - cover at least all of the observable behaviors
-- Introduce new concept
-- Replace old concept with new concept
-- Remove old concept
-- Observe achieved effect and make a decision about next steps
+- [x] Build safety net with tests (unit or e2e) - cover at least all of the observable behaviors
+- [x] Introduce new concept
+- [x] Replace old concept with new concept
+- [x] Remove old concept
+- [x] Observe achieved effect and make a decision about next steps
 
 ### Some of refactorings:
 
