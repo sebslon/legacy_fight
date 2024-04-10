@@ -1,4 +1,4 @@
-### Fork of legacyfighter/cabs-java to Nest.js (TypeScript / Node)
+### Fork of legacyfighter/cabs-java ported to Nest.js (TypeScript / Node)
 
 ---
 
@@ -30,9 +30,9 @@ Repository isn't perfect and fully refactored, there is still big room for impro
 - Remove old concept
 - Observe achieved effect and make a decision about next steps
 
-#### Some of refactorings:
+### Some of refactorings:
 
-##### Value Objects:
+#### Value Objects:
 
 - Problem: Repeated validation logic in many places
   - Solution: `Driver License` Value Object
@@ -43,7 +43,7 @@ Repository isn't perfect and fully refactored, there is still big room for impro
 - Problem: Hidden domain concept - unreadable, duplicated code, missing proper domain concept mapping
   - Solution: `Tariff` Value Object
 
-##### Aggregates / Entities:
+#### Aggregates / Entities:
 
 - Problem: Data inconsistency - lots of setters to bring the object to expected state, repeated
   - Solution: `Transit` Aggregate - interface with business methods, encapsulation of the state, validation, and business rules
@@ -56,7 +56,7 @@ Repository isn't perfect and fully refactored, there is still big room for impro
 - Problem: Data inconsistency, low performance
   - Solution: `Contract` - encapsulate the state, validation, and business rules, split the object into smaller parts
 
-##### CQRS:
+#### CQRS:
 
 - Problem: Data model that doesn't fit reads too well / too slow driver km report generation
   - Solution: Separate read and write models.
@@ -67,14 +67,14 @@ Repository isn't perfect and fully refactored, there is still big room for impro
     - Basic example of "Parallel Models" refactorization when based on Feature Flags report is generated old or new way
     - Usage of `Reconciliation` to compare old and new report (deprecated)
 
-###### Other:
+##### Other:
 
 - Problem: Mismatched database paradigm (Graph representation of Transits History)
   - Solution: `GraphTransitAnalyzer` - Use graph database to analyze transit history
   - Usage of `Transactional Outbox` pattern to ensure consistency between graph and SQL database (TODO)
   - ⚙️ TO BE DONE ⚙️: FINISH GRAPH DB IMPLEMENTATION - TransitAnalyzer is covered with tests, plug-in graph db implementation / prepare migration
 
-##### Archetypes (parallel models)
+#### Archetypes (parallel models)
 
 Archetypes in software design provide common patterns and models for developers to follow, aiding in creating more maintainable and scalable codebases. They help streamline development by offering proven solutions to recurring problems, fostering consistency and efficiency in the software development process.
 
@@ -83,11 +83,11 @@ Archetypes in software design provide common patterns and models for developers 
 - Introduction to `Party, PartyRole, PartyRelationship` patterns/archetypes - responsible for organizing informations about people in different organizations
 - State (`Contracts` (tag#archetypes-contracts-better)) - complex state transitions, state management
 
-##### Local Code Structure
+#### Local Code Structure
 
 - Some refactorings like `Extract Method`, `Introduce Parameter Object`, `Move Method`, `Move Field`, `Inline Method`, `Extract Class`, `Extract Interface`, `Replace Type Code with State/Strategy`, `Replace Conditional with Polymorphism`, etc. but still there is a lot of work to do.
 
-##### Bounded Contexts / Modularisation
+#### Bounded Contexts / Modularisation
 
 - Splitting Transit/TransitDetails
 - Loosening dependencies
