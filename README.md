@@ -104,6 +104,7 @@ Archetypes in software design provide common patterns and models for developers 
 - Extracted `RideModule` - splitted `Transit` into `RequestForTransit`, `TransitDemand`, `Transit` entities
   - Extracted `DriverAssignmentModule`
   - Turned `Tariff` into value object
+- Extracted few application services in `RideModule` (`CompleteTransit`, `DemandService`, `RequestTransit`, `StartTransit` services)
 
 Above refactorings of operations/entities target was to head into more modular approach
 - Splitted the previously monolithic approach into more manageable parts, facilitating clearer transitions between different stages of a ride's lifecycle and having a more maintainable codebase.

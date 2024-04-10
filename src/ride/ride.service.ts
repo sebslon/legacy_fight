@@ -16,23 +16,20 @@ import { DriverService } from '../driver-fleet/driver.service';
 import { AddressDTO } from '../geolocation/address/address.dto';
 import { Address } from '../geolocation/address/address.entity';
 import { AddressRepository } from '../geolocation/address/address.repository';
-import { Distance } from '../geolocation/distance';
 import { DistanceCalculator } from '../geolocation/distance-calculator.service';
 import { GeocodingService } from '../geolocation/geocoding.service';
 import { InvoiceGenerator } from '../invoicing/invoice-generator.service';
 import { AwardsService } from '../loyalty/awards.service';
-import { Tariffs } from '../pricing/tariffs';
 
 import { ChangeDestinationService } from './change-destination.service';
 import { ChangePickupService } from './change-pickup.service';
+import { CompleteTransitService } from './complete-transit.service';
+import { DemandService } from './demand.service';
 import { TransitCompletedEvent } from './events/transit-completed.event';
-import { RequestForTransitRepository } from './request-for-transit.repository';
 import { RequestTransitService } from './request-transit.service';
-import { TransitDemand } from './transit-demand.entity';
-import { TransitDemandRepository } from './transit-demand.repository';
+import { StartTransitService } from './start-transit.service';
 import { TransitDetailsFacade } from './transit-details/transit-details.facade';
 import { TransitDTO } from './transit.dto';
-import { Transit, TransitStatus } from './transit.entity';
 import { TransitRepository } from './transit.repository';
 
 @Injectable()
@@ -46,10 +43,6 @@ export class RideService {
     private readonly driverRepository: DriverRepository,
     @InjectRepository(AddressRepository)
     private readonly addressRepository: AddressRepository,
-    @InjectRepository(RequestForTransitRepository)
-    private readonly requestForTransitRepository: RequestForTransitRepository,
-    @InjectRepository(TransitDemandRepository)
-    private readonly transitDemandRepository: TransitDemandRepository,
     private readonly awardsService: AwardsService,
     private readonly driverFeeService: DriverFeeService,
     private readonly geocodingService: GeocodingService,
@@ -61,7 +54,9 @@ export class RideService {
     private readonly requestTransitService: RequestTransitService,
     private readonly changePickupService: ChangePickupService,
     private readonly changeDestinationService: ChangeDestinationService,
-    private readonly tariffs: Tariffs,
+    private readonly demandService: DemandService,
+    private readonly completeTransitService: CompleteTransitService,
+    private readonly startTransitService: StartTransitService,
     private readonly driverAssignmentFacade: DriverAssignmentFacade,
   ) {}
 
@@ -168,59 +163,41 @@ export class RideService {
   }
 
   public async cancelTransit(requestUUID: string) {
-    const transit = await this.requestForTransitRepository.findByRequestUUID(
+    const transitDetailsDTO = await this.transitDetailsFacade.findByRequestUUID(
       requestUUID,
     );
 
-    if (!transit) {
+    if (!transitDetailsDTO) {
       throw new NotFoundException(
         'Transit does not exist, id = ' + requestUUID,
       );
     }
 
-    const transitDemand =
-      await this.transitDemandRepository.findByTransitRequestUUID(requestUUID);
-
-    if (transitDemand) {
-      transitDemand.cancel();
-      await this.transitDemandRepository.save(transitDemand);
-
-      await this.driverAssignmentFacade.cancel(requestUUID);
-    }
-
+    await this.demandService.cancelDemand(requestUUID);
+    await this.driverAssignmentFacade.cancel(requestUUID);
     await this.transitDetailsFacade.transitCancelled(requestUUID);
   }
 
   public async publishTransit(requestUUID: string) {
     const now = Clock.currentDate();
-
-    const requestFor = await this.requestForTransitRepository.findByRequestUUID(
-      requestUUID,
-    );
-    const transitDetailsDto = await this.transitDetailsFacade.findByRequestUUID(
+    const transitDetailsDTO = await this.transitDetailsFacade.findByRequestUUID(
       requestUUID,
     );
 
-    if (!requestFor) {
+    if (!transitDetailsDTO) {
       throw new NotFoundException(
         'Transit does not exist, id = ' + requestUUID,
       );
     }
 
-    await this.transitDemandRepository.save(
-      new TransitDemand(requestFor.getRequestUUID()),
-    );
-
-    await this.driverAssignmentFacade.createAssignment(
+    await this.demandService.publishDemand(requestUUID);
+    await this.driverAssignmentFacade.startAssigningDrivers(
       requestUUID,
-      transitDetailsDto.from,
-      transitDetailsDto.carType,
+      transitDetailsDTO.from,
+      transitDetailsDTO.carType,
       now,
     );
-
     await this.transitDetailsFacade.transitPublished(requestUUID, now);
-
-    return this.transitRepository.findByTransitRequestUUID(requestUUID);
   }
 
   public async findDriversForTransit(requestUUID: string) {
@@ -242,36 +219,27 @@ export class RideService {
   }
 
   public async acceptTransit(driverId: string, requestUUID: string) {
-    const driver = await this.driverRepository.findOne(driverId);
-
-    if (!driver) {
-      throw new NotFoundException('Driver does not exist, id = ' + driverId);
-    }
-
-    const transitDemand =
-      await this.transitDemandRepository.findByTransitRequestUUID(requestUUID);
-
-    if (!transitDemand) {
-      throw new NotFoundException(
-        'Transit does not exist, id = ' + requestUUID,
-      );
-    }
-
-    if (await this.driverAssignmentFacade.isDriverAssigned(requestUUID)) {
-      throw new NotAcceptableException(
-        'Driver is already assigned to transit with id = ' + requestUUID,
-      );
-    }
-
     const now = Clock.currentDate();
+    const driverExists = await this.driverService.exists(driverId);
 
-    transitDemand.accepted();
+    if (!driverExists) {
+      throw new NotFoundException('Driver does not exist, id = ' + driverId);
+    } else {
+      if (await this.driverAssignmentFacade.isDriverAssigned(requestUUID)) {
+        throw new NotAcceptableException(
+          'Driver is already assigned to transit with id = ' + requestUUID,
+        );
+      }
 
-    await this.driverAssignmentFacade.acceptTransit(requestUUID, driver);
-    await this.transitDetailsFacade.transitAccepted(requestUUID, now, driver);
-
-    await this.transitDemandRepository.save(transitDemand);
-    await this.driverRepository.save(driver);
+      await this.demandService.acceptDemand(requestUUID);
+      await this.driverAssignmentFacade.acceptTransit(requestUUID, driverId);
+      await this.driverService.markOccupied(driverId);
+      await this.transitDetailsFacade.transitAccepted(
+        requestUUID,
+        driverId,
+        now,
+      );
+    }
   }
 
   public async startTransit(driverId: string, requestUUID: string) {
@@ -282,27 +250,17 @@ export class RideService {
       throw new NotFoundException('Driver does not exist, id = ' + driverId);
     }
 
-    const transitDemand =
-      await this.transitDemandRepository.findByTransitRequestUUID(requestUUID);
-
-    if (!transitDemand) {
-      throw new NotFoundException(
-        'Transit does not exist, id = ' + requestUUID,
-      );
+    if (!(await this.demandService.existsFor(requestUUID))) {
+      throw new NotFoundException('Demand does not exist, id = ' + requestUUID);
     }
 
     if (!(await this.driverAssignmentFacade.isDriverAssigned(requestUUID))) {
-      throw new NotAcceptableException(
-        'Driver is not assigned to transit with id = ' + requestUUID,
+      throw new NotFoundException(
+        'Driver is not assigned to transit, id = ' + requestUUID,
       );
     }
-    const transit = new Transit(
-      TransitStatus.IN_TRANSIT,
-      this.tariffs.choose(now),
-      requestUUID,
-    );
 
-    await this.transitRepository.save(transit);
+    const transit = await this.startTransitService.start(requestUUID);
     await this.transitDetailsFacade.transitStarted(
       requestUUID,
       transit.getId(),
@@ -311,9 +269,7 @@ export class RideService {
   }
 
   public async rejectTransit(driverId: string, requestUUID: string) {
-    const driver = await this.driverRepository.findOne(driverId);
-
-    if (!driver) {
+    if (!(await this.driverService.exists(driverId))) {
       throw new NotFoundException('Driver does not exist, id = ' + driverId);
     }
 
@@ -339,78 +295,54 @@ export class RideService {
   ) {
     const now = Clock.currentDate();
     const destination = await this.addressRepository.save(destinationAddress);
-
-    const driver = await this.driverRepository.findOne(driverId);
-    const transitDetails = await this.transitDetailsFacade.findByRequestUUID(
+    const transitDetailsDTO = await this.transitDetailsFacade.findByRequestUUID(
       requestUUID,
     );
 
-    if (!driver) {
-      throw new NotFoundException('Driver does not exist, id = ' + driverId);
-    }
-
-    const transit = await this.transitRepository.findByTransitRequestUUID(
-      requestUUID,
+    const from = await this.addressRepository.findByHashOrFail(
+      transitDetailsDTO.from.getHash(),
     );
-
-    if (!transit) {
-      throw new NotFoundException(
-        'Transit does not exist, id = ' + requestUUID,
-      );
-    }
-
-    const fromAddress = await this.addressRepository.findByHashOrFail(
-      transitDetails.from.getHash(),
-    );
-    const toAddress = await this.addressRepository.findByHashOrFail(
+    const to = await this.addressRepository.findByHashOrFail(
       destination.getHash(),
     );
 
-    const geoFrom = this.geocodingService.geocodeAddress(fromAddress);
-    const geoTo = this.geocodingService.geocodeAddress(toAddress);
-    const distance = Distance.fromKm(
-      this.distanceCalculator.calculateByMap(
-        geoFrom[0],
-        geoFrom[1],
-        geoTo[0],
-        geoTo[1],
-      ),
+    const finalPrice = await this.completeTransitService.completeTransit(
+      driverId,
+      requestUUID,
+      from,
+      to,
     );
-
-    const finalPrice = transit.completeTransitAt(distance);
     const driverFee = await this.driverFeeService.calculateDriverFee(
       finalPrice,
       driverId,
     );
 
-    driver.setOccupied(false);
-    await this.driverRepository.save(driver);
-
-    await this.awardsService.registerMiles(
-      transitDetails.client.getId(),
-      requestUUID,
-    );
-    await this.transitRepository.save(transit);
+    await this.driverService.markNotOccupied(driverId);
     await this.transitDetailsFacade.transitCompleted(
       requestUUID,
       now,
       finalPrice,
       driverFee,
     );
-
+    await this.awardsService.registerMiles(
+      transitDetailsDTO.client.getId(),
+      requestUUID,
+    );
     await this.invoiceGenerator.generate(
       finalPrice.toInt(),
-      transitDetails.client.getName() +
+      transitDetailsDTO.client.getName() +
         ' ' +
-        transitDetails.client.getLastName(),
+        transitDetailsDTO.client.getLastName(),
     );
 
     const transitCompletedEvent = new TransitCompletedEvent(
-      transitDetails.client.getId(),
+      transitDetailsDTO.client.getId(),
       requestUUID,
-      transitDetails.from.getHash(),
-      transitDetails.to.getHash(),
-      transitDetails.started ? new Date(+transitDetails.started) : new Date(),
+      transitDetailsDTO.from.getHash(),
+      transitDetailsDTO.to.getHash(),
+      transitDetailsDTO.started
+        ? new Date(+transitDetailsDTO.started)
+        : new Date(),
       now,
     );
 
@@ -447,47 +379,6 @@ export class RideService {
     }
 
     return client;
-  }
-
-  private calculateDistanceBetweenAddresses(
-    newAddress: Address,
-    oldAddress: Address,
-  ) {
-    const geoFromNew = this.geocodingService.geocodeAddress(newAddress);
-    const geoFromOld = this.geocodingService.geocodeAddress(oldAddress);
-
-    // https://www.geeksforgeeks.org/program-distance-two-points-earth/
-    // The math module contains a function
-    // named toRadians which converts from
-    // degrees to radians.
-    const lon1 = DistanceCalculator.degreesToRadians(geoFromNew[1]);
-    const lon2 = DistanceCalculator.degreesToRadians(geoFromOld[1]);
-    const lat1 = DistanceCalculator.degreesToRadians(geoFromNew[0]);
-    const lat2 = DistanceCalculator.degreesToRadians(geoFromOld[0]);
-
-    // Haversine formula
-    const dlon = lon2 - lon1;
-    const dlat = lat2 - lat1;
-    const a =
-      Math.pow(Math.sin(dlat / 2), 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
-
-    const c = 2 * Math.asin(Math.sqrt(a));
-
-    // Radius of earth in kilometers. Use 3956 for miles
-    const r = 6371;
-
-    // calculate the result
-    const distanceInKMeters = c * r;
-    const newDistance = Distance.fromKm(
-      this.distanceCalculator.calculateByMap(
-        geoFromNew[0],
-        geoFromNew[1],
-        geoFromOld[0],
-        geoFromOld[1],
-      ),
-    );
-    return { newDistance, distanceInKMeters };
   }
 
   private async addressFromDto(addressDTO: AddressDTO) {

@@ -5,20 +5,20 @@ import { DriverAssignment } from './driver-assignment.entity';
 
 @EntityRepository(DriverAssignment)
 export class DriverAssignmentRepository extends Repository<DriverAssignment> {
-  public async findByRequestId(
-    requestId: string,
+  public async findByRequestUUID(
+    requestUUID: string,
   ): Promise<DriverAssignment | undefined> {
     return this.findOne({
-      where: { requestId },
+      where: { requestUUID },
     });
   }
 
-  public async findByRequestIdAndStatus(
-    requestId: string,
+  public async findByRequestUUIDAndStatus(
+    requestUUID: string,
     status: AssignmentStatus,
   ): Promise<DriverAssignment | undefined> {
     return this.findOne({
-      where: { requestId, status },
+      where: { requestUUID, status },
     });
   }
 }

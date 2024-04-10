@@ -148,8 +148,8 @@ export class Fixtures {
 
     await this.transitDetailsFacade.transitAccepted(
       transit.getRequestUUID(),
+      driver.getId(),
       when,
-      driver,
     );
     await this.transitDetailsFacade.transitStarted(
       transit.getRequestUUID(),
@@ -229,8 +229,8 @@ export class Fixtures {
     );
     await this.transitDetailsFacade.transitAccepted(
       transit.getRequestUUID(),
+      transitDriver.getId(),
       date,
-      transitDriver,
     );
     await this.transitDetailsFacade.transitStarted(
       transit.getRequestUUID(),

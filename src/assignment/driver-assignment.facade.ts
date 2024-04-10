@@ -3,7 +3,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CarClass } from '../car-fleet/car-class.enum';
 import { CarTypeService } from '../car-fleet/car-type.service';
 import { Clock } from '../common/clock';
-import { Driver } from '../driver-fleet/driver.entity';
 import { DriverRepository } from '../driver-fleet/driver.repository';
 import { AddressDTO } from '../geolocation/address/address.dto';
 import { Distance } from '../geolocation/distance';
@@ -25,7 +24,7 @@ export class DriverAssignmentFacade {
     private readonly driverRepository: DriverRepository,
   ) {}
 
-  public async createAssignment(
+  public async startAssigningDrivers(
     transitRequestUUID: string,
     from: AddressDTO,
     carClass: CarClass,
@@ -101,7 +100,7 @@ export class DriverAssignmentFacade {
     }
   }
 
-  public async acceptTransit(transitRequestUUID: string, driver: Driver) {
+  public async acceptTransit(transitRequestUUID: string, driverId: string) {
     const driverAssignment = await this.find(transitRequestUUID);
 
     if (!driverAssignment) {
@@ -110,11 +109,9 @@ export class DriverAssignmentFacade {
       );
     }
 
-    driverAssignment.acceptBy(driver.getId());
-    driver.setOccupied(true);
+    driverAssignment.acceptBy(driverId);
 
     await this.driverAssignmentRepository.save(driverAssignment);
-    await this.driverRepository.save(driver);
 
     return this.loadInvolvedDriversByAssignment(driverAssignment);
   }
@@ -201,7 +198,7 @@ export class DriverAssignmentFacade {
 
   public async isDriverAssigned(transitRequestUUID: string): Promise<boolean> {
     return (
-      (await this.driverAssignmentRepository.findByRequestIdAndStatus(
+      (await this.driverAssignmentRepository.findByRequestUUIDAndStatus(
         transitRequestUUID,
         AssignmentStatus.ON_THE_WAY,
       )) != null
@@ -224,7 +221,9 @@ export class DriverAssignmentFacade {
   }
 
   private find(transitRequestUUID: string) {
-    return this.driverAssignmentRepository.findByRequestId(transitRequestUUID);
+    return this.driverAssignmentRepository.findByRequestUUID(
+      transitRequestUUID,
+    );
   }
 
   private loadInvolvedDriversByAssignment(driverAssignment: DriverAssignment) {

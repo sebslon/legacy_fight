@@ -8,7 +8,7 @@ import { AssignmentStatus } from './assignment-status.enum';
 @Entity()
 export class DriverAssignment extends BaseEntity {
   @Column({ type: 'uuid' })
-  private requestId: string;
+  private requestUUID: string;
 
   @Column({ nullable: true, type: 'bigint' })
   private publishedAt: number;
@@ -29,8 +29,8 @@ export class DriverAssignment extends BaseEntity {
   @Column({ default: 0, type: 'integer' })
   private awaitingDriversResponses = 0;
 
-  public static create(requestId: string, publishedAt: number) {
-    const assignment = new DriverAssignment(requestId, publishedAt);
+  public static create(requestUUID: string, publishedAt: number) {
+    const assignment = new DriverAssignment(requestUUID, publishedAt);
 
     assignment.proposedDrivers = [];
     assignment.driversRejections = [];
@@ -38,9 +38,9 @@ export class DriverAssignment extends BaseEntity {
     return assignment;
   }
 
-  private constructor(requestId: string, publishedAt: number) {
+  private constructor(requestUUID: string, publishedAt: number) {
     super();
-    this.requestId = requestId;
+    this.requestUUID = requestUUID;
     this.publishedAt = publishedAt;
   }
 
@@ -117,8 +117,8 @@ export class DriverAssignment extends BaseEntity {
     return this.status;
   }
 
-  public getRequestId() {
-    return this.requestId;
+  public getRequestUUID() {
+    return this.requestUUID;
   }
 
   public getAssignedDriver() {

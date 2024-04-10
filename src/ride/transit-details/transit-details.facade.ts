@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InvolvedDriversSummary } from '../../assignment/involved-drivers-summary';
 import { CarClass } from '../../car-fleet/car-class.enum';
 import { Client } from '../../crm/client.entity';
-import { Driver } from '../../driver-fleet/driver.entity';
 import { Address } from '../../geolocation/address/address.entity';
 import { Distance } from '../../geolocation/distance';
 import { Money } from '../../money/money';
@@ -91,11 +90,11 @@ export class TransitDetailsFacade {
 
   public async transitAccepted(
     requestUUID: string,
+    driverId: string,
     when: Date,
-    driver: Driver,
   ) {
     const details = await this.loadByRequestUUID(requestUUID);
-    details.accepted(when, driver);
+    details.accepted(when, driverId);
 
     return await this.transitDetailsRepository.save(details);
   }

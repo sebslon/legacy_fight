@@ -44,6 +44,18 @@ export class RequestTransitService {
     return requestForTransit;
   }
 
+  public async findCalculationUUID(requestUUID: string) {
+    return (
+      await this.requestForTransitRepository.findByRequestUUID(requestUUID)
+    )?.getRequestUUID();
+  }
+
+  public async findTariff(requestUUID: string) {
+    return (
+      await this.requestForTransitRepository.findByRequestUUID(requestUUID)
+    )?.getTariff();
+  }
+
   private chooseTariff(when: Date) {
     return this.tariffs.choose(when);
   }

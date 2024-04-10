@@ -4,7 +4,6 @@ import { AssignmentStatus } from '../../assignment/assignment-status.enum';
 import { InvolvedDriversSummary } from '../../assignment/involved-drivers-summary';
 import { CarClass } from '../../car-fleet/car-class.enum';
 import { Client } from '../../crm/client.entity';
-import { Driver } from '../../driver-fleet/driver.entity';
 import { Address } from '../../geolocation/address/address.entity';
 import { Distance } from '../../geolocation/distance';
 import { Money } from '../../money/money';
@@ -76,10 +75,6 @@ export class TransitDetails {
   })
   private driversFee: Money;
 
-  @ManyToOne(() => Driver, { eager: true })
-  @JoinColumn({ name: 'driverId', referencedColumnName: 'id' })
-  public driver: Driver;
-
   @Column({ nullable: true, type: 'uuid' })
   public driverId: string;
 
@@ -144,9 +139,9 @@ export class TransitDetails {
     this.transitId = transitId;
   }
 
-  public accepted(when: Date, driver: Driver): void {
+  public accepted(when: Date, driverId: string): void {
     this.acceptedAt = when.getTime();
-    this.driver = driver;
+    this.driverId = driverId;
     this.status = TransitStatus.TRANSIT_TO_PASSENGER;
   }
 

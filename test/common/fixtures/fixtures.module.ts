@@ -1,3 +1,5 @@
+// TODO - refactor the Fixtures to be composed with specific fixtures instead of single big class
+
 // import { Module } from '@nestjs/common';
 
 // import { Fixtures } from '../fixtures';
@@ -12,7 +14,6 @@
 // import { StubbedTransitPrice } from './stubbed-transit-price';
 // import { TransitFixture } from './transit.fixture';
 
-// TODO - refactor the Fixtures to be composed with specific fixtures instead of single big class
 // @Module({
 // imports: [],
 // providers: [

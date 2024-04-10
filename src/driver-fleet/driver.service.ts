@@ -185,4 +185,36 @@ export class DriverService {
 
     return payments;
   }
+
+  public async exists(driverId: string): Promise<boolean> {
+    return !!(await this.driverRepository.findOne(driverId));
+  }
+
+  public async markOccupied(driverId: string) {
+    const driver = await this.driverRepository.findOne(driverId);
+
+    if (!driver) {
+      throw new NotFoundException(
+        `Driver with id ${driverId} does not exists.`,
+      );
+    }
+
+    driver.setOccupied(true);
+
+    await this.driverRepository.save(driver);
+  }
+
+  public async markNotOccupied(driverId: string) {
+    const driver = await this.driverRepository.findOne(driverId);
+
+    if (!driver) {
+      throw new NotFoundException(
+        `Driver with id ${driverId} does not exists.`,
+      );
+    }
+
+    driver.setOccupied(false);
+
+    await this.driverRepository.save(driver);
+  }
 }

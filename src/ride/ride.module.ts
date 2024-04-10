@@ -13,10 +13,13 @@ import { PricingModule } from '../pricing/pricing.module';
 
 import { ChangeDestinationService } from './change-destination.service';
 import { ChangePickupService } from './change-pickup.service';
+import { CompleteTransitService } from './complete-transit.service';
+import { DemandService } from './demand.service';
 import { RequestForTransit } from './request-for-transit.entity';
 import { RequestForTransitRepository } from './request-for-transit.repository';
 import { RequestTransitService } from './request-transit.service';
 import { RideService } from './ride.service';
+import { StartTransitService } from './start-transit.service';
 import { TransitDemand } from './transit-demand.entity';
 import { TransitDemandRepository } from './transit-demand.repository';
 import { TransitDetailsModule } from './transit-details/transit-details.module';
@@ -51,6 +54,9 @@ import { TransitRepository } from './transit.repository';
     RequestTransitService,
     ChangePickupService,
     ChangeDestinationService,
+    CompleteTransitService,
+    DemandService,
+    StartTransitService,
   ],
   exports: [TransitDetailsModule, RideService],
 })
